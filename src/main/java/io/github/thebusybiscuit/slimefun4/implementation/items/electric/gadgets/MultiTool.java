@@ -81,8 +81,12 @@ public class MultiTool extends SlimefunItem implements Rechargeable {
             ItemStack item = e.getItem();
             ItemMeta meta = item.getItemMeta();
             e.cancel();
-
-            int index = PersistentDataAPI.getInt(meta, key, 0);
+            
+            int index = 0;
+            for (int i = 0; i < modes.size(); i++) {
+                if (modes.get(i).getItemId().equals(PersistentDataAPI.getString(meta, key))) index = i;
+            }
+            
             SlimefunItem sfItem = modes.get(index).getItem();
 
             if (!p.isSneaking()) {
@@ -96,7 +100,7 @@ public class MultiTool extends SlimefunItem implements Rechargeable {
                 String itemName = selectedItem != null ? selectedItem.getItemName() : "Unknown";
                 Slimefun.getLocalization().sendMessage(p, "messages.multi-tool.mode-change", true, msg -> msg.replace("%device%", "Multi Tool").replace("%mode%", ChatColor.stripColor(itemName)));
 
-                PersistentDataAPI.setInt(meta, key, index);
+                PersistentDataAPI.setString(meta, key, modes.get(index).getItemId());
 
                 List<String> lore = meta.hasLore() ? meta.getLore() : new ArrayList<>();
 
