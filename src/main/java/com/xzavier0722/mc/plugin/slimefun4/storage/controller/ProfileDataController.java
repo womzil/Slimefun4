@@ -312,6 +312,7 @@ public class ProfileDataController extends ADataController {
 
         var data = new RecordSet();
         data.put(FieldKey.PLAYER_NAME, newName);
+        data.put(FieldKey.PLAYER_UUID, uuid);
 
         scheduleWriteTask(new UUIDKey(DataScope.NONE, uuid), key, data, false);
     }
