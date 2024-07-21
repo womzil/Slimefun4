@@ -366,7 +366,7 @@ public class SqliteAdapter extends SqlCommonAdapter<SqliteConfig> {
                 + FIELD_UNIVERSAL_UUID
                 + ") "
                 + "REFERENCES "
-                + universalRecordTable
+                + SqlUtils.mapTable(DataScope.UNIVERSAL_RECORD)
                 + "("
                 + FIELD_UNIVERSAL_UUID
                 + ") "
