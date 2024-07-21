@@ -338,7 +338,7 @@ public class SqliteAdapter extends SqlCommonAdapter<SqliteConfig> {
 
     private void createUniversalRecordTable() {
         executeSql("CREATE TABLE IF NOT EXISTS "
-                + universalRecordTable
+                + SqlUtils.mapTable(DataScope.UNIVERSAL_RECORD)
                 + "("
                 + FIELD_UNIVERSAL_UUID
                 + " CHAR(64) NOT NULL, "
@@ -354,7 +354,7 @@ public class SqliteAdapter extends SqlCommonAdapter<SqliteConfig> {
 
     private void createUniversalDataTable() {
         executeSql("CREATE TABLE IF NOT EXISTS "
-                + universalDataTable
+                + SqlUtils.mapTable(DataScope.UNIVERSAL_DATA)
                 + "("
                 + FIELD_UNIVERSAL_UUID
                 + " CHAR(64) NOT NULL, "
