@@ -3,4 +3,5 @@ before_install:
   - sdk use java 17.0.5-zulu
 
 install:
+  - chmod 777 ./mvnw
   - ./mvnw -s .mvn/settings.xml install -DskipTests
