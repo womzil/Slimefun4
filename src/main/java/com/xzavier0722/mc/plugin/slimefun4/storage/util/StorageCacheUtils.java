@@ -109,6 +109,14 @@ public class StorageCacheUtils {
         return uniData;
     }
 
+    /**
+     * Get universal data from block
+     * <p>
+     * You **must** call this method from sync!
+     *
+     * @param block {@link Block}
+     * @return {@link SlimefunUniversalData}
+     */
     @ParametersAreNonnullByDefault
     @Nullable public static SlimefunUniversalData getUniversalData(Block block) {
         var uuid = Slimefun.getBlockDataService().getUniversalDataUUID(block);
@@ -116,11 +124,23 @@ public class StorageCacheUtils {
         return uuid.map(uniId -> getUniversalData(uniId, block.getLocation())).orElse(null);
     }
 
+    /**
+     * Get universal menu from block
+     * <p>
+     * You **must** call this method from sync!
+     *
+     * @param block {@link Block}
+     * @return {@link SlimefunUniversalData}
+     */
     @ParametersAreNonnullByDefault
     @Nullable public static UniversalMenu getUniversalMenu(Block block) {
-        var uuid = Slimefun.getBlockDataService().getUniversalDataUUID(block);
+        var uniData = getUniversalData(block);
 
-        return uuid.map(uniId -> getUniversalMenu(uniId, block.getLocation())).orElse(null);
+        if (uniData == null) {
+            return null;
+        }
+
+        return uniData.getUniversalMenu();
     }
 
     @ParametersAreNonnullByDefault

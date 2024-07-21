@@ -192,16 +192,6 @@ public class DebugFishListener implements Listener {
             p.sendMessage(ChatColors.color("&dTicker: " + redCross));
         }
 
-        var ticker = Slimefun.getTickerTask().getLocations(b.getChunk()).stream()
-                .filter(l -> l.equals(b.getLocation()))
-                .findFirst();
-
-        if (ticker.isPresent()) {
-            p.sendMessage(ChatColors.color("&dTicking: " + greenCheckmark));
-        } else {
-            p.sendMessage(ChatColors.color("&dTicking: " + redCross));
-        }
-
         if (Slimefun.getProfiler().hasTimings(b)) {
             p.sendMessage(
                     ChatColors.color("  &dTimings: &e" + Slimefun.getProfiler().getTime(b)));

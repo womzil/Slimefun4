@@ -250,7 +250,7 @@ public class BlockDataController extends ADataController {
             uniData.setUniversalMenu(new UniversalMenu(preset, uuid));
         }
 
-        Slimefun.getDatabaseManager().getBlockDataController().saveUniversalData(uuid, sfId);
+        Slimefun.getDatabaseManager().getBlockDataController().saveUniversalData(uuid, sfId, l);
 
         return uniData;
     }
@@ -277,12 +277,13 @@ public class BlockDataController extends ADataController {
      * @param uuid universal data uuid
      * @param sfId the item universal data represents
      */
-    void saveUniversalData(UUID uuid, String sfId) {
+    void saveUniversalData(UUID uuid, String sfId, Location l) {
         var key = new RecordKey(DataScope.UNIVERSAL_RECORD);
 
         var data = new RecordSet();
         data.put(FieldKey.UNIVERSAL_UUID, uuid.toString());
         data.put(FieldKey.SLIMEFUN_ID, sfId);
+        data.put(FieldKey.LAST_PRESENT, LocationUtils.getLocKey(l));
 
         var scopeKey = new UUIDKey(DataScope.NONE, uuid);
         removeDelayedBlockDataUpdates(scopeKey); // Shouldn't have.. But for safe..
@@ -331,14 +332,18 @@ public class BlockDataController extends ADataController {
             return;
         }
 
+        toRemove.setPendingRemove(true);
+
         var menu = toRemove.getUniversalMenu();
         if (menu != null) {
             InventoryUtil.closeInventory(menu.toInventory());
         }
 
         if (Slimefun.getRegistry().getTickerBlocks().contains(toRemove.getSfId())) {
-            Slimefun.getTickerTask().disableTicker(toRemove.getLastPresent());
+            Slimefun.getTickerTask().disableTicker(uuid);
         }
+
+        removeUniversalBlockDirectly(uuid);
     }
 
     void removeBlockDirectly(Location l) {
@@ -348,6 +353,16 @@ public class BlockDataController extends ADataController {
 
         var key = new RecordKey(DataScope.BLOCK_RECORD);
         key.addCondition(FieldKey.LOCATION, LocationUtils.getLocKey(l));
+        scheduleDeleteTask(scopeKey, key, true);
+    }
+
+    void removeUniversalBlockDirectly(UUID uuid) {
+        checkDestroy();
+        var scopeKey = new UUIDKey(DataScope.NONE, uuid);
+        removeDelayedBlockDataUpdates(scopeKey);
+
+        var key = new RecordKey(DataScope.UNIVERSAL_RECORD);
+        key.addCondition(FieldKey.UNIVERSAL_UUID, uuid.toString());
         scheduleDeleteTask(scopeKey, key, true);
     }
 
@@ -772,7 +787,7 @@ public class BlockDataController extends ADataController {
                             .getBlock()
                             .getType()
                             .equals(sfItem.getItem().getType())) {
-                Slimefun.getTickerTask().enableTicker(uniData.getLastPresent());
+                Slimefun.getTickerTask().enableTicker(uniData.getUUID(), uniData.getLastPresent());
             }
         } finally {
             lock.unlock(key);
@@ -1024,7 +1039,7 @@ public class BlockDataController extends ADataController {
 
     void scheduleDelayedUniversalDataUpdate(SlimefunUniversalData universalData, String key) {
         var scopeKey = new UUIDKey(DataScope.NONE, universalData.getKey());
-        var reqKey = new RecordKey(DataScope.UNIVERSAL_RECORD);
+        var reqKey = new RecordKey(DataScope.UNIVERSAL_DATA);
         reqKey.addCondition(FieldKey.UNIVERSAL_UUID, universalData.getKey());
         reqKey.addCondition(FieldKey.DATA_KEY, key);
         if (enableDelayedSaving) {

@@ -1,6 +1,5 @@
 package io.github.thebusybiscuit.slimefun4.implementation.items.androids;
 
-import city.norain.slimefun4.utils.PDCUtil;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunUniversalData;
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.LocationUtils;
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils;
@@ -54,7 +53,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
@@ -70,7 +68,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataType;
 
 public class ProgrammableAndroid extends SlimefunItem
         implements InventoryBlock, RecipeDisplayItem, NotDiagonallyRotatable, UniversalDataSupport {
@@ -83,13 +80,6 @@ public class ProgrammableAndroid extends SlimefunItem
     private static final int[] OUTPUT_BORDER = {10, 11, 12, 13, 14, 19, 23, 28, 32, 37, 38, 39, 40, 41};
     private static final String DEFAULT_SCRIPT = "START-TURN_LEFT-REPEAT";
     private static final int MAX_SCRIPT_LENGTH = 54;
-
-    private static final NamespacedKey OWNER_KEY = new NamespacedKey(Slimefun.instance(), "android_owner");
-    private static final NamespacedKey SCRIPT_KEY = new NamespacedKey(Slimefun.instance(), "android_script");
-    private static final NamespacedKey SCRIPT_INDEX_KEY = new NamespacedKey(Slimefun.instance(), "android_script_step");
-    private static final NamespacedKey FUEL_KEY = new NamespacedKey(Slimefun.instance(), "android_fuel");
-    private static final NamespacedKey ROTATION_KEY = new NamespacedKey(Slimefun.instance(), "android_rotation");
-    private static final NamespacedKey STATUS_KEY = new NamespacedKey(Slimefun.instance(), "android_status");
 
     protected final List<MachineFuel> fuelTypes = new ArrayList<>();
     protected final String texture;
@@ -113,7 +103,14 @@ public class ProgrammableAndroid extends SlimefunItem
 
             @Override
             public boolean canOpen(Block b, Player p) {
-                UUID owner = PDCUtil.getValue(b, PDCUtil.UUID_TYPE, OWNER_KEY);
+                var uniData = StorageCacheUtils.getUniversalData(b);
+
+                Objects.requireNonNull(
+                        uniData,
+                        "Unable to get android's universal data at " + LocationUtils.locationToString(b.getLocation())
+                                + "!");
+
+                UUID owner = UUID.fromString(uniData.getData("owner"));
 
                 boolean isOwner = p.getUniqueId().equals(owner) || p.hasPermission("slimefun.android.bypass");
 
@@ -194,16 +191,15 @@ public class ProgrammableAndroid extends SlimefunItem
                 Player p = e.getPlayer();
                 Block b = e.getBlock();
 
-                PDCUtil.setValue(b, PDCUtil.UUID_TYPE, OWNER_KEY, p.getUniqueId());
-                PDCUtil.setValue(b, PersistentDataType.STRING, SCRIPT_KEY, DEFAULT_SCRIPT);
-                PDCUtil.setValue(b, PersistentDataType.SHORT, SCRIPT_INDEX_KEY, (short) 0);
-                PDCUtil.setValue(b, PersistentDataType.INTEGER, FUEL_KEY, 0);
-                PDCUtil.setValue(
-                        b,
-                        PersistentDataType.STRING,
-                        ROTATION_KEY,
-                        p.getFacing().getOppositeFace().toString());
-                PDCUtil.setValue(b, PersistentDataType.BOOLEAN, STATUS_KEY, true);
+                var universalData = StorageCacheUtils.getUniversalData(b);
+
+                universalData.setData("owner", p.getUniqueId().toString());
+                universalData.setData("script", DEFAULT_SCRIPT);
+                universalData.setData("index", String.valueOf(0));
+                universalData.setData("fuel", String.valueOf(0));
+                universalData.setData(
+                        "rotation", p.getFacing().getOppositeFace().toString());
+                universalData.setData("paused", String.valueOf(true));
 
                 b.setBlockData(Material.PLAYER_HEAD.createBlockData(data -> {
                     if (data instanceof Rotatable rotatable) {
@@ -222,28 +218,29 @@ public class ProgrammableAndroid extends SlimefunItem
             public void onPlayerBreak(BlockBreakEvent e, ItemStack item, List<ItemStack> drops) {
                 Block b = e.getBlock();
                 Optional<UUID> uuid = Slimefun.getBlockDataService().getUniversalDataUUID(b);
-                UUID owner = PDCUtil.getValue(b, PDCUtil.UUID_TYPE, OWNER_KEY);
 
-                if (!e.getPlayer().hasPermission("slimefun.android.bypass")
-                        && !e.getPlayer().getUniqueId().equals(owner)) {
-                    // The Player is not allowed to break this android
-                    e.setCancelled(true);
-                    return;
+                if (uuid.isEmpty()) {
+                    throw new IllegalStateException(
+                            "Missing universal id android @" + LocationUtils.locationToString(b.getLocation()));
                 }
 
-                uuid.ifPresent(data -> {
-                    var uniData = Slimefun.getDatabaseManager()
-                            .getBlockDataController()
-                            .getUniversalData(data);
+                var uniData =
+                        Slimefun.getDatabaseManager().getBlockDataController().getUniversalData(uuid.get());
 
-                    if (uniData != null) {
-                        var menu = uniData.getUniversalMenu();
-                        if (menu != null) {
-                            menu.dropItems(b.getLocation(), 43);
-                            menu.dropItems(b.getLocation(), getOutputSlots());
-                        }
+                if (uniData != null) {
+                    if (!e.getPlayer().hasPermission("slimefun.android.bypass")
+                            && !e.getPlayer().getUniqueId().equals(uniData.getData("owner"))) {
+                        // The Player is not allowed to break this android
+                        e.setCancelled(true);
+                        return;
                     }
-                });
+
+                    var menu = uniData.getUniversalMenu();
+                    if (menu != null) {
+                        menu.dropItems(b.getLocation(), 43);
+                        menu.dropItems(b.getLocation(), getOutputSlots());
+                    }
+                }
             }
         };
     }
@@ -1040,7 +1037,7 @@ public class ProgrammableAndroid extends SlimefunItem
                     + LocationUtils.locationToString(from.getLocation()));
         }
 
-        OfflinePlayer owner = Bukkit.getOfflinePlayer(PDCUtil.getValue(from, PDCUtil.UUID_TYPE, OWNER_KEY));
+        OfflinePlayer owner = Bukkit.getOfflinePlayer(uniData.getData("owner"));
 
         if (!Slimefun.getProtectionManager().hasPermission(owner, to.getLocation(), Interaction.PLACE_BLOCK)) {
             return;
