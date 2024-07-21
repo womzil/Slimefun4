@@ -234,14 +234,12 @@ public class TickerTask implements Runnable {
         try {
             if (data instanceof SlimefunBlockData blockData) {
                 if (item.getBlockTicker().isUniversal()) {
-                    Slimefun.logger().log(Level.WARNING, "BlockTicker is universal but identified as non-universal!");
-                    return;
+                    throw new IllegalStateException("BlockTicker is universal but identified as non-universal!");
                 }
                 item.getBlockTicker().tick(l.getBlock(), item, blockData);
             } else if (data instanceof SlimefunUniversalData universalData) {
                 if (!item.getBlockTicker().isUniversal()) {
-                    Slimefun.logger().log(Level.WARNING, "BlockTicker is non-universal but identified as universal!");
-                    return;
+                    throw new IllegalStateException("BlockTicker is non-universal but identified as universal!");
                 }
                 item.getBlockTicker().tick(l.getBlock(), item, universalData);
             } else {

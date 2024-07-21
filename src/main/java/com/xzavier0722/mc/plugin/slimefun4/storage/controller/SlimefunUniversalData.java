@@ -17,7 +17,7 @@ public class SlimefunUniversalData extends ASlimefunDataContainer {
 
     @Setter
     @Getter
-    private volatile Location lastPresent;
+    @Nullable private volatile Location lastPresent;
 
     @Setter
     @Getter

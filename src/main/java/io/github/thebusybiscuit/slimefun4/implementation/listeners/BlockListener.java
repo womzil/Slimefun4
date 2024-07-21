@@ -158,11 +158,13 @@ public class BlockListener implements Listener {
                             .getBlockDataController()
                             .createBlock(block.getLocation(), sfItem.getId());
 
-                    if (data instanceof SlimefunUniversalData
-                            && Slimefun.getBlockDataService().isTileEntity(block.getType())) {
-                        Slimefun.getBlockDataService().setUniversalDataUUID(block, data.getKey());
-                    } else {
-                        throw new IllegalStateException("You must use pdc support material for this Slimefun item!");
+                    if (data instanceof SlimefunUniversalData) {
+                        if (Slimefun.getBlockDataService().isTileEntity(block.getType())) {
+                            Slimefun.getBlockDataService().setUniversalDataUUID(block, data.getKey());
+                        } else {
+                            throw new IllegalStateException(
+                                    "You must use pdc support material for this Slimefun item!");
+                        }
                     }
 
                     sfItem.callItemHandler(BlockPlaceHandler.class, handler -> handler.onPlayerPlace(e));
@@ -185,7 +187,9 @@ public class BlockListener implements Listener {
 
         var heldItem = e.getPlayer().getInventory().getItemInMainHand();
         var block = e.getBlock();
-        var blockData = StorageCacheUtils.getBlock(block.getLocation());
+        var blockData = StorageCacheUtils.hasBlock(block.getLocation())
+                ? StorageCacheUtils.getBlock(block.getLocation())
+                : StorageCacheUtils.getUniversalData(block);
 
         // If there is a Slimefun Block here, call our BreakEvent and, if cancelled, cancel this event
         // and return

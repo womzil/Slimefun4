@@ -314,6 +314,9 @@ public final class Slimefun extends JavaPlugin implements SlimefunAddon, ICompat
         cfgManager.load();
         registry.load(this);
 
+        // Inject downstream extra staff
+        SlimefunExtended.register(this);
+
         logger.log(Level.INFO, "正在加载数据库...");
         if (PlayerProfileMigrator.getInstance().hasOldData()
                 || BlockStorageMigrator.getInstance().hasOldData()) {
@@ -705,9 +708,6 @@ public final class Slimefun extends JavaPlugin implements SlimefunAddon, ICompat
         new PiglinListener(this);
         new SmithingTableListener(this);
         new JoinListener(this);
-
-        // Inject downstream extra staff
-        SlimefunExtended.register(this);
 
         // Item-specific Listeners
         new CoolerListener(this, (Cooler) SlimefunItems.COOLER.getItem());

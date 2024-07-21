@@ -274,7 +274,7 @@ public class ProgrammableAndroid extends SlimefunItem
     public void preRegister() {
         super.preRegister();
 
-        addItemHandler(new BlockTicker() {
+        addItemHandler(new BlockTicker(true) {
 
             @Override
             public void tick(Block b, SlimefunItem item, SlimefunUniversalData data) {

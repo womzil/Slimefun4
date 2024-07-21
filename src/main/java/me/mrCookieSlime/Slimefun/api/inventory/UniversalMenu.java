@@ -17,6 +17,9 @@ public class UniversalMenu extends DirtyChestMenu {
     public UniversalMenu(@Nonnull UniversalMenuPreset preset, @Nonnull UUID uuid) {
         super(preset);
         this.uuid = uuid;
+
+        preset.clone(this);
+        this.getContents();
     }
 
     public UniversalMenu(@Nonnull UniversalMenuPreset preset, @Nonnull UUID uuid, ItemStack[] contents) {
@@ -30,6 +33,9 @@ public class UniversalMenu extends DirtyChestMenu {
             }
             addItem(i, item);
         }
+
+        preset.clone(this);
+        this.getContents();
     }
 
     /**
