@@ -1,5 +1,6 @@
 package io.github.thebusybiscuit.slimefun4.implementation.items.tools;
 
+import city.norain.slimefun4.compatibillty.VersionedEvent;
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils;
 import dev.lone.itemsadder.api.CustomBlock;
 import io.github.bakedlibs.dough.protection.Interaction;
@@ -79,7 +80,7 @@ public class ExplosiveTool extends SimpleSlimefunItem<ToolUseHandler> implements
         List<Block> blocksToDestroy = new ArrayList<>();
 
         if (callExplosionEvent.getValue()) {
-            BlockExplodeEvent blockExplodeEvent = new BlockExplodeEvent(b, blocks, 0);
+            BlockExplodeEvent blockExplodeEvent = VersionedEvent.newBlockExplodeEvent(b, blocks, 0);
             Bukkit.getServer().getPluginManager().callEvent(blockExplodeEvent);
 
             if (!blockExplodeEvent.isCancelled()) {
