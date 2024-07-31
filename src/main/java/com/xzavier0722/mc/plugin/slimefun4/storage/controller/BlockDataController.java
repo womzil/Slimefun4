@@ -782,7 +782,10 @@ public class BlockDataController extends ADataController {
                 getData(menuKey)
                         .forEach(recordSet -> inv[recordSet.getInt(FieldKey.INVENTORY_SLOT)] =
                                 recordSet.getItemStack(FieldKey.INVENTORY_ITEM));
-                uniData.setUniversalMenu(new UniversalMenu(menuPreset, uniData.getUUID(), inv));
+
+                var universalMenu = new UniversalMenu(menuPreset, uniData.getUUID(), inv);
+
+                uniData.setUniversalMenu(universalMenu);
 
                 var content = uniData.getMenuContents();
                 if (content != null) {
