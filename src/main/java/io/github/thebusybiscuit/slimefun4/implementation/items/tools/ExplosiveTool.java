@@ -70,10 +70,6 @@ public class ExplosiveTool extends SimpleSlimefunItem<ToolUseHandler> implements
 
                 List<Block> blocks = findBlocks(b);
 
-                if (!StorageCacheUtils.hasBlock(b.getLocation())) {
-                    blocks.add(b);
-                }
-
                 breakBlocks(e, p, tool, b, blocks, drops);
             }
         };

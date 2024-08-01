@@ -11,6 +11,7 @@ import lombok.experimental.UtilityClass;
 import org.bukkit.ExplosionResult;
 import org.bukkit.block.Block;
 import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryEvent;
 import org.bukkit.inventory.Inventory;
 
@@ -19,6 +20,7 @@ public class VersionedEvent {
     private Constructor<BlockExplodeEvent> BLOCK_EXPLODE_EVENT_CONSTRUCTOR;
 
     private Method GET_TOP_INVENTORY;
+    private Method GET_CLICKED_INVENTORY;
 
     public void init() {
         if (Slimefun.getMinecraftVersion().isBefore(MinecraftVersion.MINECRAFT_1_21)) {
@@ -29,6 +31,11 @@ public class VersionedEvent {
                 GET_TOP_INVENTORY =
                         Class.forName("org.bukkit.inventory.InventoryView").getMethod("getTopInventory");
                 GET_TOP_INVENTORY.setAccessible(true);
+
+                GET_CLICKED_INVENTORY = Class.forName("org.bukkit.event.inventory.InventoryClickEvent")
+                        .getMethod("getClickedInventory");
+                GET_CLICKED_INVENTORY.setAccessible(true);
+
             } catch (NoSuchMethodException | ClassNotFoundException e) {
                 Slimefun.logger().log(Level.WARNING, "无法初始化事件版本兼容模块, 部分功能可能无法正常使用", e);
             }
@@ -60,6 +67,19 @@ public class VersionedEvent {
             }
 
             return (Inventory) GET_TOP_INVENTORY.invoke(event.getView());
+        }
+    }
+
+    @SneakyThrows
+    public Inventory getClickedInventory(InventoryClickEvent event) {
+        if (Slimefun.getMinecraftVersion().isAtLeast(MinecraftVersion.MINECRAFT_1_21)) {
+            return event.getClickedInventory();
+        } else {
+            if (GET_CLICKED_INVENTORY == null) {
+                throw new IllegalStateException("Unable to get clicked inventory: missing method");
+            }
+
+            return (Inventory) GET_CLICKED_INVENTORY.invoke(event);
         }
     }
 }
