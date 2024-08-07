@@ -225,7 +225,7 @@ public class ProgrammableAndroid extends SlimefunItem
                 }
 
                 var uniData =
-                        Slimefun.getDatabaseManager().getBlockDataController().getUniversalData(uuid.get());
+                        Slimefun.getDatabaseManager().getBlockDataController().getUniversalDataFromCache(uuid.get());
 
                 if (uniData != null) {
                     if (!e.getPlayer().hasPermission("slimefun.android.bypass")
@@ -1037,7 +1037,7 @@ public class ProgrammableAndroid extends SlimefunItem
                     + LocationUtils.locationToString(from.getLocation()));
         }
 
-        OfflinePlayer owner = Bukkit.getOfflinePlayer(uniData.getData("owner"));
+        OfflinePlayer owner = Bukkit.getOfflinePlayer(UUID.fromString(uniData.getData("owner")));
 
         if (!Slimefun.getProtectionManager().hasPermission(owner, to.getLocation(), Interaction.PLACE_BLOCK)) {
             return;
@@ -1050,6 +1050,8 @@ public class ProgrammableAndroid extends SlimefunItem
             if (!to.getWorld().getWorldBorder().isInside(to.getLocation())) {
                 return;
             }
+
+            Slimefun.getTickerTask().disableTicker(uniData.getUUID());
 
             to.setBlockData(Material.PLAYER_HEAD.createBlockData(data -> {
                 if (data instanceof Rotatable rotatable) {
@@ -1068,6 +1070,9 @@ public class ProgrammableAndroid extends SlimefunItem
 
             from.setType(Material.AIR);
             uniData.setLastPresent(to.getLocation());
+            uniData.getUniversalMenu().update();
+
+            Slimefun.getTickerTask().enableTicker(uniData.getUUID(), to.getLocation());
         }
     }
 

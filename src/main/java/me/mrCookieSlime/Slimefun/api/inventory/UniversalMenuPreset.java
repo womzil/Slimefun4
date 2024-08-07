@@ -4,6 +4,7 @@ import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 
 public abstract class UniversalMenuPreset extends BlockMenuPreset {
@@ -30,31 +31,31 @@ public abstract class UniversalMenuPreset extends BlockMenuPreset {
                 return;
             }
 
-            if (!uniData.isDataLoaded()) {
-                StorageCacheUtils.requestLoad(uniData);
-            }
-
-            menu.setPlayerInventoryClickable(true);
-
-            for (int slot : occupiedSlots) {
-                menu.addItem(slot, getItemInSlot(slot));
-            }
-
-            if (getSize() > -1) {
-                menu.addItem(getSize() - 1, null);
-            }
-
-            newInstance(universalMenu, uniData.getLastPresent().getBlock());
-
-            for (int slot = 0; slot < 54; slot++) {
-                if (getMenuClickHandler(slot) != null) {
-                    menu.addMenuClickHandler(slot, getMenuClickHandler(slot));
-                }
-            }
-
-            menu.addMenuOpeningHandler(getMenuOpeningHandler());
-            menu.addMenuCloseHandler(getMenuCloseHandler());
+            clone(universalMenu, uniData.getLastPresent());
         }
+    }
+
+    protected void clone(@Nonnull UniversalMenu menu, @Nonnull Location lastPresent) {
+        menu.setPlayerInventoryClickable(true);
+
+        for (int slot : occupiedSlots) {
+            menu.addItem(slot, getItemInSlot(slot));
+        }
+
+        if (getSize() > -1) {
+            menu.addItem(getSize() - 1, null);
+        }
+
+        newInstance(menu, lastPresent.getBlock());
+
+        for (int slot = 0; slot < 54; slot++) {
+            if (getMenuClickHandler(slot) != null) {
+                menu.addMenuClickHandler(slot, getMenuClickHandler(slot));
+            }
+        }
+
+        menu.addMenuOpeningHandler(getMenuOpeningHandler());
+        menu.addMenuCloseHandler(getMenuCloseHandler());
     }
 
     @Nullable public static UniversalMenuPreset getPreset(@Nullable String id) {

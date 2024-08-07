@@ -30,7 +30,7 @@ public class StorageCacheUtils {
 
     @ParametersAreNonnullByDefault
     public static boolean hasBlock(Location l) {
-        return getBlock(l) != null;
+        return getBlock(l) != null || getUniversalData(l.getBlock()) != null;
     }
 
     @ParametersAreNonnullByDefault
@@ -64,7 +64,18 @@ public class StorageCacheUtils {
     @ParametersAreNonnullByDefault
     @Nullable public static String getData(Location loc, String key) {
         var blockData = getBlock(loc);
-        return blockData == null ? null : blockData.getData(key);
+
+        if (blockData != null) {
+            return blockData.getData(key);
+        } else {
+            var uniData = getUniversalData(loc.getBlock());
+
+            if (uniData == null) {
+                return null;
+            }
+
+            return uniData.getData(key);
+        }
     }
 
     @ParametersAreNonnullByDefault
@@ -76,14 +87,25 @@ public class StorageCacheUtils {
     @ParametersAreNonnullByDefault
     public static void setData(Location loc, String key, String val) {
         var block = getBlock(loc);
-        Preconditions.checkNotNull(block);
-
-        block.setData(key, val);
+        if (block != null) {
+            block.setData(key, val);
+        } else {
+            var uni = getUniversalData(loc.getBlock());
+            Preconditions.checkNotNull(uni);
+            uni.setData(key, val);
+        }
     }
 
     @ParametersAreNonnullByDefault
     public static void removeData(Location loc, String key) {
-        getBlock(loc).removeData(key);
+        var block = getBlock(loc);
+        if (block != null) {
+            block.removeData(key);
+        } else {
+            var uni = getUniversalData(loc.getBlock());
+            Preconditions.checkNotNull(uni);
+            uni.removeData(key);
+        }
     }
 
     @ParametersAreNonnullByDefault

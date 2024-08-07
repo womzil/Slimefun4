@@ -193,7 +193,7 @@ public class TickerTask implements Runnable {
 
     @ParametersAreNonnullByDefault
     private void tickUniversalLocation(UUID uuid, Location l, @Nonnull Set<BlockTicker> tickers) {
-        var data = StorageCacheUtils.getUniversalData(uuid, l);
+        var data = StorageCacheUtils.getUniversalData(uuid);
         var item = SlimefunItem.getById(data.getSfId());
 
         if (item != null && item.getBlockTicker() != null) {

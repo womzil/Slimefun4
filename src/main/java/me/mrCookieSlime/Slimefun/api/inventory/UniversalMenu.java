@@ -1,5 +1,6 @@
 package me.mrCookieSlime.Slimefun.api.inventory;
 
+import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunUniversalData;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import lombok.Getter;
@@ -36,6 +37,27 @@ public class UniversalMenu extends DirtyChestMenu {
 
         preset.clone(this);
         this.getContents();
+    }
+
+    public UniversalMenu(
+            @Nonnull UniversalMenuPreset preset, @Nonnull SlimefunUniversalData universalData, ItemStack[] contents) {
+        super(preset);
+        this.uuid = universalData.getUUID();
+
+        for (int i = 0; i < contents.length; i++) {
+            var item = contents[i];
+            if (item == null) {
+                continue;
+            }
+            addItem(i, item);
+        }
+
+        preset.clone(this, universalData.getLastPresent());
+        this.getContents();
+    }
+
+    public void update() {
+        preset.clone(this);
     }
 
     /**
