@@ -42,8 +42,8 @@ public class UniversalMenu extends DirtyChestMenu {
         this.getContents();
     }
 
-    public void update() {
-        preset.clone(this);
+    public void update(@Nonnull Location lastPresent) {
+        ((UniversalMenuPreset) preset).clone(this, lastPresent);
     }
 
     /**

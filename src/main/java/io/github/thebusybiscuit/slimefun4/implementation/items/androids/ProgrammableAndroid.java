@@ -830,8 +830,7 @@ public class ProgrammableAndroid extends SlimefunItem
                 Instruction instruction = Instruction.getInstruction(script[index]);
 
                 if (instruction == null) {
-                    Slimefun.instance()
-                            .getLogger()
+                    Slimefun.logger()
                             .log(
                                     Level.WARNING,
                                     "Failed to parse Android instruction: {0}, maybe your server is out of date?",
@@ -1059,6 +1058,9 @@ public class ProgrammableAndroid extends SlimefunItem
                 }
             }));
 
+            Slimefun.getBlockDataService()
+                    .setUniversalDataUUID(to, uniData.getUUID().toString());
+
             Slimefun.runSync(() -> {
                 PlayerSkin skin = PlayerSkin.fromBase64(texture);
                 Material type = to.getType();
@@ -1070,7 +1072,7 @@ public class ProgrammableAndroid extends SlimefunItem
 
             from.setType(Material.AIR);
             uniData.setLastPresent(to.getLocation());
-            uniData.getUniversalMenu().update();
+            uniData.getUniversalMenu().update(to.getLocation());
 
             Slimefun.getTickerTask().enableTicker(uniData.getUUID(), to.getLocation());
         }

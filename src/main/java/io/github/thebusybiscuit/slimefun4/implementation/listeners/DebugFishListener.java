@@ -220,6 +220,17 @@ public class DebugFishListener implements Listener {
             p.sendMessage(ChatColors.color("&dTicker: " + redCross));
         }
 
+        Slimefun.getTickerTask().getLocations(p.getLocation().getChunk()).stream()
+                .filter(l -> l.equals(b.getLocation()))
+                .findFirst()
+                .ifPresent(tickLoc -> p.sendMessage(ChatColors.color("&dIn Ticker Queue: " + greenCheckmark)));
+
+        Slimefun.getTickerTask().getUniversalLocations(p.getLocation().getChunk()).entrySet().stream()
+                .filter(entry -> entry.getKey().equals(b.getLocation()))
+                .findFirst()
+                .ifPresent(
+                        tickLoc -> p.sendMessage(ChatColors.color("&dIn Ticker Queue (Universal): " + greenCheckmark)));
+
         if (Slimefun.getProfiler().hasTimings(b)) {
             p.sendMessage(
                     ChatColors.color("  &dTimings: &e" + Slimefun.getProfiler().getTime(b)));

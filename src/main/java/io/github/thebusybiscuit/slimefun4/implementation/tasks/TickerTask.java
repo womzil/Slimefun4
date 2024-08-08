@@ -8,6 +8,7 @@ import io.github.bakedlibs.dough.blocks.BlockPosition;
 import io.github.bakedlibs.dough.blocks.ChunkPosition;
 import io.github.thebusybiscuit.slimefun4.api.ErrorReport;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
+import io.github.thebusybiscuit.slimefun4.core.attributes.UniversalDataSupport;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import java.util.Collections;
 import java.util.HashSet;
@@ -338,6 +339,41 @@ public class TickerTask implements Runnable {
 
         Set<Location> locations = tickingLocations.getOrDefault(new ChunkPosition(chunk), Collections.emptySet());
         return Collections.unmodifiableSet(locations);
+    }
+
+    /**
+     * 返回一个 <strong>只读</strong> 的 {@link Map}
+     * 代表每个 {@link ChunkPosition} 中有 {@link UniversalDataSupport} 属性的物品
+     * Tick 的 {@link Location 位置}集合.
+     *
+     * 其中包含的 {@link Location} 可以是已加载或卸载的 {@link Chunk}
+     *
+     * @return 包含所有通用机器 Tick {@link Location 位置}的只读 {@link Map}
+     */
+    @Nonnull
+    public Map<ChunkPosition, Map<Location, UUID>> getUniversalLocations() {
+        return Collections.unmodifiableMap(tickingUniversalLocations);
+    }
+
+    /**
+     * 返回一个给定区块下的 <strong>只读</strong> 的 {@link Map}
+     * 代表每个 {@link ChunkPosition} 中有 {@link UniversalDataSupport} 属性的物品
+     * Tick 的 {@link Location 位置}集合.
+     *
+     * 其中包含的 {@link Location} 可以是已加载或卸载的 {@link Chunk}
+     *
+     * @param chunk
+     *            {@link Chunk}
+     *
+     * @return 包含所有通用机器 Tick {@link Location 位置}的只读 {@link Map}
+     */
+    @Nonnull
+    public Map<Location, UUID> getUniversalLocations(@Nonnull Chunk chunk) {
+        Validate.notNull(chunk, "The Chunk cannot be null!");
+
+        Map<Location, UUID> locations =
+                tickingUniversalLocations.getOrDefault(new ChunkPosition(chunk), Collections.emptyMap());
+        return Collections.unmodifiableMap(locations);
     }
 
     /**
