@@ -103,7 +103,7 @@ public class ProgrammableAndroid extends SlimefunItem
 
             @Override
             public boolean canOpen(Block b, Player p) {
-                var uniData = StorageCacheUtils.getUniversalData(b);
+                var uniData = StorageCacheUtils.getUniversalBlock(b);
 
                 Objects.requireNonNull(
                         uniData,
@@ -124,7 +124,7 @@ public class ProgrammableAndroid extends SlimefunItem
 
             @Override
             public void newInstance(UniversalMenu menu, Block b) {
-                var uniData = StorageCacheUtils.getUniversalData(menu.getUuid(), b.getLocation());
+                var uniData = StorageCacheUtils.getUniversalBlock(menu.getUuid(), b.getLocation());
 
                 Objects.requireNonNull(
                         uniData,
@@ -191,7 +191,7 @@ public class ProgrammableAndroid extends SlimefunItem
                 Player p = e.getPlayer();
                 Block b = e.getBlock();
 
-                var universalData = StorageCacheUtils.getUniversalData(b);
+                var universalData = StorageCacheUtils.getUniversalBlock(b);
 
                 universalData.setData("owner", p.getUniqueId().toString());
                 universalData.setData("script", DEFAULT_SCRIPT);
@@ -1030,7 +1030,7 @@ public class ProgrammableAndroid extends SlimefunItem
 
     @ParametersAreNonnullByDefault
     protected void move(Block from, BlockFace face, Block to) {
-        var uniData = StorageCacheUtils.getUniversalData(from);
+        var uniData = StorageCacheUtils.getUniversalBlock(from);
 
         if (uniData == null) {
             throw new IllegalStateException("This android doesn't have universal data! Location at "

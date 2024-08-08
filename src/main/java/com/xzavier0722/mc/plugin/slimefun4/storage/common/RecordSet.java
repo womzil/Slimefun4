@@ -6,8 +6,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import javax.annotation.ParametersAreNonnullByDefault;
+import lombok.ToString;
 import org.bukkit.inventory.ItemStack;
 
+@ToString
 public class RecordSet {
     private final Map<FieldKey, String> data;
     private boolean readonly = false;

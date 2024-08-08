@@ -30,7 +30,7 @@ public class StorageCacheUtils {
 
     @ParametersAreNonnullByDefault
     public static boolean hasBlock(Location l) {
-        return getBlock(l) != null || getUniversalData(l.getBlock()) != null;
+        return getBlock(l) != null;
     }
 
     @ParametersAreNonnullByDefault
@@ -56,7 +56,7 @@ public class StorageCacheUtils {
         if (blockData != null) {
             return SlimefunItem.getById(blockData.getSfId());
         } else {
-            var universalData = getUniversalData(l.getBlock());
+            var universalData = getUniversalBlock(l.getBlock());
             return universalData == null ? null : SlimefunItem.getById(universalData.getSfId());
         }
     }
@@ -68,7 +68,7 @@ public class StorageCacheUtils {
         if (blockData != null) {
             return blockData.getData(key);
         } else {
-            var uniData = getUniversalData(loc.getBlock());
+            var uniData = getUniversalBlock(loc.getBlock());
 
             if (uniData == null) {
                 return null;
@@ -79,8 +79,8 @@ public class StorageCacheUtils {
     }
 
     @ParametersAreNonnullByDefault
-    @Nullable public static String getUniversalData(UUID uuid, Location loc, String key) {
-        var universalData = getUniversalData(uuid, loc);
+    @Nullable public static String getUniversalBlock(UUID uuid, Location loc, String key) {
+        var universalData = getUniversalBlock(uuid, loc);
         return universalData == null ? null : universalData.getData(key);
     }
 
@@ -90,7 +90,7 @@ public class StorageCacheUtils {
         if (block != null) {
             block.setData(key, val);
         } else {
-            var uni = getUniversalData(loc.getBlock());
+            var uni = getUniversalBlock(loc.getBlock());
             Preconditions.checkNotNull(uni);
             uni.setData(key, val);
         }
@@ -102,7 +102,7 @@ public class StorageCacheUtils {
         if (block != null) {
             block.removeData(key);
         } else {
-            var uni = getUniversalData(loc.getBlock());
+            var uni = getUniversalBlock(loc.getBlock());
             Preconditions.checkNotNull(uni);
             uni.removeData(key);
         }
@@ -124,7 +124,7 @@ public class StorageCacheUtils {
     }
 
     @ParametersAreNonnullByDefault
-    @Nullable public static SlimefunUniversalData getUniversalData(UUID uuid) {
+    @Nullable public static SlimefunUniversalData getUniversalBlock(UUID uuid) {
         var uniData = Slimefun.getDatabaseManager().getBlockDataController().getUniversalDataFromCache(uuid);
 
         if (uniData == null) {
@@ -140,8 +140,8 @@ public class StorageCacheUtils {
     }
 
     @ParametersAreNonnullByDefault
-    @Nullable public static SlimefunUniversalData getUniversalData(UUID uuid, Location l) {
-        var uniData = getUniversalData(uuid);
+    @Nullable public static SlimefunUniversalData getUniversalBlock(UUID uuid, Location l) {
+        var uniData = getUniversalBlock(uuid);
 
         if (uniData != null) {
             uniData.setLastPresent(l);
@@ -159,10 +159,10 @@ public class StorageCacheUtils {
      * @return {@link SlimefunUniversalData}
      */
     @ParametersAreNonnullByDefault
-    @Nullable public static SlimefunUniversalData getUniversalData(Block block) {
+    @Nullable public static SlimefunUniversalData getUniversalBlock(Block block) {
         var uuid = Slimefun.getBlockDataService().getUniversalDataUUID(block);
 
-        return uuid.map(uniId -> getUniversalData(uniId, block.getLocation())).orElse(null);
+        return uuid.map(id -> getUniversalBlock(id, block.getLocation())).orElse(null);
     }
 
     /**
@@ -175,7 +175,7 @@ public class StorageCacheUtils {
      */
     @ParametersAreNonnullByDefault
     @Nullable public static UniversalMenu getUniversalMenu(Block block) {
-        var uniData = getUniversalData(block);
+        var uniData = getUniversalBlock(block);
 
         if (uniData == null) {
             return null;
@@ -208,7 +208,7 @@ public class StorageCacheUtils {
         }
 
         if (hasUniversalBlock(block.getLocation())) {
-            return getUniversalData(block).isPendingRemove();
+            return getUniversalBlock(block).isPendingRemove();
         }
 
         return false;

@@ -189,7 +189,7 @@ public class BlockListener implements Listener {
         var block = e.getBlock();
         var blockData = StorageCacheUtils.hasBlock(block.getLocation())
                 ? StorageCacheUtils.getBlock(block.getLocation())
-                : StorageCacheUtils.getUniversalData(block);
+                : StorageCacheUtils.getUniversalBlock(block);
 
         // If there is a Slimefun Block here, call our BreakEvent and, if cancelled, cancel this event
         // and return

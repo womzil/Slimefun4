@@ -144,7 +144,7 @@ public class SlimefunItemInteractListener implements Listener {
                 event.getInteractEvent().setCancelled(true);
 
                 if (item instanceof UniversalDataSupport) {
-                    var uniData = StorageCacheUtils.getUniversalData(clickedBlock);
+                    var uniData = StorageCacheUtils.getUniversalBlock(clickedBlock);
 
                     if (uniData == null) {
                         return;

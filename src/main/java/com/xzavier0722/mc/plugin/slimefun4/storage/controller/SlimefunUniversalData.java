@@ -10,17 +10,13 @@ import me.mrCookieSlime.Slimefun.api.inventory.UniversalMenu;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 
+@Setter
+@Getter
 public class SlimefunUniversalData extends ASlimefunDataContainer {
-    @Setter
-    @Getter
     private volatile UniversalMenu universalMenu;
 
-    @Setter
-    @Getter
     @Nullable private volatile Location lastPresent;
 
-    @Setter
-    @Getter
     private volatile boolean pendingRemove = false;
 
     @ParametersAreNonnullByDefault

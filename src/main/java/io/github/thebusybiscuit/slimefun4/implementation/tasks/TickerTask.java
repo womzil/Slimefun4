@@ -3,7 +3,6 @@ package io.github.thebusybiscuit.slimefun4.implementation.tasks;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.ASlimefunDataContainer;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunUniversalData;
-import com.xzavier0722.mc.plugin.slimefun4.storage.util.LocationUtils;
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils;
 import io.github.bakedlibs.dough.blocks.BlockPosition;
 import io.github.bakedlibs.dough.blocks.ChunkPosition;
@@ -44,7 +43,7 @@ public class TickerTask implements Runnable {
     /**
      * This Map holds all locations of currently actively ticking universal items.
      */
-    private final Map<UUID, Location> tickingUniversalLocations = new ConcurrentHashMap<>();
+    private final Map<ChunkPosition, Map<Location, UUID>> tickingUniversalLocations = new ConcurrentHashMap<>();
 
     /**
      * This Map tracks how many bugs have occurred in a given Location .
@@ -106,14 +105,14 @@ public class TickerTask implements Runnable {
                     tickChunk(entry.getKey(), tickers, new HashSet<>(entry.getValue()));
                 }
 
-                Set<Map.Entry<UUID, Location>> uniLoc;
+                Set<Map.Entry<ChunkPosition, Map<Location, UUID>>> uniLoc;
 
                 synchronized (tickingUniversalLocations) {
                     uniLoc = new HashSet<>(tickingUniversalLocations.entrySet());
                 }
 
-                for (Map.Entry<UUID, Location> entry : uniLoc) {
-                    tickUniversalLocation(entry.getKey(), entry.getValue(), tickers);
+                for (Map.Entry<ChunkPosition, Map<Location, UUID>> entry : uniLoc) {
+                    tickChunk(entry.getKey(), tickers, new ConcurrentHashMap<>(entry.getValue()));
                 }
             }
 
@@ -142,6 +141,21 @@ public class TickerTask implements Runnable {
             if (chunk.isLoaded()) {
                 for (Location l : locations) {
                     tickLocation(tickers, l);
+                }
+            }
+        } catch (ArrayIndexOutOfBoundsException | NumberFormatException x) {
+            Slimefun.logger()
+                    .log(Level.SEVERE, x, () -> "An Exception has occurred while trying to resolve Chunk: " + chunk);
+        }
+    }
+
+    @ParametersAreNonnullByDefault
+    private void tickChunk(ChunkPosition chunk, Set<BlockTicker> tickers, Map<Location, UUID> locations) {
+        try {
+            // Only continue if the Chunk is actually loaded
+            if (chunk.isLoaded()) {
+                for (Map.Entry<Location, UUID> entry : locations.entrySet()) {
+                    tickUniversalLocation(entry.getValue(), entry.getKey(), tickers);
                 }
             }
         } catch (ArrayIndexOutOfBoundsException | NumberFormatException x) {
@@ -193,7 +207,7 @@ public class TickerTask implements Runnable {
 
     @ParametersAreNonnullByDefault
     private void tickUniversalLocation(UUID uuid, Location l, @Nonnull Set<BlockTicker> tickers) {
-        var data = StorageCacheUtils.getUniversalData(uuid);
+        var data = StorageCacheUtils.getUniversalBlock(uuid);
         var item = SlimefunItem.getById(data.getSfId());
 
         if (item != null && item.getBlockTicker() != null) {
@@ -232,19 +246,18 @@ public class TickerTask implements Runnable {
     @ParametersAreNonnullByDefault
     private void tickBlock(Location l, SlimefunItem item, ASlimefunDataContainer data, long timestamp) {
         try {
-            if (data instanceof SlimefunBlockData blockData) {
-                if (item.getBlockTicker().isUniversal()) {
-                    throw new IllegalStateException("BlockTicker is universal but identified as non-universal!");
+            if (item.getBlockTicker().isUniversal()) {
+                if (data instanceof SlimefunUniversalData universalData) {
+                    item.getBlockTicker().tick(l.getBlock(), item, universalData);
+                } else {
+                    throw new IllegalStateException("BlockTicker is universal but item is non-universal!");
                 }
-                item.getBlockTicker().tick(l.getBlock(), item, blockData);
-            } else if (data instanceof SlimefunUniversalData universalData) {
-                if (!item.getBlockTicker().isUniversal()) {
-                    throw new IllegalStateException("BlockTicker is non-universal but identified as universal!");
-                }
-                item.getBlockTicker().tick(l.getBlock(), item, universalData);
             } else {
-                throw new IllegalStateException(
-                        "Unable to tick abnormal blockdata @" + LocationUtils.locationToString(l));
+                if (data instanceof SlimefunBlockData blockData) {
+                    item.getBlockTicker().tick(l.getBlock(), item, blockData);
+                } else {
+                    throw new IllegalStateException("BlockTicker is non-universal but item is universal!");
+                }
             }
         } catch (Exception | LinkageError x) {
             reportErrors(l, item, x);
@@ -368,7 +381,16 @@ public class TickerTask implements Runnable {
         Validate.notNull(uuid, "Universal ID cannot be null!");
         Validate.notNull(l, "Location cannot be null!");
 
-        tickingUniversalLocations.putIfAbsent(uuid, l);
+        ChunkPosition chunk = new ChunkPosition(l.getWorld(), l.getBlockX() >> 4, l.getBlockZ() >> 4);
+
+        Map<Location, UUID> newValue = new ConcurrentHashMap<>();
+        Map<Location, UUID> oldValue = tickingUniversalLocations.putIfAbsent(chunk, newValue);
+
+        if (oldValue != null) {
+            oldValue.put(l, uuid);
+        } else {
+            newValue.put(l, uuid);
+        }
     }
 
     /**

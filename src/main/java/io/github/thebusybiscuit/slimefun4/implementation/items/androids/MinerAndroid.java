@@ -76,7 +76,7 @@ public class MinerAndroid extends ProgrammableAndroid {
 
         if (!SlimefunTag.UNBREAKABLE_MATERIALS.isTagged(block.getType()) && !drops.isEmpty()) {
             OfflinePlayer owner = Bukkit.getOfflinePlayer(
-                    UUID.fromString(StorageCacheUtils.getUniversalData(menu.getUuid(), b.getLocation(), "owner")));
+                    UUID.fromString(StorageCacheUtils.getUniversalBlock(menu.getUuid(), b.getLocation(), "owner")));
 
             if (Slimefun.getProtectionManager().hasPermission(owner, block.getLocation(), Interaction.BREAK_BLOCK)) {
                 AndroidMineEvent event = new AndroidMineEvent(block, new AndroidInstance(this, b));
@@ -87,7 +87,8 @@ public class MinerAndroid extends ProgrammableAndroid {
                 }
 
                 // We only want to break non-Slimefun blocks
-                if (!StorageCacheUtils.hasBlock(block.getLocation())) {
+                if (!StorageCacheUtils.hasBlock(block.getLocation())
+                        && !StorageCacheUtils.hasUniversalBlock(block.getLocation())) {
                     breakBlock(menu, drops, block);
                 }
             }
@@ -101,7 +102,7 @@ public class MinerAndroid extends ProgrammableAndroid {
 
         if (!SlimefunTag.UNBREAKABLE_MATERIALS.isTagged(block.getType()) && !drops.isEmpty()) {
             OfflinePlayer owner = Bukkit.getOfflinePlayer(
-                    UUID.fromString(StorageCacheUtils.getUniversalData(menu.getUuid(), b.getLocation(), "owner")));
+                    UUID.fromString(StorageCacheUtils.getUniversalBlock(menu.getUuid(), b.getLocation(), "owner")));
 
             if (Slimefun.getProtectionManager().hasPermission(owner, block.getLocation(), Interaction.BREAK_BLOCK)) {
                 AndroidMineEvent event = new AndroidMineEvent(block, new AndroidInstance(this, b));
@@ -112,7 +113,8 @@ public class MinerAndroid extends ProgrammableAndroid {
                 }
 
                 // We only want to break non-Slimefun blocks
-                if (!StorageCacheUtils.hasBlock(block.getLocation())) {
+                if (!StorageCacheUtils.hasBlock(block.getLocation())
+                        && !StorageCacheUtils.hasUniversalBlock(block.getLocation())) {
                     breakBlock(menu, drops, block);
                     move(b, face, block);
                 }

@@ -25,7 +25,7 @@ public abstract class UniversalMenuPreset extends BlockMenuPreset {
     @Override
     protected void clone(@Nonnull DirtyChestMenu menu) {
         if (menu instanceof UniversalMenu universalMenu) {
-            var uniData = StorageCacheUtils.getUniversalData(universalMenu.getUuid());
+            var uniData = StorageCacheUtils.getUniversalBlock(universalMenu.getUuid());
 
             if (uniData == null) {
                 return;
