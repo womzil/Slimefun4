@@ -67,8 +67,6 @@ public class AutoEnchanter extends AbstractEnchantmentMachine {
             AutoEnchantEvent event = new AutoEnchantEvent(item, menu.getBlock());
             Bukkit.getPluginManager().callEvent(event);
 
-            event.setCancelled(true);
-
             if (event.isCancelled()) {
                 if (InvUtils.fitAll(menu.toInventory(), new ItemStack[] {item}, getOutputSlots())) {
                     menu.replaceExistingItem(otherSlot, null);
