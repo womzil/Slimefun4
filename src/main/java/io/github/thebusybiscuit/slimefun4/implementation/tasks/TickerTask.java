@@ -9,6 +9,7 @@ import io.github.bakedlibs.dough.blocks.ChunkPosition;
 import io.github.thebusybiscuit.slimefun4.api.ErrorReport;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import io.github.thebusybiscuit.slimefun4.core.attributes.UniversalDataSupport;
+import io.github.thebusybiscuit.slimefun4.core.ticker.TickLocation;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import java.util.Collections;
 import java.util.HashSet;
@@ -18,7 +19,9 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import me.mrCookieSlime.Slimefun.Objects.handlers.BlockTicker;
 import org.apache.commons.lang.Validate;
@@ -41,12 +44,7 @@ public class TickerTask implements Runnable {
      * This Map holds all currently actively ticking locations.
      * The value of this map (Set entries) MUST be thread-safe and mutable.
      */
-    private final Map<ChunkPosition, Set<Location>> tickingLocations = new ConcurrentHashMap<>();
-
-    /**
-     * This Map holds all locations of currently actively ticking universal items.
-     */
-    private final Map<ChunkPosition, Map<Location, UUID>> tickingUniversalLocations = new ConcurrentHashMap<>();
+    private final Map<ChunkPosition, Set<TickLocation>> tickingLocations = new ConcurrentHashMap<>();
 
     /**
      * This Map tracks how many bugs have occurred in a given Location .
@@ -98,24 +96,14 @@ public class TickerTask implements Runnable {
 
             // Run our ticker code
             if (!halted) {
-                Set<Map.Entry<ChunkPosition, Set<Location>>> loc;
+                Set<Map.Entry<ChunkPosition, Set<TickLocation>>> loc;
 
                 synchronized (tickingLocations) {
                     loc = new HashSet<>(tickingLocations.entrySet());
                 }
 
-                for (Map.Entry<ChunkPosition, Set<Location>> entry : loc) {
+                for (Map.Entry<ChunkPosition, Set<TickLocation>> entry : loc) {
                     tickChunk(entry.getKey(), tickers, new HashSet<>(entry.getValue()));
-                }
-
-                Set<Map.Entry<ChunkPosition, Map<Location, UUID>>> uniLoc;
-
-                synchronized (tickingUniversalLocations) {
-                    uniLoc = new HashSet<>(tickingUniversalLocations.entrySet());
-                }
-
-                for (Map.Entry<ChunkPosition, Map<Location, UUID>> entry : uniLoc) {
-                    tickChunk(entry.getKey(), tickers, new ConcurrentHashMap<>(entry.getValue()));
                 }
             }
 
@@ -138,27 +126,16 @@ public class TickerTask implements Runnable {
     }
 
     @ParametersAreNonnullByDefault
-    private void tickChunk(ChunkPosition chunk, Set<BlockTicker> tickers, Set<Location> locations) {
+    private void tickChunk(ChunkPosition chunk, Set<BlockTicker> tickers, Set<TickLocation> locations) {
         try {
             // Only continue if the Chunk is actually loaded
             if (chunk.isLoaded()) {
-                for (Location l : locations) {
-                    tickLocation(tickers, l);
-                }
-            }
-        } catch (ArrayIndexOutOfBoundsException | NumberFormatException x) {
-            Slimefun.logger()
-                    .log(Level.SEVERE, x, () -> "An Exception has occurred while trying to resolve Chunk: " + chunk);
-        }
-    }
-
-    @ParametersAreNonnullByDefault
-    private void tickChunk(ChunkPosition chunk, Set<BlockTicker> tickers, Map<Location, UUID> locations) {
-        try {
-            // Only continue if the Chunk is actually loaded
-            if (chunk.isLoaded()) {
-                for (Map.Entry<Location, UUID> entry : locations.entrySet()) {
-                    tickUniversalLocation(entry.getValue(), entry.getKey(), tickers);
+                for (TickLocation l : locations) {
+                    if (l.isUniversal()) {
+                        tickUniversalLocation(l.getUuid(), l.getLocation(), tickers);
+                    } else {
+                        tickLocation(tickers, l.getLocation());
+                    }
                 }
             }
         } catch (ArrayIndexOutOfBoundsException | NumberFormatException x) {
@@ -311,16 +288,32 @@ public class TickerTask implements Runnable {
     }
 
     /**
+     * BINARY COMPATIBILITY
+     *
+     * Use #getTickLocations instead
+     *
+     * @return A {@link Map} representation of all ticking {@link Location Locations}
+     */
+    @Nonnull
+    public Map<ChunkPosition, Set<Location>> getLocations() {
+        return tickingLocations.entrySet().stream().collect(
+            Collectors.toMap(
+                Map.Entry::getKey,
+                e -> e.getValue().stream().map(TickLocation::getLocation
+                ).collect(Collectors.toUnmodifiableSet())));
+    }
+
+    /**
      * This method returns a <strong>read-only</strong> {@link Map}
      * representation of every {@link ChunkPosition} and its corresponding
      * {@link Set} of ticking {@link Location Locations}.
      *
      * This does include any {@link Location} from an unloaded {@link Chunk} too!
      *
-     * @return A {@link Map} representation of all ticking {@link Location Locations}
+     * @return A {@link Map} representation of all ticking {@link TickLocation Locations}
      */
     @Nonnull
-    public Map<ChunkPosition, Set<Location>> getLocations() {
+    public Map<ChunkPosition, Set<TickLocation>> getTickLocations() {
         return Collections.unmodifiableMap(tickingLocations);
     }
 
@@ -339,22 +332,8 @@ public class TickerTask implements Runnable {
     public Set<Location> getLocations(@Nonnull Chunk chunk) {
         Validate.notNull(chunk, "The Chunk cannot be null!");
 
-        Set<Location> locations = tickingLocations.getOrDefault(new ChunkPosition(chunk), Collections.emptySet());
-        return Collections.unmodifiableSet(locations);
-    }
-
-    /**
-     * 返回一个 <strong>只读</strong> 的 {@link Map}
-     * 代表每个 {@link ChunkPosition} 中有 {@link UniversalDataSupport} 属性的物品
-     * Tick 的 {@link Location 位置}集合.
-     *
-     * 其中包含的 {@link Location} 可以是已加载或卸载的 {@link Chunk}
-     *
-     * @return 包含所有通用机器 Tick {@link Location 位置}的只读 {@link Map}
-     */
-    @Nonnull
-    public Map<ChunkPosition, Map<Location, UUID>> getUniversalLocations() {
-        return Collections.unmodifiableMap(tickingUniversalLocations);
+        Set<TickLocation> locations = tickingLocations.getOrDefault(new ChunkPosition(chunk), Collections.emptySet());
+        return locations.stream().map(TickLocation::getLocation).collect(Collectors.toUnmodifiableSet());
     }
 
     /**
@@ -367,15 +346,13 @@ public class TickerTask implements Runnable {
      * @param chunk
      *            {@link Chunk}
      *
-     * @return 包含所有通用机器 Tick {@link Location 位置}的只读 {@link Map}
+     * @return 包含所有机器 Tick {@link TickLocation 位置}的只读 {@link Map}
      */
     @Nonnull
-    public Map<Location, UUID> getUniversalLocations(@Nonnull Chunk chunk) {
+    public Set<TickLocation> getTickLocations(@Nonnull Chunk chunk) {
         Validate.notNull(chunk, "The Chunk cannot be null!");
 
-        Map<Location, UUID> locations =
-                tickingUniversalLocations.getOrDefault(new ChunkPosition(chunk), Collections.emptyMap());
-        return Collections.unmodifiableMap(locations);
+        return tickingLocations.getOrDefault(new ChunkPosition(chunk), Collections.emptySet());
     }
 
     /**
@@ -385,10 +362,15 @@ public class TickerTask implements Runnable {
      *            The {@link Location} to activate
      */
     public void enableTicker(@Nonnull Location l) {
+        enableTicker(l, null);
+    }
+
+    public void enableTicker(@Nonnull Location l, @Nullable UUID uuid) {
         Validate.notNull(l, "Location cannot be null!");
 
         synchronized (tickingLocations) {
             ChunkPosition chunk = new ChunkPosition(l.getWorld(), l.getBlockX() >> 4, l.getBlockZ() >> 4);
+            final var tickPosition = uuid == null ? new TickLocation(new BlockPosition(l)) : new TickLocation(new BlockPosition(l), uuid);
 
             /*
               Note that all the values in #tickingLocations must be thread-safe.
@@ -396,48 +378,18 @@ public class TickerTask implements Runnable {
               The CHM KeySet was chosen since it at least permits multiple concurrent
               reads without blocking.
             */
-            Set<Location> newValue = ConcurrentHashMap.newKeySet();
-            Set<Location> oldValue = tickingLocations.putIfAbsent(chunk, newValue);
+            Set<TickLocation> newValue = ConcurrentHashMap.newKeySet();
+            Set<TickLocation> oldValue = tickingLocations.putIfAbsent(chunk, newValue);
 
             /**
              * This is faster than doing computeIfAbsent(...)
              * on a ConcurrentHashMap because it won't block the Thread for too long
              */
             if (oldValue != null) {
-                oldValue.add(l);
+                oldValue.add(tickPosition);
             } else {
-                newValue.add(l);
+                newValue.add(tickPosition);
             }
-        }
-    }
-
-    /**
-     * This enables the ticker at the given {@link Location} and adds it to our "queue".
-     *
-     * @param uuid
-     *            The {@link UUID} to activate
-     */
-    public void enableTicker(@Nonnull UUID uuid, @Nonnull Location l) {
-        Validate.notNull(uuid, "UUID cannot be null!");
-        Validate.notNull(l, "Location cannot be null!");
-
-        synchronized (tickingUniversalLocations) {
-            ChunkPosition chunk = new ChunkPosition(l.getWorld(), l.getBlockX() >> 4, l.getBlockZ() >> 4);
-
-            /*
-              Note that all the values in #tickingLocations must be thread-safe.
-              Thus, the choice is between the CHM KeySet or a synchronized set.
-              The CHM KeySet was chosen since it at least permits multiple concurrent
-              reads without blocking.
-            */
-            Map<Location, UUID> newValue = new ConcurrentHashMap<>();
-            Map<Location, UUID> oldValue = tickingUniversalLocations.putIfAbsent(chunk, newValue);
-
-            /**
-             * This is faster than doing computeIfAbsent(...)
-             * on a ConcurrentHashMap because it won't block the Thread for too long
-             */
-            Objects.requireNonNullElse(oldValue, newValue).put(l, uuid);
         }
     }
 
@@ -453,10 +405,10 @@ public class TickerTask implements Runnable {
 
         synchronized (tickingLocations) {
             ChunkPosition chunk = new ChunkPosition(l.getWorld(), l.getBlockX() >> 4, l.getBlockZ() >> 4);
-            Set<Location> locations = tickingLocations.get(chunk);
+            Set<TickLocation> locations = tickingLocations.get(chunk);
 
             if (locations != null) {
-                locations.remove(l);
+                locations.removeIf(tk -> l.equals(tk.getLocation()));
 
                 if (locations.isEmpty()) {
                     tickingLocations.remove(chunk);
@@ -469,14 +421,17 @@ public class TickerTask implements Runnable {
      * This method disables the ticker at the given {@link UUID} and removes it from our internal
      * "queue".
      *
+     * DO NOT USE THIS until you cannot disable by location,
+     * or enjoy extremely slow.
+     *
      * @param uuid
      *            The {@link UUID} to remove
      */
     public void disableTicker(@Nonnull UUID uuid) {
         Validate.notNull(uuid, "Universal Data ID cannot be null!");
 
-        synchronized (tickingUniversalLocations) {
-            tickingUniversalLocations.remove(uuid);
+        synchronized (tickingLocations) {
+            tickingLocations.values().forEach(loc -> loc.removeIf(tk -> uuid.equals(tk.getUuid())));
         }
     }
 

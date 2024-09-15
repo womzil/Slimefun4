@@ -311,11 +311,11 @@ public class BlockDataController extends ADataController {
 
         var removed = getChunkDataCache(l.getChunk(), true).removeBlockData(l);
         if (removed == null) {
-            getUniversalDataFromCache(l).ifPresentOrElse(data -> removeUniversalData(data.getUUID()), () -> {
+            getUniversalDataFromCache(l).ifPresentOrElse(data -> removeUniversalData(l, data.getUUID()), () -> {
                 if (Bukkit.isPrimaryThread()) {
                     Slimefun.getBlockDataService()
                             .getUniversalDataUUID(l.getBlock())
-                            .ifPresent(this::removeUniversalData);
+                            .ifPresent(uuid -> removeUniversalData(l, uuid));
                 }
             });
 
@@ -336,7 +336,7 @@ public class BlockDataController extends ADataController {
         }
     }
 
-    public void removeUniversalData(UUID uuid) {
+    public void removeUniversalData(Location lastPresent, UUID uuid) {
         checkDestroy();
 
         var toRemove = loadedUniversalData.get(uuid);
@@ -358,7 +358,7 @@ public class BlockDataController extends ADataController {
         }
 
         if (Slimefun.getRegistry().getTickerBlocks().contains(toRemove.getSfId())) {
-            Slimefun.getTickerTask().disableTicker(uuid);
+            Slimefun.getTickerTask().disableTicker(lastPresent);
         }
     }
 
@@ -780,7 +780,7 @@ public class BlockDataController extends ADataController {
 
             if (sfItem != null && sfItem.isTicking()) {
                 if (!uniData.getLastPresent().getBlock().getType().isAir()) {
-                    Slimefun.getTickerTask().enableTicker(uniData.getUUID(), uniData.getLastPresent());
+                    Slimefun.getTickerTask().enableTicker(uniData.getLastPresent(), uniData.getUUID());
                 }
             }
 

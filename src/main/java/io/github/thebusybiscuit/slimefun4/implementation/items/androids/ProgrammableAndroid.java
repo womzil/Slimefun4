@@ -1050,7 +1050,7 @@ public class ProgrammableAndroid extends SlimefunItem
                 return;
             }
 
-            Slimefun.getTickerTask().disableTicker(uniData.getUUID());
+            Slimefun.getTickerTask().disableTicker(from.getLocation());
 
             to.setBlockData(Material.PLAYER_HEAD.createBlockData(data -> {
                 if (data instanceof Rotatable rotatable) {
@@ -1074,7 +1074,7 @@ public class ProgrammableAndroid extends SlimefunItem
             uniData.setLastPresent(to.getLocation());
             uniData.getUniversalMenu().update(to.getLocation());
 
-            Slimefun.getTickerTask().enableTicker(uniData.getUUID(), to.getLocation());
+            Slimefun.getTickerTask().enableTicker(to.getLocation(), uniData.getUUID());
         }
     }
 
