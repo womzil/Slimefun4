@@ -14,7 +14,6 @@ import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -296,11 +295,10 @@ public class TickerTask implements Runnable {
      */
     @Nonnull
     public Map<ChunkPosition, Set<Location>> getLocations() {
-        return tickingLocations.entrySet().stream().collect(
-            Collectors.toMap(
-                Map.Entry::getKey,
-                e -> e.getValue().stream().map(TickLocation::getLocation
-                ).collect(Collectors.toUnmodifiableSet())));
+        return tickingLocations.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().stream()
+                        .map(TickLocation::getLocation)
+                        .collect(Collectors.toUnmodifiableSet())));
     }
 
     /**
@@ -370,7 +368,9 @@ public class TickerTask implements Runnable {
 
         synchronized (tickingLocations) {
             ChunkPosition chunk = new ChunkPosition(l.getWorld(), l.getBlockX() >> 4, l.getBlockZ() >> 4);
-            final var tickPosition = uuid == null ? new TickLocation(new BlockPosition(l)) : new TickLocation(new BlockPosition(l), uuid);
+            final var tickPosition = uuid == null
+                    ? new TickLocation(new BlockPosition(l))
+                    : new TickLocation(new BlockPosition(l), uuid);
 
             /*
               Note that all the values in #tickingLocations must be thread-safe.

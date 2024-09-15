@@ -1,9 +1,7 @@
 package io.github.thebusybiscuit.slimefun4.core.ticker;
 
 import io.github.bakedlibs.dough.blocks.BlockPosition;
-
 import java.util.UUID;
-
 import lombok.Getter;
 import org.bukkit.Location;
 
