@@ -38,6 +38,7 @@ public class TickerTask implements Runnable {
 
     /**
      * This Map holds all currently actively ticking locations.
+     * The value of this map (Set entries) MUST be thread-safe and mutable.
      */
     private final Map<ChunkPosition, Set<Location>> tickingLocations = new ConcurrentHashMap<>();
 
@@ -385,47 +386,27 @@ public class TickerTask implements Runnable {
     public void enableTicker(@Nonnull Location l) {
         Validate.notNull(l, "Location cannot be null!");
 
-        ChunkPosition chunk = new ChunkPosition(l.getWorld(), l.getBlockX() >> 4, l.getBlockZ() >> 4);
+        synchronized (tickingLocations) {
+            ChunkPosition chunk = new ChunkPosition(l.getWorld(), l.getBlockX() >> 4, l.getBlockZ() >> 4);
 
-        /*
-          Note that all the values in #tickingLocations must be thread-safe.
-          Thus, the choice is between the CHM KeySet or a synchronized set.
-          The CHM KeySet was chosen since it at least permits multiple concurrent
-          reads without blocking.
-        */
-        Set<Location> newValue = ConcurrentHashMap.newKeySet();
-        Set<Location> oldValue = tickingLocations.putIfAbsent(chunk, newValue);
+            /*
+              Note that all the values in #tickingLocations must be thread-safe.
+              Thus, the choice is between the CHM KeySet or a synchronized set.
+              The CHM KeySet was chosen since it at least permits multiple concurrent
+              reads without blocking.
+            */
+            Set<Location> newValue = ConcurrentHashMap.newKeySet();
+            Set<Location> oldValue = tickingLocations.putIfAbsent(chunk, newValue);
 
-        /**
-         * This is faster than doing computeIfAbsent(...)
-         * on a ConcurrentHashMap because it won't block the Thread for too long
-         */
-        if (oldValue != null) {
-            oldValue.add(l);
-        } else {
-            newValue.add(l);
-        }
-    }
-
-    /**
-     * This enables the ticker at the given {@link Location} and adds it to our "queue".
-     *
-     * @param l
-     *            The {@link Location} to activate
-     */
-    public void enableTicker(@Nonnull UUID uuid, @Nonnull Location l) {
-        Validate.notNull(uuid, "Universal ID cannot be null!");
-        Validate.notNull(l, "Location cannot be null!");
-
-        ChunkPosition chunk = new ChunkPosition(l.getWorld(), l.getBlockX() >> 4, l.getBlockZ() >> 4);
-
-        Map<Location, UUID> newValue = new ConcurrentHashMap<>();
-        Map<Location, UUID> oldValue = tickingUniversalLocations.putIfAbsent(chunk, newValue);
-
-        if (oldValue != null) {
-            oldValue.put(l, uuid);
-        } else {
-            newValue.put(l, uuid);
+            /**
+             * This is faster than doing computeIfAbsent(...)
+             * on a ConcurrentHashMap because it won't block the Thread for too long
+             */
+            if (oldValue != null) {
+                oldValue.add(l);
+            } else {
+                newValue.add(l);
+            }
         }
     }
 
