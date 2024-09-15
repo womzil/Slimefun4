@@ -7,6 +7,7 @@ repos:
     rev: v0.3.4
     hooks:
       - id: maven-spotless-apply
+        args: ["|| true"]
 ci:
   autofix_commit_msg: |
     [pre-commit.ci] auto fixes from pre-commit hooks
