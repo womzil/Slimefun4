@@ -315,9 +315,6 @@ public final class Slimefun extends JavaPlugin implements SlimefunAddon, ICompat
         cfgManager.load();
         registry.load(this);
 
-        // Inject downstream extra staff
-        SlimefunExtended.register(this);
-
         logger.log(Level.INFO, "正在加载数据库...");
         if (PlayerProfileMigrator.getInstance().hasOldData()
                 || BlockStorageMigrator.getInstance().hasOldData()) {

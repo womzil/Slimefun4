@@ -13,6 +13,7 @@ import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -407,6 +408,36 @@ public class TickerTask implements Runnable {
             } else {
                 newValue.add(l);
             }
+        }
+    }
+
+    /**
+     * This enables the ticker at the given {@link Location} and adds it to our "queue".
+     *
+     * @param uuid
+     *            The {@link UUID} to activate
+     */
+    public void enableTicker(@Nonnull UUID uuid, @Nonnull Location l) {
+        Validate.notNull(uuid, "UUID cannot be null!");
+        Validate.notNull(l, "Location cannot be null!");
+
+        synchronized (tickingUniversalLocations) {
+            ChunkPosition chunk = new ChunkPosition(l.getWorld(), l.getBlockX() >> 4, l.getBlockZ() >> 4);
+
+            /*
+              Note that all the values in #tickingLocations must be thread-safe.
+              Thus, the choice is between the CHM KeySet or a synchronized set.
+              The CHM KeySet was chosen since it at least permits multiple concurrent
+              reads without blocking.
+            */
+            Map<Location, UUID> newValue = new ConcurrentHashMap<>();
+            Map<Location, UUID> oldValue = tickingUniversalLocations.putIfAbsent(chunk, newValue);
+
+            /**
+             * This is faster than doing computeIfAbsent(...)
+             * on a ConcurrentHashMap because it won't block the Thread for too long
+             */
+            Objects.requireNonNullElse(oldValue, newValue).put(l, uuid);
         }
     }
 
