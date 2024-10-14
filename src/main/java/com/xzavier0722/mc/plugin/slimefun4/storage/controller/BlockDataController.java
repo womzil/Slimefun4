@@ -337,6 +337,25 @@ public class BlockDataController extends ADataController {
         }
     }
 
+    public void removeBlockData(Location l) {
+        checkDestroy();
+
+        var removed = getChunkDataCache(l.getChunk(), true).removeBlockData(l);
+
+        if (removed == null || !removed.isDataLoaded()) {
+            return;
+        }
+
+        var menu = removed.getBlockMenu();
+        if (menu != null) {
+            InventoryUtil.closeInventory(menu.toInventory());
+        }
+
+        if (Slimefun.getRegistry().getTickerBlocks().contains(removed.getSfId())) {
+            Slimefun.getTickerTask().disableTicker(l);
+        }
+    }
+
     public void removeUniversalData(Location lastPresent, UUID uuid) {
         checkDestroy();
 
@@ -702,12 +721,18 @@ public class BlockDataController extends ADataController {
                 return;
             }
 
+            var sfItem = SlimefunItem.getById(blockData.getSfId());
+            var universal = sfItem instanceof UniversalDataSupport;
+
             getData(key)
                     .forEach(recordSet -> blockData.setCacheInternal(
                             recordSet.get(FieldKey.DATA_KEY),
                             DataUtils.blockDataDebase64(recordSet.get(FieldKey.DATA_VALUE)),
                             false));
-            blockData.setIsDataLoaded(true);
+
+            if (!universal) {
+                blockData.setIsDataLoaded(true);
+            }
 
             var menuPreset = BlockMenuPreset.getPreset(blockData.getSfId());
             if (menuPreset != null) {
@@ -724,14 +749,18 @@ public class BlockDataController extends ADataController {
                 blockData.setBlockMenu(new BlockMenu(menuPreset, blockData.getLocation(), inv));
 
                 var content = blockData.getMenuContents();
-                if (content != null) {
+                if (content != null && !universal) {
                     invSnapshots.put(blockData.getKey(), InvStorageUtils.getInvSnapshot(content));
                 }
             }
 
-            var sfItem = SlimefunItem.getById(blockData.getSfId());
-            if (sfItem != null && sfItem.isTicking()) {
+            if (!universal && sfItem != null && sfItem.isTicking()) {
                 Slimefun.getTickerTask().enableTicker(blockData.getLocation());
+            }
+
+            // Universal data migration process
+            if (universal) {
+                migrateUniversalData(blockData);
             }
         } finally {
             lock.unlock(key);
@@ -1203,5 +1232,36 @@ public class BlockDataController extends ADataController {
         var scopeKey = new LocationKey(DataScope.NONE, l);
         removeDelayedBlockDataUpdates(scopeKey);
         abortScopeTask(scopeKey);
+    }
+
+    private void migrateUniversalData(@Nonnull SlimefunBlockData blockData) {
+        try {
+            if (blockData == null || !blockData.isDataLoaded() || blockData.isPendingRemove()) {
+                return;
+            }
+
+            var universalData = createUniversalData(blockData.getLocation(), blockData.getSfId());
+
+            universalData.setLastPresent(new BlockPosition(blockData.getLocation()));
+
+            for (Map.Entry<String, String> entry : blockData.getAllData().entrySet()) {
+                universalData.setData(entry.getKey(), entry.getValue());
+            }
+
+            final var oldMenu = blockData.getBlockMenu().getContents();
+            final var newMenu = universalData.getUniversalMenu();
+
+            for (int slot = 0; slot < oldMenu.length; slot++) {
+                if (newMenu.getPreset().getPresetSlots().contains(slot)) {
+                    continue;
+                }
+
+                newMenu.addItem(slot, oldMenu[slot]);
+            }
+
+            removeBlockData(blockData.getLocation());
+        } catch (Exception e) {
+            Slimefun.logger().log(Level.WARNING, "迁移机器人数据时出现错误", e);
+        }
     }
 }
