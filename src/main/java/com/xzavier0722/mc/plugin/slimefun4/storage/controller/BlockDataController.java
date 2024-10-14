@@ -1234,6 +1234,11 @@ public class BlockDataController extends ADataController {
         abortScopeTask(scopeKey);
     }
 
+    /**
+     * 迁移旧 Slimefun 机器数据至通用数据
+     *
+     * @param blockData
+     */
     private void migrateUniversalData(@Nonnull SlimefunBlockData blockData) {
         try {
             if (blockData == null || !blockData.isDataLoaded() || blockData.isPendingRemove()) {
