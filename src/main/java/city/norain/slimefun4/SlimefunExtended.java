@@ -2,12 +2,16 @@ package city.norain.slimefun4;
 
 import city.norain.slimefun4.compatibillty.VersionedEvent;
 import city.norain.slimefun4.listener.SlimefunMigrateListener;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import com.zaxxer.hikari.pool.HikariPool;
 import io.github.bakedlibs.dough.versions.MinecraftVersion;
 import io.github.bakedlibs.dough.versions.UnknownServerVersionException;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import java.util.logging.Level;
 import javax.annotation.Nonnull;
 import lombok.Getter;
+import org.apache.logging.log4j.core.config.Configurator;
 
 public final class SlimefunExtended {
     private static SlimefunMigrateListener migrateListener = new SlimefunMigrateListener();
@@ -23,6 +27,10 @@ public final class SlimefunExtended {
             databaseDebugMode = true;
 
             Slimefun.getSQLProfiler().start();
+        } else {
+            Configurator.setLevel(HikariConfig.class.getName(), org.apache.logging.log4j.Level.OFF);
+            Configurator.setLevel(HikariDataSource.class.getName(), org.apache.logging.log4j.Level.OFF);
+            Configurator.setLevel(HikariPool.class.getName(), org.apache.logging.log4j.Level.OFF);
         }
     }
 

@@ -15,6 +15,7 @@ import com.xzavier0722.mc.plugin.slimefun4.storage.task.DelayedTask;
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.DataUtils;
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.InvStorageUtils;
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.LocationUtils;
+import io.github.bakedlibs.dough.blocks.BlockPosition;
 import io.github.bakedlibs.dough.collections.Pair;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import io.github.thebusybiscuit.slimefun4.core.attributes.UniversalDataSupport;
@@ -250,7 +251,7 @@ public class BlockDataController extends ADataController {
         checkDestroy();
 
         var uuid = UUID.randomUUID();
-        var uniData = new SlimefunUniversalData(uuid, l, sfId);
+        var uniData = new SlimefunUniversalData(uuid, new BlockPosition(l), sfId);
 
         uniData.setIsDataLoaded(true);
 
@@ -459,7 +460,7 @@ public class BlockDataController extends ADataController {
                 ? null
                 : new SlimefunUniversalData(
                         uuid,
-                        LocationUtils.toLocation(result.get(0).get(FieldKey.LAST_PRESENT)),
+                        new BlockPosition(LocationUtils.toLocation(result.get(0).get(FieldKey.LAST_PRESENT))),
                         result.get(0).get(FieldKey.SLIMEFUN_ID));
     }
 
@@ -655,7 +656,7 @@ public class BlockDataController extends ADataController {
             var uuid = data.getUUID(FieldKey.UNIVERSAL_UUID);
             var location = LocationUtils.toLocation(data.get(FieldKey.LAST_PRESENT));
 
-            var uniData = new SlimefunUniversalData(uuid, location, sfId);
+            var uniData = new SlimefunUniversalData(uuid, new BlockPosition(location), sfId);
 
             scheduleReadTask(() -> loadUniversalData(uniData));
         });

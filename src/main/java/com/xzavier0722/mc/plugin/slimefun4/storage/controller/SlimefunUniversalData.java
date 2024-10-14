@@ -1,5 +1,6 @@
 package com.xzavier0722.mc.plugin.slimefun4.storage.controller;
 
+import io.github.bakedlibs.dough.blocks.BlockPosition;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import java.util.UUID;
 import javax.annotation.Nullable;
@@ -15,18 +16,18 @@ import org.bukkit.inventory.ItemStack;
 public class SlimefunUniversalData extends ASlimefunDataContainer {
     private volatile UniversalMenu universalMenu;
 
-    @Nullable private volatile Location lastPresent;
+    @Nullable private volatile BlockPosition lastPresent;
 
     private volatile boolean pendingRemove = false;
 
     @ParametersAreNonnullByDefault
-    SlimefunUniversalData(UUID uuid, Location location, String sfId) {
+    SlimefunUniversalData(UUID uuid, BlockPosition location, String sfId) {
         super(uuid.toString(), sfId);
         this.lastPresent = location;
     }
 
     @ParametersAreNonnullByDefault
-    SlimefunUniversalData(UUID uuid, Location location, SlimefunUniversalData other) {
+    SlimefunUniversalData(UUID uuid, BlockPosition location, SlimefunUniversalData other) {
         super(uuid.toString(), other, other.getSfId());
         this.lastPresent = location;
     }
@@ -64,6 +65,10 @@ public class SlimefunUniversalData extends ASlimefunDataContainer {
 
     public UUID getUUID() {
         return UUID.fromString(getKey());
+    }
+
+    public Location getLastPresent() {
+        return this.lastPresent.toLocation();
     }
 
     @Override
