@@ -4,7 +4,6 @@ import java.io.File;
 import java.lang.reflect.Method;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-
 import net.guizhanss.guizhanlib.updater.GuizhanBuildsUpdater;
 import net.guizhanss.guizhanlib.updater.UpdaterConfig;
 import org.bukkit.plugin.Plugin;
@@ -41,8 +40,8 @@ public class AutoUpdateTask implements Runnable {
         try {
             // use updater in lib plugin
             char[] pluginPackage = {
-                'n', 'e', 't', '.', 'g', 'u', 'i', 'z', 'h', 'a', 'n', 's', 's', '.',
-                'g', 'u', 'i', 'z', 'h', 'a', 'n', 'l', 'i', 'b', 'p', 'l', 'u', 'g', 'i', 'n'
+                'n', 'e', 't', '.', 'g', 'u', 'i', 'z', 'h', 'a', 'n', 's', 's', '.', 'g', 'u', 'i', 'z', 'h', 'a', 'n',
+                'l', 'i', 'b', 'p', 'l', 'u', 'g', 'i', 'n'
             };
             Class<?> clazz = Class.forName(new String(pluginPackage) + ".updater.GuizhanUpdater");
             Method updaterStart = clazz.getDeclaredMethod(
@@ -50,7 +49,15 @@ public class AutoUpdateTask implements Runnable {
             updaterStart.invoke(null, plugin, file, GITHUB_USER, GITHUB_REPO, branch);
         } catch (Exception ignored) {
             // use updater in lib
-            GuizhanBuildsUpdater.start(plugin, file, GITHUB_USER, GITHUB_REPO, branch, UpdaterConfig.builder().baseUrl("https://builds.guizhanss.cn/").build());
+            GuizhanBuildsUpdater.start(
+                    plugin,
+                    file,
+                    GITHUB_USER,
+                    GITHUB_REPO,
+                    branch,
+                    UpdaterConfig.builder()
+                            .baseUrl("https://builds.guizhanss.cn/")
+                            .build());
         }
     }
 
