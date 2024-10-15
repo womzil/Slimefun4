@@ -8,6 +8,7 @@ import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import io.github.thebusybiscuit.slimefun4.utils.NumberUtils;
 import io.papermc.lib.PaperLib;
 import java.util.Collection;
+import java.util.Locale;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import net.md_5.bungee.api.ChatColor;
@@ -66,13 +67,16 @@ class VersionsCommand extends SubCommand {
                     .append("Slimefun ")
                     .color(ChatColor.GREEN)
                     .append(Slimefun.getVersion()
-                            + (Slimefun.getVersion().contains("release") ? "" : " (" + EnvUtil.getBuildCommitID() + ")")
+                            + (Slimefun.getVersion().toLowerCase(Locale.ROOT).contains("release")
+                                    ? " (" + EnvUtil.getBuildCommitID() + ")"
+                                    : "")
                             + '\n')
                     .color(ChatColor.DARK_GREEN)
                     .append("构建时间 ")
                     .color(ChatColor.GREEN)
                     .append(EnvUtil.getBuildTime())
-                    .color(ChatColor.DARK_GREEN);
+                    .color(ChatColor.DARK_GREEN)
+                    .append("\n");
             // @formatter:on
 
             if (Slimefun.getMetricsService().getVersion() != null) {
