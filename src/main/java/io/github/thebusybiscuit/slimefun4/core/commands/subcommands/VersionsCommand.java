@@ -1,5 +1,6 @@
 package io.github.thebusybiscuit.slimefun4.core.commands.subcommands;
 
+import city.norain.slimefun4.utils.EnvUtil;
 import io.github.thebusybiscuit.slimefun4.api.SlimefunAddon;
 import io.github.thebusybiscuit.slimefun4.core.commands.SlimefunCommand;
 import io.github.thebusybiscuit.slimefun4.core.commands.SubCommand;
@@ -64,7 +65,13 @@ class VersionsCommand extends SubCommand {
                     .color(ChatColor.DARK_GREEN)
                     .append("Slimefun ")
                     .color(ChatColor.GREEN)
-                    .append(Slimefun.getVersion() + '\n')
+                    .append(Slimefun.getVersion()
+                            + (Slimefun.getVersion().contains("release") ? "" : " (" + EnvUtil.getBuildCommitID() + ")")
+                            + '\n')
+                    .color(ChatColor.DARK_GREEN)
+                    .append("构建时间 ")
+                    .color(ChatColor.GREEN)
+                    .append(EnvUtil.getBuildTime())
                     .color(ChatColor.DARK_GREEN);
             // @formatter:on
 
@@ -79,7 +86,7 @@ class VersionsCommand extends SubCommand {
 
             addJavaVersion(builder);
 
-            // Add notice to warn those smart people
+            // Specify we are NOT OFFICIAL build so no support from upstream
             builder.append("\n由 StarWishsama 汉化")
                     .color(ChatColor.WHITE)
                     .append("\n请不要将此版本信息截图到 Discord/Github 反馈 Bug" + "\n优先到汉化页面反馈" + "\n")
