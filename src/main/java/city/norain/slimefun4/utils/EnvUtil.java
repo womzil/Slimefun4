@@ -4,14 +4,16 @@ import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.logging.Level;
+import javax.annotation.Nonnull;
 import lombok.experimental.UtilityClass;
+import org.bukkit.plugin.Plugin;
 
 @UtilityClass
 public class EnvUtil {
     public static Properties gitInfo = null;
 
-    public void init() {
-        try (var resource = Slimefun.class.getClassLoader().getResourceAsStream("build.properties")) {
+    public void init(@Nonnull Plugin plugin) {
+        try (var resource = plugin.getClass().getResourceAsStream("git.properties")) {
             var prop = new Properties();
             prop.load(resource);
 
