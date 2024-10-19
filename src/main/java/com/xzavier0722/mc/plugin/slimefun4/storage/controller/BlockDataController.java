@@ -285,6 +285,13 @@ public class BlockDataController extends ADataController {
             hasTicker = true;
         }
 
+        BlockMenu menu = null;
+
+        if (blockData.isDataLoaded() && blockData.getBlockMenu() != null) {
+            menu = blockData.getBlockMenu();
+            menu.lock();
+        }
+
         var chunk = blockData.getLocation().getChunk();
         var chunkData = getChunkDataCache(chunk, false);
         if (chunkData != null) {
@@ -304,9 +311,9 @@ public class BlockDataController extends ADataController {
 
         chunkData.addBlockCacheInternal(newBlockData, true);
 
-        var menu = blockData.getBlockMenu();
         if (menu != null) {
             newBlockData.setBlockMenu(new BlockMenu(menu.getPreset(), target, menu.getInventory()));
+            menu.unlock();
         }
 
         key.addField(FieldKey.LOCATION);
