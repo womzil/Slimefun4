@@ -2,6 +2,7 @@ package city.norain.slimefun4;
 
 import city.norain.slimefun4.compatibillty.VersionedEvent;
 import city.norain.slimefun4.listener.SlimefunMigrateListener;
+import city.norain.slimefun4.utils.EnvUtil;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.pool.HikariPool;
@@ -72,6 +73,8 @@ public final class SlimefunExtended {
 
     public static void init(@Nonnull Slimefun sf) {
         EnvironmentChecker.scheduleSlimeGlueCheck(sf);
+
+        EnvUtil.init(sf);
 
         checkDebug();
 
