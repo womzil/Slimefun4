@@ -74,7 +74,7 @@ public final class SlimefunExtended {
     public static void init(@Nonnull Slimefun sf) {
         EnvironmentChecker.scheduleSlimeGlueCheck(sf);
 
-        EnvUtil.init(sf);
+        EnvUtil.init();
 
         checkDebug();
 
