@@ -380,6 +380,8 @@ public class BlockDataController extends ADataController {
         if (Slimefun.getRegistry().getTickerBlocks().contains(toRemove.getSfId())) {
             Slimefun.getTickerTask().disableTicker(lastPresent);
         }
+
+        loadedUniversalData.remove(uuid);
     }
 
     void removeBlockDirectly(Location l) {
@@ -731,43 +733,44 @@ public class BlockDataController extends ADataController {
             var sfItem = SlimefunItem.getById(blockData.getSfId());
             var universal = sfItem instanceof UniversalDataSupport;
 
-            getData(key)
-                    .forEach(recordSet -> blockData.setCacheInternal(
-                            recordSet.get(FieldKey.DATA_KEY),
-                            DataUtils.blockDataDebase64(recordSet.get(FieldKey.DATA_VALUE)),
-                            false));
+            var kvData = getData(key);
 
-            if (!universal) {
+            var menuKey = new RecordKey(DataScope.BLOCK_INVENTORY);
+            menuKey.addCondition(FieldKey.LOCATION, blockData.getKey());
+            menuKey.addField(FieldKey.INVENTORY_SLOT);
+            menuKey.addField(FieldKey.INVENTORY_ITEM);
+
+            var invData = getData(menuKey);
+
+            if (universal) {
+                migrateUniversalData(blockData.getLocation(), blockData.getSfId(), kvData, invData);
+            } else {
+                kvData.forEach(recordSet -> blockData.setCacheInternal(
+                        recordSet.get(FieldKey.DATA_KEY),
+                        DataUtils.blockDataDebase64(recordSet.get(FieldKey.DATA_VALUE)),
+                        false));
+
                 blockData.setIsDataLoaded(true);
-            }
 
-            var menuPreset = BlockMenuPreset.getPreset(blockData.getSfId());
-            if (menuPreset != null) {
-                var menuKey = new RecordKey(DataScope.BLOCK_INVENTORY);
-                menuKey.addCondition(FieldKey.LOCATION, blockData.getKey());
-                menuKey.addField(FieldKey.INVENTORY_SLOT);
-                menuKey.addField(FieldKey.INVENTORY_ITEM);
+                var menuPreset = BlockMenuPreset.getPreset(blockData.getSfId());
 
-                var inv = new ItemStack[54];
-                getData(menuKey)
-                        .forEach(record -> inv[record.getInt(FieldKey.INVENTORY_SLOT)] =
-                                record.getItemStack(FieldKey.INVENTORY_ITEM));
+                if (menuPreset != null) {
+                    var inv = new ItemStack[54];
 
-                blockData.setBlockMenu(new BlockMenu(menuPreset, blockData.getLocation(), inv));
+                    invData.forEach(record ->
+                            inv[record.getInt(FieldKey.INVENTORY_SLOT)] = record.getItemStack(FieldKey.INVENTORY_ITEM));
 
-                var content = blockData.getMenuContents();
-                if (content != null && !universal) {
-                    invSnapshots.put(blockData.getKey(), InvStorageUtils.getInvSnapshot(content));
+                    blockData.setBlockMenu(new BlockMenu(menuPreset, blockData.getLocation(), inv));
+
+                    var content = blockData.getMenuContents();
+                    if (content != null) {
+                        invSnapshots.put(blockData.getKey(), InvStorageUtils.getInvSnapshot(content));
+                    }
                 }
             }
 
-            if (!universal && sfItem != null && sfItem.isTicking()) {
+            if (sfItem != null && sfItem.isTicking()) {
                 Slimefun.getTickerTask().enableTicker(blockData.getLocation());
-            }
-
-            // Universal data migration process
-            if (universal) {
-                migrateUniversalData(blockData);
             }
         } finally {
             lock.unlock(key);
@@ -813,14 +816,6 @@ public class BlockDataController extends ADataController {
 
             uniData.setIsDataLoaded(true);
 
-            var sfItem = SlimefunItem.getById(uniData.getSfId());
-
-            if (sfItem != null && sfItem.isTicking()) {
-                if (!uniData.getLastPresent().getBlock().getType().isAir()) {
-                    Slimefun.getTickerTask().enableTicker(uniData.getLastPresent(), uniData.getUUID());
-                }
-            }
-
             loadedUniversalData.putIfAbsent(uniData.getUUID(), uniData);
 
             var menuPreset = UniversalMenuPreset.getPreset(uniData.getSfId());
@@ -842,6 +837,14 @@ public class BlockDataController extends ADataController {
                 var content = uniData.getMenuContents();
                 if (content != null) {
                     invSnapshots.put(uniData.getKey(), InvStorageUtils.getInvSnapshot(content));
+                }
+            }
+
+            var sfItem = SlimefunItem.getById(uniData.getSfId());
+
+            if (sfItem != null && sfItem.isTicking()) {
+                if (!uniData.getLastPresent().getBlock().getType().isAir()) {
+                    Slimefun.getTickerTask().enableTicker(uniData.getLastPresent(), uniData.getUUID());
                 }
             }
         } finally {
@@ -1243,35 +1246,47 @@ public class BlockDataController extends ADataController {
 
     /**
      * 迁移旧 Slimefun 机器数据至通用数据
-     *
-     * @param blockData
      */
-    private void migrateUniversalData(@Nonnull SlimefunBlockData blockData) {
+    private void migrateUniversalData(
+            @Nonnull Location l,
+            @Nonnull String sfId,
+            @Nonnull List<RecordSet> kvData,
+            @Nonnull List<RecordSet> invData) {
         try {
-            if (blockData == null || !blockData.isDataLoaded() || blockData.isPendingRemove()) {
+            if (l == null || sfId == null) {
                 return;
             }
 
-            var universalData = createUniversalData(blockData.getLocation(), blockData.getSfId());
+            var universalData = createUniversalData(l, sfId);
 
-            universalData.setLastPresent(new BlockPosition(blockData.getLocation()));
+            Slimefun.runSync(
+                    () -> Slimefun.getBlockDataService()
+                            .setUniversalDataUUID(l.getBlock(), String.valueOf(universalData.getUUID())),
+                    10L);
 
-            for (Map.Entry<String, String> entry : blockData.getAllData().entrySet()) {
-                universalData.setData(entry.getKey(), entry.getValue());
-            }
+            kvData.forEach(recordSet -> universalData.setData(
+                    recordSet.get(FieldKey.DATA_KEY), DataUtils.blockDataDebase64(recordSet.get(FieldKey.DATA_VALUE))));
 
-            final var oldMenu = blockData.getBlockMenu().getContents();
-            final var newMenu = universalData.getUniversalMenu();
+            var preset = UniversalMenuPreset.getPreset(sfId);
+            if (preset != null) {
+                final var inv = new ItemStack[54];
 
-            for (int slot = 0; slot < oldMenu.length; slot++) {
-                if (newMenu.getPreset().getPresetSlots().contains(slot)) {
-                    continue;
+                invData.forEach(record ->
+                        inv[record.getInt(FieldKey.INVENTORY_SLOT)] = record.getItemStack(FieldKey.INVENTORY_ITEM));
+
+                universalData.setUniversalMenu(new UniversalMenu(preset, universalData.getUUID(), l, inv));
+
+                var content = universalData.getMenuContents();
+                if (content != null) {
+                    invSnapshots.put(universalData.getKey(), InvStorageUtils.getInvSnapshot(content));
                 }
-
-                newMenu.addItem(slot, oldMenu[slot]);
             }
 
-            removeBlockData(blockData.getLocation());
+            removeBlockData(l);
+
+            if (Slimefun.getRegistry().getTickerBlocks().contains(universalData.getSfId())) {
+                Slimefun.getTickerTask().enableTicker(universalData.getLastPresent(), universalData.getUUID());
+            }
         } catch (Exception e) {
             Slimefun.logger().log(Level.WARNING, "迁移机器人数据时出现错误", e);
         }
