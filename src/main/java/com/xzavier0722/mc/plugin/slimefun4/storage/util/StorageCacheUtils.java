@@ -6,6 +6,7 @@ import com.xzavier0722.mc.plugin.slimefun4.storage.controller.ADataContainer;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.ASlimefunDataContainer;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunUniversalData;
+import io.github.bakedlibs.dough.blocks.BlockPosition;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import java.util.HashSet;
@@ -144,7 +145,7 @@ public class StorageCacheUtils {
         var uniData = getUniversalBlock(uuid);
 
         if (uniData != null) {
-            uniData.setLastPresent(l);
+            uniData.setLastPresent(new BlockPosition(l));
         }
 
         return uniData;
@@ -197,7 +198,7 @@ public class StorageCacheUtils {
             return null;
         }
 
-        uniData.setLastPresent(l);
+        uniData.setLastPresent(new BlockPosition(l));
 
         return uniData.getUniversalMenu();
     }

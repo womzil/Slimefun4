@@ -3,6 +3,7 @@ package io.github.thebusybiscuit.slimefun4.implementation.items.androids;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunUniversalData;
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.LocationUtils;
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils;
+import io.github.bakedlibs.dough.blocks.BlockPosition;
 import io.github.bakedlibs.dough.chat.ChatInput;
 import io.github.bakedlibs.dough.common.ChatColors;
 import io.github.bakedlibs.dough.common.CommonPatterns;
@@ -1071,7 +1072,7 @@ public class ProgrammableAndroid extends SlimefunItem
             });
 
             from.setType(Material.AIR);
-            uniData.setLastPresent(to.getLocation());
+            uniData.setLastPresent(new BlockPosition(to.getLocation()));
             uniData.getUniversalMenu().update(to.getLocation());
 
             Slimefun.getTickerTask().enableTicker(to.getLocation(), uniData.getUUID());
