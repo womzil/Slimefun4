@@ -1,6 +1,6 @@
 package io.github.thebusybiscuit.slimefun4.implementation.items.androids;
 
-import me.mrCookieSlime.Slimefun.api.inventory.UniversalMenu;
+import city.norain.slimefun4.api.menu.UniversalMenu;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 

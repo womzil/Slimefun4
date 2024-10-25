@@ -3,12 +3,12 @@ package io.github.thebusybiscuit.slimefun4.implementation.tasks;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.ASlimefunDataContainer;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunUniversalData;
+import com.xzavier0722.mc.plugin.slimefun4.storage.controller.attributes.UniversalBlock;
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils;
 import io.github.bakedlibs.dough.blocks.BlockPosition;
 import io.github.bakedlibs.dough.blocks.ChunkPosition;
 import io.github.thebusybiscuit.slimefun4.api.ErrorReport;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
-import io.github.thebusybiscuit.slimefun4.core.attributes.UniversalDataSupport;
 import io.github.thebusybiscuit.slimefun4.core.ticker.TickLocation;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import java.util.Collections;
@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+import lombok.Setter;
 import me.mrCookieSlime.Slimefun.Objects.handlers.BlockTicker;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Chunk;
@@ -55,6 +56,7 @@ public class TickerTask implements Runnable {
     private boolean halted = false;
     private boolean running = false;
 
+    @Setter
     private volatile boolean paused = false;
 
     /**
@@ -336,7 +338,7 @@ public class TickerTask implements Runnable {
 
     /**
      * 返回一个给定区块下的 <strong>只读</strong> 的 {@link Map}
-     * 代表每个 {@link ChunkPosition} 中有 {@link UniversalDataSupport} 属性的物品
+     * 代表每个 {@link ChunkPosition} 中有 {@link UniversalBlock} 属性的物品
      * Tick 的 {@link Location 位置}集合.
      *
      * 其中包含的 {@link Location} 可以是已加载或卸载的 {@link Chunk}
@@ -433,9 +435,5 @@ public class TickerTask implements Runnable {
         synchronized (tickingLocations) {
             tickingLocations.values().forEach(loc -> loc.removeIf(tk -> uuid.equals(tk.getUuid())));
         }
-    }
-
-    public void setPaused(boolean isPaused) {
-        paused = isPaused;
     }
 }

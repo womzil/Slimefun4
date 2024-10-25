@@ -1,8 +1,10 @@
-package me.mrCookieSlime.Slimefun.api.inventory;
+package city.norain.slimefun4.api.menu;
 
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import lombok.Getter;
+import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
+import me.mrCookieSlime.Slimefun.api.inventory.DirtyChestMenu;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 
@@ -14,7 +16,11 @@ public class UniversalMenu extends DirtyChestMenu {
     @Getter
     private final UUID uuid;
 
-    public UniversalMenu(@Nonnull UniversalMenuPreset preset, @Nonnull UUID uuid, @Nonnull Location lastPresent) {
+    public UniversalMenu(@Nonnull UniversalMenuPreset preset, @Nonnull UUID uuid) {
+        this(preset, uuid, (Location) null);
+    }
+
+    public UniversalMenu(@Nonnull UniversalMenuPreset preset, @Nonnull UUID uuid, Location lastPresent) {
         super(preset);
         this.uuid = uuid;
 
@@ -23,10 +29,7 @@ public class UniversalMenu extends DirtyChestMenu {
     }
 
     public UniversalMenu(
-            @Nonnull UniversalMenuPreset preset,
-            @Nonnull UUID uuid,
-            @Nonnull Location lastPresent,
-            ItemStack[] contents) {
+            @Nonnull UniversalMenuPreset preset, @Nonnull UUID uuid, Location lastPresent, ItemStack[] contents) {
         super(preset);
         this.uuid = uuid;
 
@@ -42,6 +45,10 @@ public class UniversalMenu extends DirtyChestMenu {
         this.getContents();
     }
 
+    public UniversalMenu(@Nonnull UniversalMenuPreset preset, @Nonnull UUID uuid, ItemStack[] contents) {
+        this(preset, uuid, null, contents);
+    }
+
     public void update(@Nonnull Location lastPresent) {
         ((UniversalMenuPreset) preset).clone(this, lastPresent);
     }
@@ -50,10 +57,8 @@ public class UniversalMenu extends DirtyChestMenu {
      * This method drops the contents of this {@link BlockMenu} on the ground at the given
      * {@link Location}.
      *
-     * @param l
-     *            Where to drop these items
-     * @param slots
-     *            The slots of items that should be dropped
+     * @param l     Where to drop these items
+     * @param slots The slots of items that should be dropped
      */
     public void dropItems(Location l, int... slots) {
         for (int slot : slots) {

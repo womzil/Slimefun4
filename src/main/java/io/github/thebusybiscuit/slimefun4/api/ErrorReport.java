@@ -115,10 +115,10 @@ public class ErrorReport<T extends Throwable> {
                                 uuid -> {
                                     var universalData = Slimefun.getDatabaseManager()
                                             .getBlockDataController()
-                                            .getUniversalDataFromCache(uuid);
+                                            .getUniversalBlockDataFromCache(uuid);
                                     if (universalData != null) {
                                         stream.println("  数据加载状态: " + universalData.isDataLoaded());
-                                        stream.println("  物品栏: " + (universalData.getUniversalMenu() != null));
+                                        stream.println("  物品栏: " + (universalData.getMenu() != null));
                                         stream.println("  数据: ");
                                         universalData
                                                 .getAllData()

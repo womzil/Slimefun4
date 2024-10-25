@@ -3,10 +3,10 @@ package io.github.thebusybiscuit.slimefun4.implementation.listeners;
 import com.xzavier0722.mc.plugin.slimefun4.storage.callback.IAsyncReadCallback;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunUniversalData;
+import com.xzavier0722.mc.plugin.slimefun4.storage.controller.attributes.UniversalBlock;
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils;
 import io.github.thebusybiscuit.slimefun4.api.events.PlayerRightClickEvent;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
-import io.github.thebusybiscuit.slimefun4.core.attributes.UniversalDataSupport;
 import io.github.thebusybiscuit.slimefun4.core.handlers.BlockUseHandler;
 import io.github.thebusybiscuit.slimefun4.core.handlers.ItemUseHandler;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
@@ -143,7 +143,7 @@ public class SlimefunItemInteractListener implements Listener {
             if (!p.isSneaking() || event.getItem().getType() == Material.AIR) {
                 event.getInteractEvent().setCancelled(true);
 
-                if (item instanceof UniversalDataSupport) {
+                if (item instanceof UniversalBlock) {
                     var uniData = StorageCacheUtils.getUniversalBlock(clickedBlock);
 
                     if (uniData == null) {
@@ -151,7 +151,7 @@ public class SlimefunItemInteractListener implements Listener {
                     }
 
                     if (uniData.isDataLoaded()) {
-                        openMenu(uniData.getUniversalMenu(), clickedBlock, p);
+                        openMenu(uniData.getMenu(), clickedBlock, p);
                     } else {
                         Slimefun.getDatabaseManager()
                                 .getBlockDataController()
@@ -167,7 +167,7 @@ public class SlimefunItemInteractListener implements Listener {
                                             return;
                                         }
 
-                                        openMenu(result.getUniversalMenu(), clickedBlock, p);
+                                        openMenu(result.getMenu(), clickedBlock, p);
                                     }
                                 });
                     }

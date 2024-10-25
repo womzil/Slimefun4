@@ -1,35 +1,30 @@
 package com.xzavier0722.mc.plugin.slimefun4.storage.controller;
 
-import io.github.bakedlibs.dough.blocks.BlockPosition;
+import city.norain.slimefun4.api.menu.UniversalMenu;
+import com.xzavier0722.mc.plugin.slimefun4.storage.controller.attributes.UniversalDataTrait;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import lombok.Getter;
 import lombok.Setter;
-import me.mrCookieSlime.Slimefun.api.inventory.UniversalMenu;
-import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 
-@Setter
 @Getter
 public class SlimefunUniversalData extends ASlimefunDataContainer {
-    private volatile UniversalMenu universalMenu;
+    @Setter
+    private volatile UniversalMenu menu;
 
-    @Nullable private volatile BlockPosition lastPresent;
-
+    @Setter
     private volatile boolean pendingRemove = false;
 
-    @ParametersAreNonnullByDefault
-    SlimefunUniversalData(UUID uuid, BlockPosition location, String sfId) {
-        super(uuid.toString(), sfId);
-        this.lastPresent = location;
-    }
+    private final Set<UniversalDataTrait> traits = new HashSet<>();
 
     @ParametersAreNonnullByDefault
-    SlimefunUniversalData(UUID uuid, BlockPosition location, SlimefunUniversalData other) {
-        super(uuid.toString(), other, other.getSfId());
-        this.lastPresent = location;
+    SlimefunUniversalData(UUID uuid, String sfId) {
+        super(uuid.toString(), sfId);
     }
 
     @ParametersAreNonnullByDefault
@@ -47,12 +42,12 @@ public class SlimefunUniversalData extends ASlimefunDataContainer {
     }
 
     @Nullable public ItemStack[] getMenuContents() {
-        if (universalMenu == null) {
+        if (menu == null) {
             return null;
         }
         var re = new ItemStack[54];
-        var presetSlots = universalMenu.getPreset().getPresetSlots();
-        var inv = universalMenu.toInventory().getContents();
+        var presetSlots = menu.getPreset().getPresetSlots();
+        var inv = menu.toInventory().getContents();
         for (var i = 0; i < inv.length; i++) {
             if (presetSlots.contains(i)) {
                 continue;
@@ -67,12 +62,13 @@ public class SlimefunUniversalData extends ASlimefunDataContainer {
         return UUID.fromString(getKey());
     }
 
-    public Location getLastPresent() {
-        return this.lastPresent.toLocation();
+    public boolean hasTrait(UniversalDataTrait trait) {
+        return traits.contains(trait);
     }
 
     @Override
     public String toString() {
-        return "SlimefunUniversalData [sfId=" + getSfId() + ", isPendingRemove=" + pendingRemove + "]";
+        return "SlimefunUniversalData [uuid= " + getUUID() + ", sfId=" + getSfId() + ", isPendingRemove="
+                + pendingRemove + "]";
     }
 }

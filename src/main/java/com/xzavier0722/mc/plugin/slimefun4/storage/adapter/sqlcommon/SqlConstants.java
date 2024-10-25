@@ -35,5 +35,5 @@ public interface SqlConstants {
 
     String FIELD_UNIVERSAL_UUID = "universal_uuid";
 
-    String FIELD_LAST_PRESENT = "last_present";
+    String FIELD_UNIVERSAL_TRAITS = "universal_traits";
 }

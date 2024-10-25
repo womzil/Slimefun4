@@ -199,7 +199,7 @@ public class DebugFishListener implements Listener {
         }
 
         if ((data instanceof SlimefunBlockData bd && bd.getBlockMenu() != null)
-                || (data instanceof SlimefunUniversalData ud && ud.getUniversalMenu() != null)) {
+                || (data instanceof SlimefunUniversalData ud && ud.getMenu() != null)) {
             p.sendMessage(ChatColors.color("&dInventory: " + greenCheckmark));
         } else {
             p.sendMessage(ChatColors.color("&dInventory: " + redCross));

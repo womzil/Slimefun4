@@ -1,9 +1,11 @@
-package me.mrCookieSlime.Slimefun.api.inventory;
+package city.norain.slimefun4.api.menu;
 
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import me.mrCookieSlime.Slimefun.api.inventory.BlockMenuPreset;
+import me.mrCookieSlime.Slimefun.api.inventory.DirtyChestMenu;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 
@@ -31,7 +33,7 @@ public abstract class UniversalMenuPreset extends BlockMenuPreset {
                 return;
             }
 
-            clone(universalMenu, uniData.getLastPresent());
+            clone(universalMenu, uniData.getLastPresent().toLocation());
         }
     }
 

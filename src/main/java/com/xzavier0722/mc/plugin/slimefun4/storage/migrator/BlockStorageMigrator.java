@@ -152,7 +152,7 @@ public class BlockStorageMigrator implements IMigrator {
             if (sfData instanceof SlimefunBlockData blockData) {
                 menu = blockData.getBlockMenu();
             } else if (sfData instanceof SlimefunUniversalData uniData) {
-                menu = uniData.getUniversalMenu();
+                menu = uniData.getMenu();
             }
 
             if (menu != null) {

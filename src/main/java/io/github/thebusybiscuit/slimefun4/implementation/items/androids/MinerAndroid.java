@@ -1,5 +1,6 @@
 package io.github.thebusybiscuit.slimefun4.implementation.items.androids;
 
+import city.norain.slimefun4.api.menu.UniversalMenu;
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils;
 import io.github.bakedlibs.dough.protection.Interaction;
 import io.github.thebusybiscuit.slimefun4.api.events.AndroidMineEvent;
@@ -17,7 +18,6 @@ import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
-import me.mrCookieSlime.Slimefun.api.inventory.UniversalMenu;
 import org.bukkit.Bukkit;
 import org.bukkit.Effect;
 import org.bukkit.Material;

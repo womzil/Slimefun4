@@ -1,10 +1,12 @@
 package com.xzavier0722.mc.plugin.slimefun4.storage.util;
 
+import city.norain.slimefun4.api.menu.UniversalMenu;
 import com.google.common.base.Preconditions;
 import com.xzavier0722.mc.plugin.slimefun4.storage.callback.IAsyncReadCallback;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.ADataContainer;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.ASlimefunDataContainer;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
+import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunUniversalBlockData;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunUniversalData;
 import io.github.bakedlibs.dough.blocks.BlockPosition;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
@@ -16,7 +18,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
-import me.mrCookieSlime.Slimefun.api.inventory.UniversalMenu;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 
@@ -125,8 +126,8 @@ public class StorageCacheUtils {
     }
 
     @ParametersAreNonnullByDefault
-    @Nullable public static SlimefunUniversalData getUniversalBlock(UUID uuid) {
-        var uniData = Slimefun.getDatabaseManager().getBlockDataController().getUniversalDataFromCache(uuid);
+    @Nullable public static SlimefunUniversalBlockData getUniversalBlock(UUID uuid) {
+        var uniData = Slimefun.getDatabaseManager().getBlockDataController().getUniversalBlockDataFromCache(uuid);
 
         if (uniData == null) {
             return null;
@@ -141,7 +142,7 @@ public class StorageCacheUtils {
     }
 
     @ParametersAreNonnullByDefault
-    @Nullable public static SlimefunUniversalData getUniversalBlock(UUID uuid, Location l) {
+    @Nullable public static SlimefunUniversalBlockData getUniversalBlock(UUID uuid, Location l) {
         var uniData = getUniversalBlock(uuid);
 
         if (uniData != null) {
@@ -157,10 +158,10 @@ public class StorageCacheUtils {
      * You **must** call this method from sync!
      *
      * @param block {@link Block}
-     * @return {@link SlimefunUniversalData}
+     * @return {@link SlimefunUniversalBlockData}
      */
     @ParametersAreNonnullByDefault
-    @Nullable public static SlimefunUniversalData getUniversalBlock(Block block) {
+    @Nullable public static SlimefunUniversalBlockData getUniversalBlock(Block block) {
         var uuid = Slimefun.getBlockDataService().getUniversalDataUUID(block);
 
         return uuid.map(id -> getUniversalBlock(id, block.getLocation())).orElse(null);
@@ -182,12 +183,12 @@ public class StorageCacheUtils {
             return null;
         }
 
-        return uniData.getUniversalMenu();
+        return uniData.getMenu();
     }
 
     @ParametersAreNonnullByDefault
     @Nullable public static UniversalMenu getUniversalMenu(UUID uuid, Location l) {
-        var uniData = Slimefun.getDatabaseManager().getBlockDataController().getUniversalDataFromCache(uuid);
+        var uniData = Slimefun.getDatabaseManager().getBlockDataController().getUniversalBlockDataFromCache(uuid);
 
         if (uniData == null) {
             return null;
@@ -200,7 +201,7 @@ public class StorageCacheUtils {
 
         uniData.setLastPresent(new BlockPosition(l));
 
-        return uniData.getUniversalMenu();
+        return uniData.getMenu();
     }
 
     public static boolean isBlockPendingRemove(@Nonnull Block block) {

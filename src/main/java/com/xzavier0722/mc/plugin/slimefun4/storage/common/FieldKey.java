@@ -27,7 +27,7 @@ public enum FieldKey {
      */
     UNIVERSAL_UUID,
 
-    LAST_PRESENT;
+    UNIVERSAL_TRAITS;
 
     private final boolean isNumType;
 

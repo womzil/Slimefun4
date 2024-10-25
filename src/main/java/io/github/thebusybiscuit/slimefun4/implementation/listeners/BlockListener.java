@@ -2,7 +2,7 @@ package io.github.thebusybiscuit.slimefun4.implementation.listeners;
 
 import com.xzavier0722.mc.plugin.slimefun4.storage.callback.IAsyncReadCallback;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
-import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunUniversalData;
+import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunUniversalBlockData;
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils;
 import io.github.bakedlibs.dough.protection.Interaction;
 import io.github.thebusybiscuit.slimefun4.api.MinecraftVersion;
@@ -158,9 +158,9 @@ public class BlockListener implements Listener {
                             .getBlockDataController()
                             .createBlock(block.getLocation(), sfItem.getId());
 
-                    if (data instanceof SlimefunUniversalData) {
+                    if (data instanceof SlimefunUniversalBlockData) {
                         if (Slimefun.getBlockDataService().isTileEntity(block.getType())) {
-                            Slimefun.getBlockDataService().setUniversalDataUUID(block, data.getKey());
+                            Slimefun.getBlockDataService().updateUniversalDataUUID(block, data.getKey());
                         } else {
                             throw new IllegalStateException(
                                     "You must use pdc support material for this Slimefun item!");
