@@ -491,7 +491,7 @@ public class BlockDataController extends ADataController {
         var newData = new SlimefunUniversalBlockData(uuid, result.get(0).get(FieldKey.SLIMEFUN_ID));
 
         Arrays.stream(result.get(0).get(FieldKey.UNIVERSAL_TRAITS).split(",")).forEach(tname -> {
-            for (UniversalDataTrait trait : UniversalDataTrait.getTraits()) {
+            for (UniversalDataTrait trait : UniversalDataTrait.values()) {
                 if (trait.name().equals(tname)) {
                     newData.getTraits().add(trait);
                 }
@@ -709,7 +709,8 @@ public class BlockDataController extends ADataController {
                 for (String traitStr : traitsData.split(",")) {
                     try {
                         traits.add(UniversalDataTrait.valueOf(traitStr.toUpperCase()));
-                    } catch (IllegalArgumentException ignored) {}
+                    } catch (IllegalArgumentException ignored) {
+                    }
                 }
             }
 

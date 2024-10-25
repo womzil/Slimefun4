@@ -26,9 +26,19 @@ public enum UniversalDataTrait {
      */
     INVENTORY("");
 
-    UniversalDataTrait(String reverseKey) {}
+    private final String reservedKey;
 
-    public static UniversalDataTrait[] getTraits() {
-        return UniversalDataTrait.values();
+    UniversalDataTrait(String reservedKey) {
+        this.reservedKey = reservedKey;
+    }
+
+    public static boolean isReservedKey(String key) {
+        for (UniversalDataTrait trait : UniversalDataTrait.values()) {
+            if (trait.getReservedKey().equals(key)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

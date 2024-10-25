@@ -1,6 +1,7 @@
 package com.xzavier0722.mc.plugin.slimefun4.storage.controller;
 
 import city.norain.slimefun4.api.menu.UniversalMenu;
+import city.norain.slimefun4.utils.ClassUtil;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.attributes.UniversalDataTrait;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import java.util.HashSet;
@@ -30,6 +31,15 @@ public class SlimefunUniversalData extends ASlimefunDataContainer {
     @ParametersAreNonnullByDefault
     public void setData(String key, String val) {
         checkData();
+
+        if (UniversalDataTrait.isReservedKey(key)) {
+            var caller = ClassUtil.getCallerClass();
+
+            if (!caller.startsWith("com.xzavier0722.mc.plugin.slimefun4.storage.controller")) {
+                throw new RuntimeException("You cannot set data for reserved key!");
+            }
+        }
+
         setCacheInternal(key, val, true);
         Slimefun.getDatabaseManager().getBlockDataController().scheduleDelayedUniversalDataUpdate(this, key);
     }
