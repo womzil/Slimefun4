@@ -234,7 +234,7 @@ public class BlockDataController extends ADataController {
         if (sfItem instanceof UniversalBlock) {
             var re = createUniversalBlockData(l, sfId);
             if (Slimefun.getRegistry().getTickerBlocks().contains(sfId)) {
-                Slimefun.getTickerTask().enableTicker(l);
+                Slimefun.getTickerTask().enableTicker(l, re.getUUID());
             }
             return re;
         } else {

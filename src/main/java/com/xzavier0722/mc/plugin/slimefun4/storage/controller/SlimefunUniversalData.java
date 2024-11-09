@@ -1,7 +1,6 @@
 package com.xzavier0722.mc.plugin.slimefun4.storage.controller;
 
 import city.norain.slimefun4.api.menu.UniversalMenu;
-import city.norain.slimefun4.utils.ClassUtil;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.attributes.UniversalDataTrait;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import java.util.HashSet;
@@ -48,7 +47,9 @@ public class SlimefunUniversalData extends ASlimefunDataContainer {
 
         if (!trait.getReservedKey().isBlank()) {
             setCacheInternal(trait.getReservedKey(), val, true);
-            Slimefun.getDatabaseManager().getBlockDataController().scheduleDelayedUniversalDataUpdate(this, trait.getReservedKey());
+            Slimefun.getDatabaseManager()
+                    .getBlockDataController()
+                    .scheduleDelayedUniversalDataUpdate(this, trait.getReservedKey());
         }
     }
 
