@@ -1,5 +1,6 @@
 package com.xzavier0722.mc.plugin.slimefun4.storage.controller;
 
+import com.xzavier0722.mc.plugin.slimefun4.storage.controller.attributes.UniversalDataTrait;
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.LocationUtils;
 import io.github.bakedlibs.dough.blocks.BlockPosition;
 import java.util.UUID;
@@ -23,7 +24,7 @@ public class SlimefunUniversalBlockData extends SlimefunUniversalData {
     }
 
     public void setLastPresent(BlockPosition lastPresent) {
-        setData("location", LocationUtils.locationToString(lastPresent.toLocation()));
+        setTraitData(UniversalDataTrait.BLOCK, LocationUtils.locationToString(lastPresent.toLocation()));
         this.lastPresent = lastPresent;
     }
 

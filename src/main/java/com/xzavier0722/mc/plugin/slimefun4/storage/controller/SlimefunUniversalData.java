@@ -7,6 +7,7 @@ import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.logging.Level;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import lombok.Getter;
@@ -33,15 +34,22 @@ public class SlimefunUniversalData extends ASlimefunDataContainer {
         checkData();
 
         if (UniversalDataTrait.isReservedKey(key)) {
-            var caller = ClassUtil.getCallerClass();
-
-            if (!caller.startsWith("com.xzavier0722.mc.plugin.slimefun4.storage.controller")) {
-                throw new RuntimeException("You cannot set data for reserved key!");
-            }
+            Slimefun.logger().log(Level.WARNING, "警告: 有附属正在尝试修改受保护的方块数据, 已取消更改");
+            return;
         }
 
         setCacheInternal(key, val, true);
         Slimefun.getDatabaseManager().getBlockDataController().scheduleDelayedUniversalDataUpdate(this, key);
+    }
+
+    @ParametersAreNonnullByDefault
+    protected void setTraitData(UniversalDataTrait trait, String val) {
+        checkData();
+
+        if (!trait.getReservedKey().isBlank()) {
+            setCacheInternal(trait.getReservedKey(), val, true);
+            Slimefun.getDatabaseManager().getBlockDataController().scheduleDelayedUniversalDataUpdate(this, trait.getReservedKey());
+        }
     }
 
     @ParametersAreNonnullByDefault
