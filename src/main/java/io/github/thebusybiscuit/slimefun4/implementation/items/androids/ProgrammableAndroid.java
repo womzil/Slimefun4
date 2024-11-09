@@ -311,7 +311,6 @@ public class ProgrammableAndroid extends SlimefunItem
         String[] script = CommonPatterns.DASH.split(sourceCode);
 
         for (int i = 1; i < script.length; i++) {
-
             int index = i;
 
             if (i == script.length - 1) {
@@ -1029,6 +1028,16 @@ public class ProgrammableAndroid extends SlimefunItem
             }
 
             Slimefun.getTickerTask().disableTicker(from.getLocation());
+
+            // Bro encountered a ghost 💀
+            if (StorageCacheUtils.hasBlock(to.getLocation())) {
+                var data = StorageCacheUtils.getBlock(to.getLocation());
+                if (data != null && !data.isPendingRemove()) {
+                    // Since it's a ghost, we just hunt it.
+                    Slimefun.getDatabaseManager().getBlockDataController().removeBlock(to.getLocation());
+                }
+                return;
+            }
 
             to.setBlockData(Material.PLAYER_HEAD.createBlockData(data -> {
                 if (data instanceof Rotatable rotatable) {
