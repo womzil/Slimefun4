@@ -10,6 +10,8 @@ import io.github.thebusybiscuit.slimefun4.utils.JsonUtils;
 import io.github.thebusybiscuit.slimefun4.utils.PatternUtils;
 import java.util.EnumMap;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -36,7 +38,7 @@ public class BiomeMapParser<T> {
 
     private final NamespacedKey key;
     private final BiomeDataConverter<T> valueConverter;
-    private final Map<Biome, T> map = new EnumMap<>(Biome.class);
+    private final Map<Biome, T> map = new HashMap<>();
 
     /**
      * This flag specifies whether the parsing is "lenient" or not.
@@ -158,7 +160,7 @@ public class BiomeMapParser<T> {
 
     private @Nonnull Set<Biome> readBiomes(@Nonnull JsonArray array) throws BiomeMapException {
         Validate.notNull(array, "The JSON array should not be null!");
-        Set<Biome> biomes = EnumSet.noneOf(Biome.class);
+        Set<Biome> biomes = new HashSet<>();
 
         for (JsonElement element : array) {
             if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isString()) {

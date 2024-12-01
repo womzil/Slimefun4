@@ -1,5 +1,6 @@
 package io.github.thebusybiscuit.slimefun4.implementation.items.medical;
 
+import city.norain.slimefun4.compatibillty.VersionedAttribute;
 import io.github.bakedlibs.dough.items.ItemUtils;
 import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack;
@@ -36,7 +37,7 @@ public class Splint extends SimpleSlimefunItem<ItemUseHandler> {
             // Player is neither burning nor injured
             if (p.getFireTicks() <= 0
                     && p.getHealth()
-                            >= p.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()) {
+                            >= p.getAttribute(VersionedAttribute.getMaxHealth()).getValue()) {
                 return;
             }
 
