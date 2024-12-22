@@ -160,25 +160,20 @@ public class StorageCacheUtils {
 
     /**
      * Get universal data from block
-     * <p>
-     * You **must** call this method from sync!
      *
      * @param block {@link Block}
      * @return {@link SlimefunUniversalBlockData}
      */
     @ParametersAreNonnullByDefault
     @Nullable public static SlimefunUniversalBlockData getUniversalBlock(Block block) {
-        return TaskUtil.runSyncMethod(() -> {
-            var uuid = Slimefun.getBlockDataService().getUniversalDataUUID(block);
-
-            return uuid.map(id -> getUniversalBlock(id, block.getLocation())).orElse(null);
-        });
+        return Slimefun.getDatabaseManager()
+                .getBlockDataController()
+                .getUniversalBlockDataFromCache(block.getLocation())
+                .orElse(null);
     }
 
     /**
      * Get universal menu from block
-     * <p>
-     * You **must** call this method from sync!
      *
      * @param block {@link Block}
      * @return {@link SlimefunUniversalData}
