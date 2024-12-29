@@ -45,7 +45,6 @@ public class SmeltersPickaxe extends SimpleSlimefunItem<ToolUseHandler> implemen
                         drops.add(drop);
                     }
                 }
-
                 damageItem(e.getPlayer(), tool);
             }
         };
