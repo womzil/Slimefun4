@@ -1,6 +1,7 @@
 package com.xzavier0722.mc.plugin.slimefun4.storage.adapter.sqlcommon;
 
 import static com.xzavier0722.mc.plugin.slimefun4.storage.adapter.sqlcommon.SqlConstants.FIELD_TABLE_VERSION;
+import static com.xzavier0722.mc.plugin.slimefun4.storage.adapter.sqlcommon.SqlConstants.TABLE_NAME_TABLE_INFORMATION;
 
 import city.norain.slimefun4.timings.entry.SQLEntry;
 import com.xzavier0722.mc.plugin.slimefun4.storage.adapter.IDataSourceAdapter;
@@ -95,7 +96,8 @@ public abstract class SqlCommonAdapter<T extends ISqlCommonConfig> implements ID
     }
 
     public int getDatabaseVersion() {
-        return executeQuery("SELECT (" + FIELD_TABLE_VERSION + ") FROM " + tableInformationTable)
+        return executeQuery("SELECT (" + FIELD_TABLE_VERSION + ") FROM "
+                        + (tableInformationTable == null ? TABLE_NAME_TABLE_INFORMATION : tableInformationTable))
                 .getFirst()
                 .getInt(FieldKey.TABLE_VERSION);
     }
