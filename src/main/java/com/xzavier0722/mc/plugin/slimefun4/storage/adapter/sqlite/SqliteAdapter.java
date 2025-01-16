@@ -394,8 +394,8 @@ public class SqliteAdapter extends SqlCommonAdapter<SqliteConfig> {
 
         if (Slimefun.isNewlyInstalled()) {
             executeSql("INSERT INTO " + tableInformationTable + " (" + FIELD_TABLE_VERSION + ") SELECT '"
-                + IDataSourceAdapter.DATABASE_VERSION + "' WHERE NOT EXISTS (SELECT 1 FROM " + tableInformationTable
-                + ")");
+                    + IDataSourceAdapter.DATABASE_VERSION + "' WHERE NOT EXISTS (SELECT 1 FROM " + tableInformationTable
+                    + ")");
         }
     }
 
