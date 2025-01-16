@@ -391,9 +391,12 @@ public class SqliteAdapter extends SqlCommonAdapter<SqliteConfig> {
                 + FIELD_TABLE_VERSION
                 + " INT UNIQUE NOT NULL DEFAULT '0'"
                 + ");");
-        executeSql("INSERT INTO " + tableInformationTable + " (" + FIELD_TABLE_VERSION + ") SELECT '"
+
+        if (Slimefun.isNewlyInstalled()) {
+            executeSql("INSERT INTO " + tableInformationTable + " (" + FIELD_TABLE_VERSION + ") SELECT '"
                 + IDataSourceAdapter.DATABASE_VERSION + "' WHERE NOT EXISTS (SELECT 1 FROM " + tableInformationTable
                 + ")");
+        }
     }
 
     public synchronized void executeSql(String sql) {
