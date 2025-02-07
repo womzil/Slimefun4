@@ -248,8 +248,6 @@ public class BlockDataController extends ADataController {
         var uuid = UUID.randomUUID();
         var uniData = new SlimefunUniversalBlockData(uuid, sfId, l);
 
-        uniData.setIsDataLoaded(true);
-
         uniData.initLastPresent();
 
         loadedUniversalData.put(uuid, uniData);
@@ -266,6 +264,8 @@ public class BlockDataController extends ADataController {
         Slimefun.getDatabaseManager()
                 .getBlockDataController()
                 .saveUniversalData(uuid, sfId, Set.of(UniversalDataTrait.BLOCK, UniversalDataTrait.INVENTORY));
+
+        uniData.setIsDataLoaded(true);
 
         return uniData;
     }
@@ -541,13 +541,16 @@ public class BlockDataController extends ADataController {
      */
     public Optional<SlimefunUniversalBlockData> getUniversalBlockDataFromCache(@Nonnull Location l) {
         checkDestroy();
+        for (SlimefunUniversalData uniData : loadedUniversalData.values()) {
+            if (uniData instanceof SlimefunUniversalBlockData ubd
+                    && ubd.isDataLoaded()
+                    && ubd.getLastPresent() != null
+                    && l.equals(ubd.getLastPresent().toLocation())) {
+                return Optional.of(ubd);
+            }
+        }
 
-        return loadedUniversalData.values().stream()
-                .filter(uniData -> uniData instanceof SlimefunUniversalBlockData ubd
-                        && ubd.getLastPresent() != null
-                        && l.equals(ubd.getLastPresent().toLocation()))
-                .map(data -> (SlimefunUniversalBlockData) data)
-                .findFirst();
+        return Optional.empty();
     }
 
     /**
@@ -727,7 +730,7 @@ public class BlockDataController extends ADataController {
                     ? new SlimefunUniversalBlockData(uuid, sfId)
                     : new SlimefunUniversalData(uuid, sfId);
 
-            traits.forEach(t -> uniData.getTraits().add(t));
+            traits.forEach(uniData::addTrait);
 
             scheduleReadTask(() -> loadUniversalData(uniData));
         });
@@ -857,8 +860,6 @@ public class BlockDataController extends ADataController {
                             DataUtils.blockDataDebase64(recordSet.get(FieldKey.DATA_VALUE)),
                             false));
 
-            uniData.setIsDataLoaded(true);
-
             loadedUniversalData.putIfAbsent(uniData.getUUID(), uniData);
 
             if (uniData.hasTrait(UniversalDataTrait.INVENTORY)) {
@@ -902,6 +903,8 @@ public class BlockDataController extends ADataController {
                                     uniData.getUUID());
                 }
             }
+
+            uniData.setIsDataLoaded(true);
         } finally {
             lock.unlock(key);
         }
