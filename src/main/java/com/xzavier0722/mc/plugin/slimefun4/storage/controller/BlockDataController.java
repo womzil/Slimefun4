@@ -250,6 +250,8 @@ public class BlockDataController extends ADataController {
 
         uniData.initLastPresent();
 
+        uniData.setIsDataLoaded(true);
+
         loadedUniversalData.put(uuid, uniData);
 
         var preset = UniversalMenuPreset.getPreset(sfId);
@@ -264,8 +266,6 @@ public class BlockDataController extends ADataController {
         Slimefun.getDatabaseManager()
                 .getBlockDataController()
                 .saveUniversalData(uuid, sfId, Set.of(UniversalDataTrait.BLOCK, UniversalDataTrait.INVENTORY));
-
-        uniData.setIsDataLoaded(true);
 
         return uniData;
     }
@@ -862,6 +862,8 @@ public class BlockDataController extends ADataController {
 
             loadedUniversalData.putIfAbsent(uniData.getUUID(), uniData);
 
+            uniData.setIsDataLoaded(true);
+
             if (uniData.hasTrait(UniversalDataTrait.INVENTORY)) {
                 var menuPreset = UniversalMenuPreset.getPreset(uniData.getSfId());
                 if (menuPreset != null) {
@@ -903,8 +905,6 @@ public class BlockDataController extends ADataController {
                                     uniData.getUUID());
                 }
             }
-
-            uniData.setIsDataLoaded(true);
         } finally {
             lock.unlock(key);
         }
