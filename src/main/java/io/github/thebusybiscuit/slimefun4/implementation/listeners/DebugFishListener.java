@@ -208,6 +208,7 @@ public class DebugFishListener implements Listener {
         if (data instanceof SlimefunUniversalData universalData) {
             p.sendMessage(ChatColors.color("&dUniversal Item: " + greenCheckmark));
             p.sendMessage(ChatColors.color("    &dUUID: " + universalData.getUUID()));
+            p.sendMessage(ChatColors.color("    &dTrait: " + universalData.getTraits()));
         }
 
         if (item.isTicking()) {

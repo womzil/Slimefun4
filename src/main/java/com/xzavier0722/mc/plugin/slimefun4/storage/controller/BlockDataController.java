@@ -250,6 +250,7 @@ public class BlockDataController extends ADataController {
 
         uniData.setIsDataLoaded(true);
 
+        uniData.initTraits();
         uniData.initLastPresent();
 
         loadedUniversalData.put(uuid, uniData);
@@ -265,7 +266,7 @@ public class BlockDataController extends ADataController {
 
         Slimefun.getDatabaseManager()
                 .getBlockDataController()
-                .saveUniversalData(uuid, sfId, Set.of(UniversalDataTrait.BLOCK, UniversalDataTrait.INVENTORY));
+                .saveUniversalData(uuid, sfId, uniData.getTraits());
 
         return uniData;
     }
