@@ -264,9 +264,7 @@ public class BlockDataController extends ADataController {
             Slimefun.getTickerTask().enableTicker(l, uuid);
         }
 
-        Slimefun.getDatabaseManager()
-                .getBlockDataController()
-                .saveUniversalData(uuid, sfId, uniData.getTraits());
+        Slimefun.getDatabaseManager().getBlockDataController().saveUniversalData(uuid, sfId, uniData.getTraits());
 
         return uniData;
     }
