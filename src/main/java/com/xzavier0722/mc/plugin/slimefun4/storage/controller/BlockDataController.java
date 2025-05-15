@@ -378,6 +378,8 @@ public class BlockDataController extends ADataController {
             return;
         }
 
+        toRemove.setPendingRemove(true);
+
         if (toRemove instanceof SlimefunUniversalBlockData ubd) {
             toRemove.setPendingRemove(true);
             removeUniversalBlockDirectly(uuid);
@@ -390,9 +392,9 @@ public class BlockDataController extends ADataController {
             if (Slimefun.getRegistry().getTickerBlocks().contains(toRemove.getSfId())) {
                 Slimefun.getTickerTask().disableTicker(lastPresent);
             }
-
-            loadedUniversalData.remove(uuid);
         }
+
+        loadedUniversalData.remove(uuid);
     }
 
     void removeBlockDirectly(Location l) {
@@ -540,12 +542,16 @@ public class BlockDataController extends ADataController {
      */
     public Optional<SlimefunUniversalBlockData> getUniversalBlockDataFromCache(@Nonnull Location l) {
         checkDestroy();
+
         for (SlimefunUniversalData uniData : loadedUniversalData.values()) {
-            if (uniData instanceof SlimefunUniversalBlockData ubd
-                    && ubd.isDataLoaded()
-                    && ubd.getLastPresent() != null
-                    && l.equals(ubd.getLastPresent().toLocation())) {
-                return Optional.of(ubd);
+            if (uniData instanceof SlimefunUniversalBlockData ubd) {
+                if (!ubd.isDataLoaded() || !ubd.hasTrait(UniversalDataTrait.BLOCK) || ubd.getLastPresent() == null) {
+                    continue;
+                }
+
+                if (l.equals(ubd.getLastPresent().toLocation())) {
+                    return Optional.of(ubd);
+                }
             }
         }
 
@@ -721,6 +727,7 @@ public class BlockDataController extends ADataController {
             var traitsData = data.get(FieldKey.UNIVERSAL_TRAITS);
             var traits = new HashSet<UniversalDataTrait>();
 
+            // Read trait(s) of universal data
             if (traitsData != null && !traitsData.isBlank()) {
                 for (String traitStr : traitsData.split(",")) {
                     try {

@@ -339,7 +339,7 @@ public class MysqlAdapter extends SqlCommonAdapter<MysqlConfig> {
                 + FIELD_INVENTORY_SLOT
                 + " TINYINT UNSIGNED NOT NULL, "
                 + FIELD_INVENTORY_ITEM
-                + " CHAR(64) NOT NULL,"
+                + " TEXT NOT NULL,"
                 + "PRIMARY KEY ("
                 + FIELD_UNIVERSAL_UUID
                 + ", "
