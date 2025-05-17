@@ -46,7 +46,7 @@ public class SlimefunUniversalData extends ASlimefunDataContainer {
     protected void setTraitData(UniversalDataTrait trait, String val) {
         checkData();
 
-        if (!trait.getReservedKey().isBlank()) {
+        if (!trait.getReservedKey().isEmpty()) {
             setCacheInternal(trait.getReservedKey(), val, true);
             Slimefun.getDatabaseManager()
                     .getBlockDataController()
