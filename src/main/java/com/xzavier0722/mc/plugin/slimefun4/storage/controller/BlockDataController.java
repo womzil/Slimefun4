@@ -922,7 +922,6 @@ public class BlockDataController extends ADataController {
                     var lStr = ubd.getData(UniversalDataTrait.BLOCK.getReservedKey());
 
                     if (lStr == null || lStr.isBlank()) {
-                        loadedUniversalData.remove(uniData.getUUID());
                         uniData.setIsDataLoaded(false);
                         throw new IllegalArgumentException(uniData.getKey() + " 缺少 location 数据");
                     }
