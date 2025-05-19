@@ -921,12 +921,9 @@ public class BlockDataController extends ADataController {
                     // 初始化 上次出现位置
                     var lStr = ubd.getData(UniversalDataTrait.BLOCK.getReservedKey());
 
-                    if (lStr == null || lStr.isBlank()) {
-                        uniData.setIsDataLoaded(false);
-                        throw new IllegalArgumentException(uniData.getKey() + " 缺少 location 数据");
+                    if (lStr != null && !lStr.isBlank()) {
+                        ubd.setLastPresent(LocationUtils.toLocation(lStr));
                     }
-
-                    ubd.setLastPresent(LocationUtils.toLocation(lStr));
 
                     var sfItem = SlimefunItem.getById(ubd.getSfId());
 
