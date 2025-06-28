@@ -305,7 +305,7 @@
         <dependency>
             <groupId>com.github.StarWishsama.dough</groupId>
             <artifactId>dough-api</artifactId>
-            <version>7e74688682</version>
+            <version>a155ce90e3</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
