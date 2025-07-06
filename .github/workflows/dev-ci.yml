@@ -44,10 +44,10 @@ jobs:
       - name: Get build artifact filename
         run: |
           cd target && FILENAME=$(find . -maxdepth 1 -mindepth 1 -name "Slimefun-*" | cut -d'/' -f 2)
-          echo "slimefun-artifact-name=$FILENAME" >> "$GITHUB_ENV"
+          echo "SLIMEFUN_ARTIFACT_NAME=$FILENAME" >> "$GITHUB_ENV"
           cd ..
       - name: Upload Build to R2
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
-          command: "r2 object put slimefun-dev/${{ env.slimefun-artifact-name }} --file=./target/${{ env.slimefun-artifact-name }} --content-type=application/java-archive"
+          command: "r2 object put slimefun-dev/${{ env.SLIMEFUN_ARTIFACT_NAME }} --file=./target/${{ env.SLIMEFUN_ARTIFACT_NAME }} --content-type=application/java-archive"
