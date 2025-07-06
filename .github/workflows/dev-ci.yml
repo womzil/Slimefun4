@@ -29,7 +29,13 @@ jobs:
       - name: Build Slimefun
         run: mvn -s .mvn/settings.xml -B package --errors
       - name: Publish snapshots
-        run: mvn -s .mvn/settings.xml -B deploy -Dversioning.disable --errors
+        run: |
+          echo "::add-mask::$MAVEN_ACCOUNT"
+          echo "::add-mask::$MAVEN_PASSWORD"
+          mvn -s .mvn/settings.xml -B deploy -Dversioning.disable --errors
+        env:
+          MAVEN_ACCOUNT: '${{ vars.MAVEN_ACCOUNT }}'
+          MAVEN_PASSWORD: '${{ secrets.MAVEN_PASSWORD }}'
       - name: Mask Output
         run: |
           echo "::add-mask::$CF_API_TOKEN"
