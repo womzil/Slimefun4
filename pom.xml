@@ -61,14 +61,6 @@
     <!-- Repositories that host our dependencies -->
     <!-- Well, any that aren't found on maven-central. -->
     <repositories>
-        <!-- Public dough downstream repo -->
-        <repository>
-            <id>gugu-maven-repo</id>
-            <url>https://maven.norain.city/snapshots</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
         <repository>
             <!-- Spigot-API -->
             <id>spigot-repo</id>
@@ -78,6 +70,14 @@
             <!-- PaperLib -->
             <id>paper-repo</id>
             <url>https://repo.papermc.io/repository/maven-public/</url>
+        </repository>
+        <!-- Public dough downstream repo -->
+        <repository>
+            <id>gugu-maven-repo</id>
+            <url>https://maven.norain.city/snapshots</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </repository>
         <repository>
             <!-- ItemsAdder -->
