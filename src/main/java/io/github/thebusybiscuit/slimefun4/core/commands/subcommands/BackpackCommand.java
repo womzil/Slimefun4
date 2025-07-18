@@ -63,7 +63,7 @@ class BackpackCommand extends SubCommand {
                                 .getPlayerUuidAsync(args[1], new IAsyncReadCallback<>() {
                                     @Override
                                     public void onResult(UUID result) {
-                                        if (!player.isOnline()) {
+                                        if (!player.isConnected()) {
                                             return;
                                         }
                                         openBackpackMenu(Bukkit.getOfflinePlayer(result), player);
@@ -105,7 +105,7 @@ class BackpackCommand extends SubCommand {
 
                     @Override
                     public void onResult(Set<PlayerBackpack> result) {
-                        if (!p.isOnline()) {
+                        if (!p.isConnected()) {
                             return;
                         }
                         showBackpackMenu(owner, p, result, 1);

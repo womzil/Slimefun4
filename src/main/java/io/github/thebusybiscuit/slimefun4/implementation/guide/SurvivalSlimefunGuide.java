@@ -14,6 +14,8 @@ import io.github.thebusybiscuit.slimefun4.api.player.PlayerProfile;
 import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType;
 import io.github.thebusybiscuit.slimefun4.api.researches.Research;
 import io.github.thebusybiscuit.slimefun4.core.attributes.RecipeDisplayItem;
+import io.github.thebusybiscuit.slimefun4.core.debug.Debug;
+import io.github.thebusybiscuit.slimefun4.core.debug.TestCase;
 import io.github.thebusybiscuit.slimefun4.core.guide.GuideHistory;
 import io.github.thebusybiscuit.slimefun4.core.guide.SlimefunGuide;
 import io.github.thebusybiscuit.slimefun4.core.guide.SlimefunGuideImplementation;
@@ -134,6 +136,19 @@ public class SurvivalSlimefunGuide implements SlimefunGuideImplementation {
         Player p = profile.getPlayer();
 
         if (p == null) {
+            if (!profile.getOwner().isConnected()) {
+                Debug.log(
+                        TestCase.INVENTORY,
+                        "A disconnected player tried to open guide, id = {}({})",
+                        profile.getOwner().getName(),
+                        profile.getOwner().getUniqueId());
+            } else {
+                Debug.log(
+                        TestCase.INVENTORY,
+                        "A offline player tried to open guide, id = {}({})",
+                        profile.getOwner().getName(),
+                        profile.getOwner().getUniqueId());
+            }
             return;
         }
 
