@@ -255,8 +255,7 @@
                 <version>3.11.2</version>
 
                 <configuration>
-                    <reportOutputDirectory>${project.basedir}</reportOutputDirectory>
-                    <destDir>javadocs</destDir>
+                    <outputDirectory>${project.basedir}/javadocs</outputDirectory>
 
                     <doctitle>Slimefun4 - Javadocs</doctitle>
                     <windowtitle>Slimefun4 - Javadocs</windowtitle>
