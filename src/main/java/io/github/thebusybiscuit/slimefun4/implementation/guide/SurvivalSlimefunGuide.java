@@ -136,19 +136,11 @@ public class SurvivalSlimefunGuide implements SlimefunGuideImplementation {
         Player p = profile.getPlayer();
 
         if (p == null) {
-            if (!profile.getOwner().isConnected()) {
-                Debug.log(
-                        TestCase.INVENTORY,
-                        "A disconnected player tried to open guide, id = {}({})",
-                        profile.getOwner().getName(),
-                        profile.getOwner().getUniqueId());
-            } else {
-                Debug.log(
-                        TestCase.INVENTORY,
-                        "A offline player tried to open guide, id = {}({})",
-                        profile.getOwner().getName(),
-                        profile.getOwner().getUniqueId());
-            }
+            Debug.log(
+                    TestCase.INVENTORY,
+                    "A disconnected player tried to open guide, id = {}({})",
+                    profile.getOwner().getName(),
+                    profile.getOwner().getUniqueId());
             return;
         }
 

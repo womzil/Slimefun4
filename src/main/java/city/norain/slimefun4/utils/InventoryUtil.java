@@ -19,7 +19,7 @@ public class InventoryUtil {
             return;
         }
 
-        if (!p.isConnected()) {
+        if (!PlayerUtil.isConnected(p)) {
             Debug.log(
                     TestCase.INVENTORY,
                     "Tried to open an inventory for a player that is not connected: " + p.getName());
