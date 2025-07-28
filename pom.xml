@@ -302,7 +302,7 @@
                         </group>
                         <group>
                             <title>数据库相关实现</title>
-                            <packages>com.xzavier0722.mc.plugin.slimefun4*</packages>
+                            <packages>com.xzavier0722.mc.plugin.slimefun4.storage*</packages>
                         </group>
                         <group>
                             <title>汉化版额外实现</title>
