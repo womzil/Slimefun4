@@ -71,8 +71,8 @@ public abstract class ADataController {
         readExecutor = Executors.newFixedThreadPool(maxReadThread, new DatabaseThreadFactory("SF-DB-Read-Thread #"));
         writeExecutor = Executors.newFixedThreadPool(maxWriteThread, new DatabaseThreadFactory("SF-DB-Write-Thread #"));
         callbackExecutor = new ThreadPoolExecutor(
-                0,
-                128,
+                2,
+                Runtime.getRuntime().availableProcessors(),
                 10,
                 TimeUnit.SECONDS,
                 new ArrayBlockingQueue<>(128),
