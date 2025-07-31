@@ -32,6 +32,12 @@ public class SlimefunUniversalData extends ASlimefunDataContainer {
     }
 
     @ParametersAreNonnullByDefault
+    SlimefunUniversalData(UUID uuid, String sfId, Set<UniversalDataTrait> traits) {
+        super(uuid.toString(), sfId);
+        this.traits.addAll(traits);
+    }
+
+    @ParametersAreNonnullByDefault
     public void setData(String key, String val) {
         checkData();
 
