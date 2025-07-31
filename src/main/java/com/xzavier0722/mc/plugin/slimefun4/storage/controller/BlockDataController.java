@@ -241,18 +241,7 @@ public class BlockDataController extends ADataController {
      */
     @Nonnull
     public SlimefunUniversalData createUniversalData(String sfId) {
-        checkDestroy();
-
-        var uuid = UUID.randomUUID();
-        var uniData = new SlimefunUniversalData(uuid, sfId);
-
-        uniData.setIsDataLoaded(true);
-
-        loadedUniversalData.put(uuid, uniData);
-
-        Slimefun.getDatabaseManager().getBlockDataController().saveUniversalData(uniData);
-
-        return uniData;
+        return createUniversalData(UUID.randomUUID(), sfId);
     }
 
     /**
