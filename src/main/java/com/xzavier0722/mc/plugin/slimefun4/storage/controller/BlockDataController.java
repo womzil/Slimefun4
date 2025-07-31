@@ -256,6 +256,10 @@ public class BlockDataController extends ADataController {
     public SlimefunUniversalData createUniversalData(UUID uuid, String sfId) {
         checkDestroy();
 
+        if (getUniversalDataFromCache(uuid) != null || getUniversalData(uuid) != null) {
+            throw new IllegalArgumentException("A universal data with this UUID already exists: " + uuid);
+        }
+
         var uniData = new SlimefunUniversalData(uuid, sfId);
 
         uniData.setIsDataLoaded(true);
