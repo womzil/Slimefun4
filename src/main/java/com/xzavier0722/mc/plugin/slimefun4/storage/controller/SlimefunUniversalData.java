@@ -12,8 +12,10 @@ import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.bukkit.inventory.ItemStack;
 
+@Slf4j
 @Getter
 public class SlimefunUniversalData extends ASlimefunDataContainer {
     @Setter
@@ -48,6 +50,7 @@ public class SlimefunUniversalData extends ASlimefunDataContainer {
 
         if (!trait.getReservedKey().isEmpty()) {
             setCacheInternal(trait.getReservedKey(), val, true);
+
             Slimefun.getDatabaseManager()
                     .getBlockDataController()
                     .scheduleDelayedUniversalDataUpdate(this, trait.getReservedKey());

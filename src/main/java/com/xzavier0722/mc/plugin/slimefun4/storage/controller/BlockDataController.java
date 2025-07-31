@@ -100,7 +100,7 @@ public class BlockDataController extends ADataController {
 
     BlockDataController() {
         super(DataType.BLOCK_STORAGE);
-        delayedWriteTasks = new HashMap<>();
+        delayedWriteTasks = new ConcurrentHashMap<>();
         loadedChunk = new ConcurrentHashMap<>();
         loadedUniversalData = new ConcurrentHashMap<>();
         invSnapshots = new ConcurrentHashMap<>();
@@ -195,17 +195,7 @@ public class BlockDataController extends ADataController {
                 .runTaskTimerAsynchronously(
                         p,
                         new DelayedSavingLooperTask(
-                                forceSavePeriod,
-                                () -> {
-                                    synchronized (delayedWriteTasks) {
-                                        return new HashMap<>(delayedWriteTasks);
-                                    }
-                                },
-                                key -> {
-                                    synchronized (delayedWriteTasks) {
-                                        delayedWriteTasks.remove(key);
-                                    }
-                                }),
+                                forceSavePeriod, () -> new HashMap<>(delayedWriteTasks), delayedWriteTasks::remove),
                         20,
                         20);
     }
@@ -282,7 +272,6 @@ public class BlockDataController extends ADataController {
         uniData.setIsDataLoaded(true);
 
         uniData.initTraits();
-        uniData.initLastPresent();
 
         loadedUniversalData.put(uuid, uniData);
 
@@ -300,6 +289,8 @@ public class BlockDataController extends ADataController {
         if (Slimefun.getBlockDataService().isTileEntity(l.getBlock().getType())) {
             Slimefun.getBlockDataService().updateUniversalDataUUID(l.getBlock(), uniData.getKey());
         }
+
+        uniData.initLastPresent();
 
         return uniData;
     }
@@ -777,7 +768,10 @@ public class BlockDataController extends ADataController {
                 for (String traitStr : traitsData.split(",")) {
                     try {
                         traits.add(UniversalDataTrait.valueOf(traitStr.toUpperCase()));
-                    } catch (IllegalArgumentException ignored) {
+                    } catch (IllegalArgumentException e) {
+                        logger.log(Level.WARNING, "Invalid trait '{0}' for universal data {1}.", new Object[] {
+                            traitStr, uuid
+                        });
                     }
                 }
             }
@@ -932,7 +926,7 @@ public class BlockDataController extends ADataController {
 
                     var sfItem = SlimefunItem.getById(ubd.getSfId());
 
-                    if (sfItem != null && sfItem.isTicking()) {
+                    if (sfItem != null && sfItem.isTicking() && ubd.getLastPresent() != null) {
                         Slimefun.getTickerTask()
                                 .enableTicker(ubd.getLastPresent().toLocation(), ubd.getUUID());
                     }
@@ -954,20 +948,25 @@ public class BlockDataController extends ADataController {
                             .forEach(recordSet -> inv[recordSet.getInt(FieldKey.INVENTORY_SLOT)] =
                                     recordSet.getItemStack(FieldKey.INVENTORY_ITEM));
 
-                    var location = uniData.hasTrait(UniversalDataTrait.BLOCK)
-                            ? ((SlimefunUniversalBlockData) uniData)
-                                    .getLastPresent()
-                                    .toLocation()
-                            : null;
+                    Location location = null;
+
+                    if (uniData instanceof SlimefunUniversalBlockData ubd && ubd.hasTrait(UniversalDataTrait.BLOCK)) {
+                        if (ubd.getLastPresent() != null) {
+                            location = ubd.getLastPresent().toLocation();
+                        }
+                    }
 
                     uniData.setMenu(new UniversalMenu(menuPreset, uniData.getUUID(), location, inv));
 
                     var content = uniData.getMenuContents();
+
                     if (content != null) {
                         invSnapshots.put(uniData.getKey(), InvStorageUtils.getInvSnapshot(content));
                     }
                 }
             }
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Failed to load universal data: " + uniData.getKey(), e);
         } finally {
             lock.unlock(key);
         }
@@ -1180,7 +1179,7 @@ public class BlockDataController extends ADataController {
     /**
      * Save universal inventory by async way
      *
-     * @param ubd {@link SlimefunUniversalBlockData}
+     * @param ubd  {@link SlimefunUniversalBlockData}
      * @param slot updated item slot
      */
     private void scheduleDelayedUniversalInvUpdate(SlimefunUniversalData ubd, int slot) {
@@ -1248,6 +1247,7 @@ public class BlockDataController extends ADataController {
         var reqKey = new RecordKey(DataScope.UNIVERSAL_DATA);
         reqKey.addCondition(FieldKey.UNIVERSAL_UUID, universalData.getKey());
         reqKey.addCondition(FieldKey.DATA_KEY, key);
+
         if (enableDelayedSaving) {
             scheduleDelayedUpdateTask(
                     new LinkedKey(scopeKey, reqKey),
@@ -1310,6 +1310,7 @@ public class BlockDataController extends ADataController {
     private void scheduleDelayedUpdateTask(LinkedKey key, Runnable run) {
         synchronized (delayedWriteTasks) {
             var task = delayedWriteTasks.get(key);
+
             if (task != null && !task.isExecuted()) {
                 task.setRunAfter(delayedSecond, TimeUnit.SECONDS);
                 return;
