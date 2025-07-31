@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
+
+import io.github.thebusybiscuit.slimefun4.utils.compatibility.VersionedBiome;
 import org.apache.commons.lang.Validate;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Biome;
@@ -168,7 +170,7 @@ public class BiomeMapParser<T> {
                     String formattedValue = CommonPatterns.COLON.split(value)[1].toUpperCase(Locale.ROOT);
 
                     try {
-                        Biome biome = Biome.valueOf(formattedValue);
+                        Biome biome = VersionedBiome.valueOf(formattedValue);
                         biomes.add(biome);
                     } catch (IllegalArgumentException x) {
                         // Lenient Parsers will ignore unknown biomes

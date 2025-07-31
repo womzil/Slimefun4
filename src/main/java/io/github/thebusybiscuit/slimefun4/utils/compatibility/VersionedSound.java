@@ -7,9 +7,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 
 /**
- * Sound 多版本兼容。
- * <p>
- * 1.21.3 Sound 由enum改为interface，需要使用反射获取 Sound 名称。
+ * Sound 多版本兼容
  *
  * @author ybw0014
  */
