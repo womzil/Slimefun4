@@ -4,12 +4,8 @@
 name: Pull Request Checker
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
-    paths:
-      - '.github/workflows/**'
-      - 'src/**'
-      - 'pom.xml'
+  workflow_call:
+    secrets: inherit
 
 env:
   TZ: 'Asia/Shanghai'
@@ -32,7 +28,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: 21
+          java-version: ${{ vars.JAVA_CI_VERSION }}
           java-package: jdk
           architecture: x64
           cache: 'maven'
