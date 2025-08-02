@@ -56,11 +56,14 @@ jobs:
     needs: [ spotless ]
     if: ${{ github.event.action == 'push' && github.ref_name == 'dev' }}
     uses: ./.github/workflows/dev-ci.yml
+    secrets: inherit
   call-beta-ci:
     needs: [ spotless ]
     if: ${{ github.event.action == 'push' && github.ref_name == 'master' }}
     uses: ./.github/workflows/build-ci.yml
+    secrets: inherit
   call-pr-checker:
     needs: [ spotless ]
     if: ${{ github.event.action == 'pull_request' }}
     uses: ./.github/workflows/pr-checker.yml
+    secrets: inherit
