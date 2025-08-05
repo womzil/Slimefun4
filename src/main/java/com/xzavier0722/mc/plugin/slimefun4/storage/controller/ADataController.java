@@ -1,5 +1,6 @@
 package com.xzavier0722.mc.plugin.slimefun4.storage.controller;
 
+import city.norain.slimefun4.utils.ControllerPoolExecutor;
 import city.norain.slimefun4.utils.TaskTimer;
 import com.xzavier0722.mc.plugin.slimefun4.storage.adapter.IDataSourceAdapter;
 import com.xzavier0722.mc.plugin.slimefun4.storage.callback.IAsyncReadCallback;
@@ -15,7 +16,6 @@ import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -68,14 +68,27 @@ public abstract class ADataController {
         this.dataAdapter = dataAdapter;
         dataAdapter.initStorage(dataType);
         dataAdapter.patch();
-        readExecutor = Executors.newFixedThreadPool(maxReadThread, new DatabaseThreadFactory("SF-DB-Read-Thread #"));
-        writeExecutor = Executors.newFixedThreadPool(maxWriteThread, new DatabaseThreadFactory("SF-DB-Write-Thread #"));
-        callbackExecutor = new ThreadPoolExecutor(
-                2,
-                Runtime.getRuntime().availableProcessors(),
+        readExecutor = new ControllerPoolExecutor(
+                maxReadThread,
+                maxReadThread,
                 10,
                 TimeUnit.SECONDS,
-                new ArrayBlockingQueue<>(128),
+                new ArrayBlockingQueue<>(32),
+                new DatabaseThreadFactory("SF-DB-Read-Thread #"));
+
+        writeExecutor = new ControllerPoolExecutor(
+                maxWriteThread,
+                maxWriteThread,
+                10,
+                TimeUnit.SECONDS,
+                new ArrayBlockingQueue<>(32),
+                new DatabaseThreadFactory("SF-DB-Write-Thread #"));
+        callbackExecutor = new ThreadPoolExecutor(
+                1,
+                Runtime.getRuntime().availableProcessors() / 2,
+                10,
+                TimeUnit.SECONDS,
+                new ArrayBlockingQueue<>(64),
                 new DatabaseThreadFactory("SF-DB-CB-Thread #"));
     }
 
@@ -173,7 +186,7 @@ public abstract class ADataController {
             };
             queuedTask.queue(key, task);
             scheduledWriteTasks.put(scopeToUse, queuedTask);
-            writeExecutor.submit(queuedTask);
+            writeExecutor.execute(queuedTask);
         } finally {
             lock.unlock(scopeKey);
         }
@@ -200,18 +213,18 @@ public abstract class ADataController {
         if (callback.runOnMainThread()) {
             Slimefun.runSync(cb);
         } else {
-            callbackExecutor.submit(cb);
+            callbackExecutor.execute(cb);
         }
     }
 
     protected void scheduleReadTask(Runnable run) {
         checkDestroy();
-        readExecutor.submit(run);
+        readExecutor.execute(run);
     }
 
     protected void scheduleWriteTask(Runnable run) {
         checkDestroy();
-        writeExecutor.submit(run);
+        writeExecutor.execute(run);
     }
 
     protected List<RecordSet> getData(RecordKey key) {
