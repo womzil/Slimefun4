@@ -34,8 +34,10 @@ jobs:
       - name: Spotless check
         id: spotless-check
         run: |
+          set +e
           mvn -B spotless:check --errors
           echo "exit_code=$?" >> $GITHUB_OUTPUT
+          set -e
         continue-on-error: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
 
       - name: Spotless apply (if needed)
