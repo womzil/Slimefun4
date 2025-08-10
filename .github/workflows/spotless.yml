@@ -10,6 +10,7 @@ on:
     paths:
       - 'src/**'
       - 'pom.xml'
+  workflow_dispatch:
 
 env:
   TZ: 'Asia/Shanghai'
@@ -32,17 +33,19 @@ jobs:
 
       - name: Spotless check
         id: spotless-check
-        run: mvn -B spotless:check --errors
+        run: |
+          mvn -B spotless:check --errors
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
         continue-on-error: ${{ github.event_name == 'push' }}
 
       - name: Spotless apply (if needed)
         id: spotless-apply
-        if: ${{ github.event_name == 'push' && failure() && steps.spotless-check.outcome == 'failure' }}
+        if: ${{ github.event_name == 'push' && steps.spotless-check.outputs.exit_code != '0' }}
         run: mvn -B spotless:apply --errors
 
       - name: Push changes
         uses: EndBug/add-and-commit@v9.1.4
-        if: ${{ github.event_name == 'push'}}
+        if: ${{ github.event_name == 'push' && success()}}
         with:
           github_token: ${{ secrets.ACCESS_TOKEN }}
           add: '.'
