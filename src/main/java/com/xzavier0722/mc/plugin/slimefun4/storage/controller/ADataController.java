@@ -122,7 +122,7 @@ public abstract class ADataController {
                 }
 
                 // 展示疑似死锁任务
-                if ((taskTimer.peek() / 1000 / 60) > 2) {
+                if ((taskTimer.peek() / 1000) > 15) {
                     logger.log(Level.WARNING, "检测到数据保存时出现的长耗时任务，可以截图下列信息供反馈参考 ({0}):\n", new Object[] {
                         scheduledWriteTasks.size()
                     });
@@ -130,8 +130,8 @@ public abstract class ADataController {
                     for (var task : taskSnapshot.entrySet()) {
                         var key = task.getKey();
                         var value = task.getValue();
-                        logger.log(Level.WARNING, "On scope {0}:", new Object[] {key});
-                        logger.log(Level.WARNING, "     {0}", new Object[] {value});
+                        logger.log(Level.WARNING, "Scope {0}:", new Object[] {key});
+                        logger.log(Level.WARNING, "      {0}", new Object[] {value});
                         logger.log(Level.WARNING, " ");
                     }
                 }
