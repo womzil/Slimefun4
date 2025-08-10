@@ -2,7 +2,6 @@ package city.norain.slimefun4.timings;
 
 import city.norain.slimefun4.timings.entry.TimingEntry;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
-
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.logging.Level;
