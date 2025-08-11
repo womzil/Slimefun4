@@ -1,6 +1,7 @@
 package com.xzavier0722.mc.plugin.slimefun4.storage.controller;
 
-import city.norain.slimefun4.utils.ControllerPoolExecutor;
+import city.norain.slimefun4.utils.SlimefunPoolExecutor;
+import city.norain.slimefun4.utils.TaskTimer;
 import com.xzavier0722.mc.plugin.slimefun4.storage.adapter.IDataSourceAdapter;
 import com.xzavier0722.mc.plugin.slimefun4.storage.callback.IAsyncReadCallback;
 import com.xzavier0722.mc.plugin.slimefun4.storage.common.DataType;
@@ -66,7 +67,7 @@ public abstract class ADataController {
         this.dataAdapter = dataAdapter;
         dataAdapter.initStorage(dataType);
         dataAdapter.patch();
-        readExecutor = new ControllerPoolExecutor(
+        readExecutor = new SlimefunPoolExecutor(
                 "SF-DB-Read-Executor",
                 maxReadThread,
                 maxReadThread,
@@ -75,7 +76,7 @@ public abstract class ADataController {
                 new LinkedBlockingQueue<>(),
                 new DatabaseThreadFactory("SF-DB-Read-Thread #"));
 
-        writeExecutor = new ControllerPoolExecutor(
+        writeExecutor = new SlimefunPoolExecutor(
                 "SF-DB-Write-Executor",
                 maxWriteThread,
                 maxWriteThread,
@@ -84,7 +85,7 @@ public abstract class ADataController {
                 new LinkedBlockingQueue<>(),
                 new DatabaseThreadFactory("SF-DB-Write-Thread #"));
 
-        callbackExecutor = new ControllerPoolExecutor(
+        callbackExecutor = new SlimefunPoolExecutor(
                 "SF-DB-Callback-Executor",
                 1,
                 Runtime.getRuntime().availableProcessors() / 2,
@@ -109,11 +110,23 @@ public abstract class ADataController {
         try {
             float totalTask = scheduledWriteTasks.size();
             var pendingTask = scheduledWriteTasks.size();
+            var timer = new TaskTimer();
 
             while (pendingTask > 0) {
                 var doneTaskPercent = String.format("%.1f", (totalTask - pendingTask) / totalTask * 100);
                 logger.log(Level.INFO, "数据保存中，请稍候... 剩余 {0} 个任务 ({1}%)", new Object[] {pendingTask, doneTaskPercent});
                 TimeUnit.SECONDS.sleep(1);
+                var currentTask = scheduledWriteTasks.size();
+
+                if (pendingTask == currentTask) {
+                    if (timer.peek() / 1000 > 10) {
+                        Slimefun.logger().log(Level.WARNING, "检测到耗时保存任务, 请将下面的线程堆栈 完整 发送给开发者以便定位问题: ");
+                        Slimefun.logger().log(Level.WARNING, Slimefun.getProfiler().snapshotThreads());
+                    }
+                } else {
+                    timer.reset();
+                }
+
                 pendingTask = scheduledWriteTasks.size();
             }
 

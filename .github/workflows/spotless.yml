@@ -1,4 +1,5 @@
-name: spotless.yml
+name: Spotless
+
 on:
   push:
     branches: [ master, dev ]
