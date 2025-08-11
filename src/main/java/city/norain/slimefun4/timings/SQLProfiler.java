@@ -20,7 +20,9 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.scheduler.BukkitTask;
 
 public class SQLProfiler {
     private final ExecutorService reportExecutor = Executors.newFixedThreadPool(1, r -> {
@@ -43,8 +45,8 @@ public class SQLProfiler {
 
     public void initSlowSqlCheck(@Nonnull Slimefun plugin) {
         plugin.getServer()
-                .getScheduler()
-                .runTaskTimerAsynchronously(plugin, new SlowSqlCheckTask(() -> samplingEntries), 20L, 20L);
+            .getScheduler()
+            .runTaskTimerAsynchronously(plugin, new SlowSqlCheckTask(() -> samplingEntries), 20L, 20L);
     }
 
     public void start() {
@@ -91,6 +93,12 @@ public class SQLProfiler {
         isProfiling = false;
 
         reportExecutor.execute(this::generateReport);
+    }
+
+    public void shutdown() {
+        stop();
+
+        reportExecutor.shutdownNow();
     }
 
     public void generateReport() {

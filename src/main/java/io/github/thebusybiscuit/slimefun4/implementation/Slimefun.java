@@ -480,7 +480,7 @@ public final class Slimefun extends JavaPlugin implements SlimefunAddon, ICompat
         }
 
         SlimefunExtended.shutdown();
-        getSQLProfiler().stop();
+        getSQLProfiler().shutdown();
 
         // Cancel all tasks from this plugin immediately
         Bukkit.getScheduler().cancelTasks(this);
