@@ -1,7 +1,6 @@
 package city.norain.slimefun4.utils;
 
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
-
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -11,12 +10,12 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import javax.annotation.Nonnull;
-
 import lombok.Getter;
 
 public class SlimefunPoolExecutor extends ThreadPoolExecutor {
     @Getter
     private final String name;
+
     @Getter
     private final List<Thread> runningThreads = new CopyOnWriteArrayList<>();
 
@@ -49,11 +48,11 @@ public class SlimefunPoolExecutor extends ThreadPoolExecutor {
 
             if (t != null) {
                 Slimefun.logger()
-                    .log(
-                        Level.WARNING,
-                        "An error occurred in " + name + "("
-                            + Thread.currentThread().getName() + ")",
-                        t);
+                        .log(
+                                Level.WARNING,
+                                "An error occurred in " + name + "("
+                                        + Thread.currentThread().getName() + ")",
+                                t);
             }
 
             if (r instanceof FutureTask<?> future) {
@@ -61,11 +60,11 @@ public class SlimefunPoolExecutor extends ThreadPoolExecutor {
                     future.get();
                 } catch (Exception e) {
                     Slimefun.logger()
-                        .log(
-                            Level.WARNING,
-                            "An error occurred in " + name + "("
-                                + Thread.currentThread().getName() + ")",
-                            t);
+                            .log(
+                                    Level.WARNING,
+                                    "An error occurred in " + name + "("
+                                            + Thread.currentThread().getName() + ")",
+                                    t);
                 }
             }
         } finally {

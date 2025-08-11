@@ -2,7 +2,6 @@ package city.norain.slimefun4.utils;
 
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.attributes.UniversalDataTrait;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
-
 import java.lang.management.ThreadInfo;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -99,17 +98,16 @@ public class StringUtil {
         // 持有的锁
         if (threadInfo.getLockedMonitors().length > 0) {
             sb.append("   Locked monitors:\n");
-            Arrays.stream(threadInfo.getLockedMonitors()).forEach(monitor ->
-                sb.append("\t- locked ").append(monitor.toString()).append("\n")
-            );
+            Arrays.stream(threadInfo.getLockedMonitors())
+                    .forEach(monitor ->
+                            sb.append("\t- locked ").append(monitor.toString()).append("\n"));
         }
 
         // 持有的同步器
         if (threadInfo.getLockedSynchronizers().length > 0) {
             sb.append("   Locked synchronizers:\n");
-            Arrays.stream(threadInfo.getLockedSynchronizers()).forEach(sync ->
-                sb.append("\t- ").append(sync.toString()).append("\n")
-            );
+            Arrays.stream(threadInfo.getLockedSynchronizers())
+                    .forEach(sync -> sb.append("\t- ").append(sync.toString()).append("\n"));
         }
 
         return sb.toString();

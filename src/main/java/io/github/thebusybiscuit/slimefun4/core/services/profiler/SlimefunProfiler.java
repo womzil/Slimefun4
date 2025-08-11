@@ -8,9 +8,7 @@ import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import io.github.thebusybiscuit.slimefun4.implementation.tasks.TickerTask;
 import io.github.thebusybiscuit.slimefun4.utils.NumberUtils;
-
 import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -27,7 +25,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import javax.annotation.Nonnull;
-
 import lombok.Getter;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Chunk;
@@ -67,7 +64,7 @@ public class SlimefunProfiler {
      * So we cannot simply wait until the next server tick for this.
      */
     private final ExecutorService executor =
-        Executors.newFixedThreadPool(threadFactory.getThreadCount(), threadFactory);
+            Executors.newFixedThreadPool(threadFactory.getThreadCount(), threadFactory);
 
     /**
      * All possible values of {@link PerformanceRating}.
@@ -222,8 +219,8 @@ public class SlimefunProfiler {
 
                     while (iterator.hasNext()) {
                         iterator.next()
-                            .sendMessage("Your timings report has timed out, we were still waiting for "
-                                + queued.get() + " samples to be collected :/");
+                                .sendMessage("Your timings report has timed out, we were still waiting for "
+                                        + queued.get() + " samples to be collected :/");
                         iterator.remove();
                     }
 
@@ -243,7 +240,7 @@ public class SlimefunProfiler {
         totalElapsedTime = timings.values().stream().mapToLong(Long::longValue).sum();
 
         averageTimingsPerMachine.getAndSet(
-            timings.values().stream().mapToLong(Long::longValue).average().orElse(0));
+                timings.values().stream().mapToLong(Long::longValue).average().orElse(0));
 
         /*
          * We log how many milliseconds have been ticked, and how many ticks have passed
@@ -415,7 +412,7 @@ public class SlimefunProfiler {
         Validate.notNull(chunk, "Cannot get timings for a null Chunk");
 
         long time = getByChunk()
-            .getOrDefault(chunk.getWorld().getName() + " (" + chunk.getX() + ',' + chunk.getZ() + ')', 0L);
+                .getOrDefault(chunk.getWorld().getName() + " (" + chunk.getX() + ',' + chunk.getZ() + ')', 0L);
         return NumberUtils.getAsMillis(time);
     }
 
@@ -467,21 +464,21 @@ public class SlimefunProfiler {
 
         for (SlimefunPoolExecutor executor : threadPools) {
             sb.append(executor.getName())
-                .append(" (")
-                .append(executor.getCorePoolSize())
-                .append(" / ")
-                .append(executor.getMaximumPoolSize())
-                .append(") ")
-                .append(": ")
-                .append("\n")
-                .append(executor.getActiveCount())
-                .append(" | ")
-                .append(executor.getCompletedTaskCount())
-                .append(" | ")
-                .append(executor.getTaskCount())
-                .append(" | ")
-                .append(executor.getQueue().size())
-                .append("\n");
+                    .append(" (")
+                    .append(executor.getCorePoolSize())
+                    .append(" / ")
+                    .append(executor.getMaximumPoolSize())
+                    .append(") ")
+                    .append(": ")
+                    .append("\n")
+                    .append(executor.getActiveCount())
+                    .append(" | ")
+                    .append(executor.getCompletedTaskCount())
+                    .append(" | ")
+                    .append(executor.getTaskCount())
+                    .append(" | ")
+                    .append(executor.getQueue().size())
+                    .append("\n");
         }
 
         return sb.toString();
@@ -493,7 +490,7 @@ public class SlimefunProfiler {
         for (SlimefunPoolExecutor threadPool : threadPools) {
             for (Thread t : threadPool.getRunningThreads()) {
                 sb.append(StringUtil.formatDetailedThreadInfo(threadMXBean.getThreadInfo(t.getId(), Integer.MAX_VALUE)))
-                    .append("\n");
+                        .append("\n");
             }
         }
 
