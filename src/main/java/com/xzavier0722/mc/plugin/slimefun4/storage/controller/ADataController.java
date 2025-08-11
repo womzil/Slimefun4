@@ -73,7 +73,7 @@ public abstract class ADataController {
                 maxReadThread,
                 10,
                 TimeUnit.SECONDS,
-                new ArrayBlockingQueue<>(32),
+                new LinkedBlockingQueue<>(),
                 new DatabaseThreadFactory("SF-DB-Read-Thread #"));
 
         writeExecutor = new ControllerPoolExecutor(
