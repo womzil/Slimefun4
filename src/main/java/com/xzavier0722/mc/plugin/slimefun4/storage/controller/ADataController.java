@@ -16,7 +16,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -78,7 +77,7 @@ public abstract class ADataController {
                 new DatabaseThreadFactory("SF-DB-Read-Thread #"));
 
         writeExecutor = new ControllerPoolExecutor(
-            "SF-DB-Write-Executor",
+                "SF-DB-Write-Executor",
                 maxWriteThread,
                 maxWriteThread,
                 10,
