@@ -49,26 +49,26 @@ jobs:
         uses: EndBug/add-and-commit@v9.1.4
         if: ${{ (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && success()}}
         with:
-          github_token: ${{ secrets.ACCESS_TOKEN }}
+          github_token: ${{ secrets.BOT_ACCESS_TOKEN }}
           add: '.'
           push: true
-          message: 'chore(ci): spotless'
+          message: 'chore(style): spotless apply'
           author_name: 'noraincity-bot'
           author_email: ${{ secrets.BOT_EMAIL }}
           committer_name: 'noraincity-bot'
           committer_email: ${{ secrets.BOT_EMAIL }}
   call-dev-ci:
     needs: [ spotless ]
-    if: ${{ github.event_name == 'push' && github.ref_name == 'dev' }}
+    if: ${{ steps.spotless-check.outputs.exit_code == '0' && github.event_name == 'push' && github.ref_name == 'dev' }}
     uses: ./.github/workflows/dev-ci.yml
     secrets: inherit
   call-beta-ci:
     needs: [ spotless ]
-    if: ${{ github.event_name == 'push' && github.ref_name == 'master' }}
+    if: ${{ steps.spotless-check.outputs.exit_code == '0' && github.event_name == 'push' && github.ref_name == 'master' }}
     uses: ./.github/workflows/build-ci.yml
     secrets: inherit
   call-pr-checker:
     needs: [ spotless ]
-    if: ${{ github.event_name == 'pull_request' }}
+    if: ${{ steps.spotless-check.outputs.exit_code == '0' && github.event_name == 'pull_request' }}
     uses: ./.github/workflows/pr-checker.yml
     secrets: inherit
