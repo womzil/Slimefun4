@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -174,8 +175,7 @@ public abstract class ADataController {
 
                 @Override
                 protected void onError(Throwable e) {
-                    Slimefun.logger().log(Level.SEVERE, "Exception thrown while executing write task: ");
-                    e.printStackTrace();
+                    Slimefun.logger().log(Level.SEVERE, "Exception thrown while executing write task: ", e);
                 }
             };
             queuedTask.queue(key, task);
