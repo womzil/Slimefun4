@@ -393,6 +393,7 @@ public final class Slimefun extends JavaPlugin implements SlimefunAddon, ICompat
         // loading)
         runSync(
                 new SlimefunStartupTask(this, () -> {
+                    sqlProfiler.initSlowSqlCheck(this);
                     textureService.register(registry.getAllSlimefunItems(), true);
                     permissionsService.update(registry.getAllSlimefunItems(), true);
                     soundService.reload(true);
@@ -479,7 +480,7 @@ public final class Slimefun extends JavaPlugin implements SlimefunAddon, ICompat
         }
 
         SlimefunExtended.shutdown();
-        getSQLProfiler().stop();
+        getSQLProfiler().shutdown();
 
         // Cancel all tasks from this plugin immediately
         Bukkit.getScheduler().cancelTasks(this);
