@@ -17,7 +17,7 @@ public class SlimefunPoolExecutor extends ThreadPoolExecutor {
     private final String name;
 
     @Getter
-    private final List<Thread> runningThreads = new CopyOnWriteArrayList<>();
+    private final List<Long> runningThreads = new CopyOnWriteArrayList<>();
 
     public SlimefunPoolExecutor(
             String name,
@@ -29,6 +29,8 @@ public class SlimefunPoolExecutor extends ThreadPoolExecutor {
             @Nonnull ThreadFactory threadFactory) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory);
 
+        setRejectedExecutionHandler(new SlimefunRejectedExecutionHandler());
+
         this.name = name;
 
         Slimefun.getProfiler().registerPool(this);
@@ -38,7 +40,7 @@ public class SlimefunPoolExecutor extends ThreadPoolExecutor {
     protected void beforeExecute(Thread t, Runnable r) {
         super.beforeExecute(t, r);
 
-        runningThreads.add(t);
+        runningThreads.add(t.getId());
     }
 
     @Override
@@ -55,7 +57,7 @@ public class SlimefunPoolExecutor extends ThreadPoolExecutor {
                                 t);
             }
 
-            if (r instanceof FutureTask<?> future) {
+            if (r instanceof FutureTask<?> future && future.isDone()) {
                 try {
                     future.get();
                 } catch (Exception e) {
@@ -68,7 +70,7 @@ public class SlimefunPoolExecutor extends ThreadPoolExecutor {
                 }
             }
         } finally {
-            runningThreads.remove(Thread.currentThread());
+            runningThreads.remove(Thread.currentThread().getId());
         }
     }
 }
