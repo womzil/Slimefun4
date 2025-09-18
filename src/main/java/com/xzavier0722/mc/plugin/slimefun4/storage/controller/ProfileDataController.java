@@ -42,31 +42,32 @@ public class ProfileDataController extends ADataController {
         invalidingBackpackTasks = new ConcurrentHashMap<>();
     }
 
-    public PlayerProfile getProfileFromCache(OfflinePlayer p){
+    public PlayerProfile getProfileFromCache(OfflinePlayer p) {
         return profileCache.get(p.getUniqueId().toString());
     }
 
-    public CompletableFuture<PlayerProfile> getProfileAsync(OfflinePlayer p){
+    public CompletableFuture<PlayerProfile> getProfileAsync(OfflinePlayer p) {
         checkDestroy();
         var re = profileCache.get(p.getUniqueId().toString());
         if (re != null) {
             return CompletableFuture.completedFuture(re);
         }
-        return CompletableFuture.supplyAsync(()->loadProfile(p), readExecutor);
+        return CompletableFuture.supplyAsync(() -> loadProfile(p), readExecutor);
     }
 
-    public CompletableFuture<PlayerProfile> getOrCreateProfileAsync(OfflinePlayer p){
+    public CompletableFuture<PlayerProfile> getOrCreateProfileAsync(OfflinePlayer p) {
         checkDestroy();
         var re = profileCache.get(p.getUniqueId().toString());
         if (re != null) {
             return CompletableFuture.completedFuture(re);
         }
-        return CompletableFuture.supplyAsync(()-> {
-                var profile = loadProfile(p);
-                return profile == null? createProfile(p) : profile;
-            }, readExecutor)
-            .thenApplyAsync(Function.identity(), callbackExecutor)
-            ;
+        return CompletableFuture.supplyAsync(
+                        () -> {
+                            var profile = loadProfile(p);
+                            return profile == null ? createProfile(p) : profile;
+                        },
+                        readExecutor)
+                .thenApplyAsync(Function.identity(), callbackExecutor);
     }
 
     @Nullable public PlayerProfile getProfile(OfflinePlayer p) {
@@ -80,8 +81,7 @@ public class ProfileDataController extends ADataController {
         return loadProfile(p);
     }
 
-
-    private PlayerProfile loadProfile(OfflinePlayer p){
+    private PlayerProfile loadProfile(OfflinePlayer p) {
         PlayerProfile re;
         var uid = p.getUniqueId();
         var uuid = uid.toString();
@@ -112,6 +112,7 @@ public class ProfileDataController extends ADataController {
 
         return re;
     }
+
     public void getProfileAsync(OfflinePlayer p, IAsyncReadCallback<PlayerProfile> callback) {
         scheduleReadTask(() -> invokeCallback(callback, getProfile(p)));
     }
@@ -260,7 +261,7 @@ public class ProfileDataController extends ADataController {
         }
 
         re = new PlayerProfile(p, 0);
-        re =  registerProfile(re, uid);
+        re = registerProfile(re, uid);
         profileCache.put(uuid, re);
 
         var key = new RecordKey(DataScope.PLAYER_PROFILE);
@@ -269,7 +270,7 @@ public class ProfileDataController extends ADataController {
         return re;
     }
 
-    private PlayerProfile registerProfile(PlayerProfile profile, UUID uid){
+    private PlayerProfile registerProfile(PlayerProfile profile, UUID uid) {
         AsyncProfileLoadEvent event = new AsyncProfileLoadEvent(profile);
         Bukkit.getPluginManager().callEvent(event);
 
@@ -300,7 +301,7 @@ public class ProfileDataController extends ADataController {
         return re;
     }
 
-    public void saveWaypoints(PlayerProfile profile){
+    public void saveWaypoints(PlayerProfile profile) {
         scheduleWriteTask(profile::save);
     }
 

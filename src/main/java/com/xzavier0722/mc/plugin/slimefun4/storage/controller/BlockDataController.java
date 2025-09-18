@@ -96,7 +96,6 @@ public class BlockDataController extends ADataController {
     /**
      * 初始化加载中标志
      */
-
     BlockDataController() {
         super(DataType.BLOCK_STORAGE);
         delayedWriteTasks = new ConcurrentHashMap<>();
@@ -488,7 +487,7 @@ public class BlockDataController extends ADataController {
         }
         var chunkData = getChunkDataCache(l, false);
         var optional = getBlockDataFromChunkAlreadyLoaded(chunkData, l);
-        return optional == null? loadBlockData( l) : optional.orElse(null);
+        return optional == null ? loadBlockData(l) : optional.orElse(null);
     }
 
     /**
@@ -498,8 +497,7 @@ public class BlockDataController extends ADataController {
      * @param l
      * @return
      */
-    @Nullable
-    private Optional<SlimefunBlockData> getBlockDataFromChunkAlreadyLoaded(SlimefunChunkData chunkData, Location l){
+    @Nullable private Optional<SlimefunBlockData> getBlockDataFromChunkAlreadyLoaded(SlimefunChunkData chunkData, Location l) {
         // var chunk = l.getChunk();
         // fix issue #935
         if (chunkData != null) {
@@ -517,7 +515,7 @@ public class BlockDataController extends ADataController {
      * @param l
      * @return
      */
-    private SlimefunBlockData loadBlockData(Location l){
+    private SlimefunBlockData loadBlockData(Location l) {
         var lKey = LocationUtils.getLocKey(l);
         var key = new RecordKey(DataScope.BLOCK_RECORD);
         key.addCondition(FieldKey.LOCATION, lKey);
@@ -525,7 +523,7 @@ public class BlockDataController extends ADataController {
 
         var result = getData(key);
         var re =
-            result.isEmpty() ? null : new SlimefunBlockData(l, result.get(0).get(FieldKey.SLIMEFUN_ID));
+                result.isEmpty() ? null : new SlimefunBlockData(l, result.get(0).get(FieldKey.SLIMEFUN_ID));
         if (re != null) {
             // fix issue #935
             SlimefunChunkData chunkData = getChunkDataCache(l, true);
@@ -535,14 +533,16 @@ public class BlockDataController extends ADataController {
         return re;
     }
 
-    public CompletableFuture<SlimefunBlockData> getBlockDataAsync(Location l){
+    public CompletableFuture<SlimefunBlockData> getBlockDataAsync(Location l) {
         checkDestroy();
         if (chunkDataLoadMode.readCacheOnly()) {
-            return CompletableFuture.completedFuture( getBlockDataFromCache(l));
+            return CompletableFuture.completedFuture(getBlockDataFromCache(l));
         }
         var chunkData = getChunkDataCache(l, false);
         var optional = getBlockDataFromChunkAlreadyLoaded(chunkData, l);
-        return optional == null? CompletableFuture.supplyAsync(()-> loadBlockData( l), this.readExecutor): CompletableFuture.completedFuture(optional.orElse(null));
+        return optional == null
+                ? CompletableFuture.supplyAsync(() -> loadBlockData(l), this.readExecutor)
+                : CompletableFuture.completedFuture(optional.orElse(null));
     }
 
     /**
@@ -755,25 +755,26 @@ public class BlockDataController extends ADataController {
         var chunkData = loadedChunk.get(cKey);
         return chunkData == null ? null : chunkData.getBlockCacheInternal(lKey);
     }
-    public void loadChunk(Chunk chunk, boolean isNewChunk){
+
+    public void loadChunk(Chunk chunk, boolean isNewChunk) {
         loadChunk(chunk, isNewChunk, false);
     }
+
     public void loadChunk(Chunk chunk, boolean isNewChunk, boolean forceReadData) {
         checkDestroy();
         var chunkData = getChunkDataCache(chunk, true);
-        //what if the database already contains data here but the WORLD CHUNK is newly generated
+        // what if the database already contains data here but the WORLD CHUNK is newly generated
 
-        //escape all return if forceRead Flag is true
-        if(forceReadData){
-            if(chunkDataLoadMode.readCacheOnly()){
-                //if readCache only , then all the chunkData get from cache is DataLoaded
-                //since we removed initLoading, so we set DataLoad false here, so it will trigger the loadChunkData
+        // escape all return if forceRead Flag is true
+        if (forceReadData) {
+            if (chunkDataLoadMode.readCacheOnly()) {
+                // if readCache only , then all the chunkData get from cache is DataLoaded
+                // since we removed initLoading, so we set DataLoad false here, so it will trigger the loadChunkData
                 chunkData.setIsDataLoaded(false);
             }
-            //else force loading, escape all returns
-        }
-        else{
-            //not force loading
+            // else force loading, escape all returns
+        } else {
+            // not force loading
             if (isNewChunk) {
                 chunkData.setIsDataLoaded(true);
                 Bukkit.getPluginManager().callEvent(new SlimefunChunkDataLoadEvent(chunkData));
@@ -784,7 +785,6 @@ public class BlockDataController extends ADataController {
                 return;
             }
         }
-
 
         loadChunkData(chunkData);
 
@@ -1079,16 +1079,15 @@ public class BlockDataController extends ADataController {
         return getChunkDataCache(chunk, false);
     }
 
-    public CompletableFuture<SlimefunChunkData> getChunkDataAsync(Chunk chunk){
+    public CompletableFuture<SlimefunChunkData> getChunkDataAsync(Chunk chunk) {
         checkDestroy();
         SlimefunChunkData cdata = getChunkDataCache(chunk, true);
-        if(cdata.isDataLoaded()){
+        if (cdata.isDataLoaded()) {
             return CompletableFuture.completedFuture(cdata);
         }
-        return CompletableFuture.runAsync(()-> loadChunk(chunk, false), readExecutor)
-            .thenApply((v)-> getChunkDataCache(chunk, false));
+        return CompletableFuture.runAsync(() -> loadChunk(chunk, false), readExecutor)
+                .thenApply((v) -> getChunkDataCache(chunk, false));
     }
-
 
     public void getChunkDataAsync(Chunk chunk, IAsyncReadCallback<SlimefunChunkData> callback) {
         scheduleReadTask(() -> invokeCallback(callback, getChunkData(chunk)));

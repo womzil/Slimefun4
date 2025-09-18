@@ -28,8 +28,8 @@ public class AsyncProfileLoadEvent extends Event {
     private PlayerProfile profile;
 
     public AsyncProfileLoadEvent(@Nonnull PlayerProfile profile) {
-        //this event may be called in main-thread by accident, or while migration
-        //we are not sure
+        // this event may be called in main-thread by accident, or while migration
+        // we are not sure
         super(!Bukkit.isPrimaryThread());
 
         Validate.notNull(profile, "The Profile cannot be null");
