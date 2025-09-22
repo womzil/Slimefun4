@@ -151,6 +151,10 @@ public class PlayerProfile {
      * This method will save the Player's Researches and Backpacks to the hard drive
      */
     public void save() {
+        if (processProfiles.containsKey(owner)) {
+            return;
+        }
+
         try {
             processProfiles.put(owner, true);
             // As waypoints still store in file, just keep this method here for now...
