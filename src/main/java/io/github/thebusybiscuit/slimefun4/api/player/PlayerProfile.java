@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import com.xzavier0722.mc.plugin.slimefun4.storage.callback.IAsyncReadCallback;
 import io.github.bakedlibs.dough.common.ChatColors;
 import io.github.bakedlibs.dough.config.Config;
+import io.github.thebusybiscuit.slimefun4.api.events.AsyncProfileLoadEvent;
 import io.github.thebusybiscuit.slimefun4.api.gps.Waypoint;
 import io.github.thebusybiscuit.slimefun4.api.items.HashedArmorpiece;
 import io.github.thebusybiscuit.slimefun4.api.items.ItemState;
@@ -15,14 +16,16 @@ import io.github.thebusybiscuit.slimefun4.core.guide.GuideHistory;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import io.github.thebusybiscuit.slimefun4.implementation.items.armor.SlimefunArmorPiece;
 import io.github.thebusybiscuit.slimefun4.utils.NumberUtils;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import javax.annotation.Nonnull;
@@ -48,18 +51,25 @@ import org.bukkit.entity.Player;
  *
  */
 public class PlayerProfile {
+    private static final Map<UUID, Boolean> loadingProfiles = new ConcurrentHashMap<>();
 
-    private final OfflinePlayer owner;
+    private final UUID owner;
     private int backpackNum;
     private final Config waypointsFile;
 
+    /**
+     * `dirty` indicates whether the profile has unsaved changes.
+     */
     private boolean dirty = false;
-    private boolean isInvalid = false;
-    // remove this flag, one flag is enough
-    //    private boolean markedForDeletion = false;
+
+    /**
+     * `markedForDeletion` indicates whether the profile is marked for deletion.
+     * If true, means the profile should be removed from memory later.
+     */
+    private boolean markedForDeletion = false;
 
     private final Set<Research> researches;
-    private final List<Waypoint> waypoints = new ArrayList<>();
+    private final List<Waypoint> waypoints = new CopyOnWriteArrayList<>();
     private final GuideHistory guideHistory = new GuideHistory(this);
 
     private final HashedArmorpiece[] armor = {
@@ -71,7 +81,7 @@ public class PlayerProfile {
     }
 
     public PlayerProfile(@Nonnull OfflinePlayer p, int backpackNum, Set<Research> researches) {
-        owner = p;
+        owner = p.getUniqueId();
         this.backpackNum = backpackNum;
         this.researches = researches;
 
@@ -93,7 +103,8 @@ public class PlayerProfile {
                         .log(
                                 Level.WARNING,
                                 x,
-                                () -> "Could not load Waypoint \"" + key + "\" for Player \"" + owner.getName() + '"');
+                                () -> "Could not load Waypoint \"" + key + "\" for Player \""
+                                        + getOwner().getName() + '"');
             }
         }
     }
@@ -114,7 +125,7 @@ public class PlayerProfile {
      * @return The {@link UUID} of our {@link PlayerProfile}
      */
     public @Nonnull UUID getUUID() {
-        return owner.getUniqueId();
+        return owner;
     }
 
     /**
@@ -124,7 +135,7 @@ public class PlayerProfile {
      * @return Whether the Profile is marked for deletion
      */
     public boolean isMarkedForDeletion() {
-        return isInvalid;
+        return markedForDeletion;
     }
 
     /**
@@ -137,7 +148,7 @@ public class PlayerProfile {
     }
 
     /**
-     * This method will save the Player's waypoint to the hard drive
+     * This method will save the Player's Researches and Backpacks to the hard drive
      */
     public void save() {
         // As waypoints still store in file, just keep this method here for now...
@@ -166,16 +177,17 @@ public class PlayerProfile {
      */
     public void setResearched(@Nonnull Research research, boolean unlock) {
         Validate.notNull(research, "Research must not be null!");
-        dirty = true;
+        // markDirty();
 
         if (unlock) {
             researches.add(research);
         } else {
             researches.remove(research);
         }
+
         Slimefun.getDatabaseManager()
                 .getProfileDataController()
-                .setResearch(owner.getUniqueId().toString(), research.getKey(), unlock);
+                .setResearch(owner.toString(), research.getKey(), unlock);
     }
 
     /**
@@ -281,7 +293,7 @@ public class PlayerProfile {
      * The profile can then be removed from RAM.
      */
     public final void markForDeletion() {
-        isInvalid = true;
+        markedForDeletion = true;
     }
 
     /**
@@ -348,7 +360,7 @@ public class PlayerProfile {
         float progress = Math.round(((unlockedResearches * 100.0F) / allResearches) * 100.0F) / 100.0F;
 
         sender.sendMessage("");
-        sender.sendMessage(ChatColors.color("&7玩家研究统计: &b" + owner.getName()));
+        sender.sendMessage(ChatColors.color("&7玩家研究统计: &b" + getPlayer()));
         sender.sendMessage("");
         sender.sendMessage(ChatColors.color("&7研究等级: " + ChatColor.AQUA + getTitle()));
         sender.sendMessage(ChatColors.color("&7研究进度: "
@@ -361,7 +373,7 @@ public class PlayerProfile {
                 + " / "
                 + allResearches
                 + ')'));
-        sender.sendMessage(ChatColors.color("&7总花费经验等级: " + ChatColor.AQUA + levels));
+        sender.sendMessage(ChatColors.color("&7解锁总耗费经验: " + ChatColor.AQUA + levels));
     }
 
     /**
@@ -371,7 +383,11 @@ public class PlayerProfile {
      * @return The {@link Player} of this {@link PlayerProfile} or null
      */
     public @Nullable Player getPlayer() {
-        return owner.getPlayer();
+        if (getOwner() != null) {
+            return getOwner().getPlayer();
+        }
+
+        return null;
     }
 
     /**
@@ -404,12 +420,20 @@ public class PlayerProfile {
         UUID uuid = p.getUniqueId();
         PlayerProfile profile = Slimefun.getRegistry().getPlayerProfiles().get(uuid);
 
-        if (profile != null && !profile.isInvalid) {
+        if (profile != null && !profile.markedForDeletion) {
             callback.accept(profile);
             return true;
         }
 
+        if (loadingProfiles.containsKey(uuid)) {
+            // 当前玩家档案正在加载
+            return false;
+        }
+
+        loadingProfiles.put(uuid, true);
+
         getOrCreate(p, callback);
+
         return false;
     }
 
@@ -426,8 +450,12 @@ public class PlayerProfile {
         Validate.notNull(p, "Cannot request a Profile for null");
 
         var profile = Slimefun.getRegistry().getPlayerProfiles().get(p.getUniqueId());
-        if (profile == null || profile.isInvalid) {
-            // Should probably prevent multiple requests for the same profile in the future
+        if (profile == null || profile.markedForDeletion) {
+            // 当前玩家档案正在被加载
+            if (loadingProfiles.containsKey(p.getUniqueId())) {
+                return false;
+            }
+
             getOrCreate(p, null);
             return false;
         }
@@ -447,7 +475,7 @@ public class PlayerProfile {
      */
     public static @Nonnull Optional<PlayerProfile> find(@Nonnull OfflinePlayer p) {
         var re = Slimefun.getRegistry().getPlayerProfiles().get(p.getUniqueId());
-        if (re == null || re.isInvalid) {
+        if (re == null || re.markedForDeletion) {
             return Optional.empty();
         }
         return Optional.of(re);
@@ -484,29 +512,21 @@ public class PlayerProfile {
 
     @Override
     public int hashCode() {
-        return owner.getUniqueId().hashCode();
+        return owner.hashCode();
     }
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof PlayerProfile profile && owner.getUniqueId().equals(profile.owner.getUniqueId());
+        return obj instanceof PlayerProfile profile && owner.equals(profile.owner);
     }
 
     @Override
     public String toString() {
-        return "PlayerProfile {" + owner.getUniqueId() + "}";
+        return "PlayerProfile {" + owner + "}";
     }
 
     public OfflinePlayer getOwner() {
-        return owner;
-    }
-
-    public void markInvalid() {
-        isInvalid = true;
-    }
-
-    public boolean isInvalid() {
-        return isInvalid;
+        return Bukkit.getOfflinePlayer(owner);
     }
 
     // returns the amount of researches with at least 1 enabled item
@@ -522,17 +542,27 @@ public class PlayerProfile {
         controller.getProfileAsync(p, new IAsyncReadCallback<>() {
             @Override
             public void onResult(PlayerProfile result) {
-                invokeCb(result);
+                invokeCb(result, false);
+                loadingProfiles.remove(result.getUUID());
             }
 
             @Override
             public void onResultNotFound() {
-                invokeCb(controller.createProfile(p));
+                try {
+                    loadingProfiles.put(p.getUniqueId(), true);
+                    var pf = controller.createProfile(p);
+                    invokeCb(pf, true);
+                } finally {
+                    loadingProfiles.remove(p.getUniqueId());
+                }
             }
 
-            private void invokeCb(PlayerProfile pf) {
-                // this may not trigger a profile load, so we move the event to the ProfileDataContainer, where the
-                // profiler really loaded and created
+            private void invokeCb(PlayerProfile pf, boolean newlyCreated) {
+                if (newlyCreated) {
+                    AsyncProfileLoadEvent event = new AsyncProfileLoadEvent(pf);
+                    Bukkit.getPluginManager().callEvent(event);
+                }
+
                 if (cb != null) {
                     cb.accept(pf);
                 }
