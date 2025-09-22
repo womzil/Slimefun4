@@ -549,7 +549,6 @@ public class PlayerProfile {
             @Override
             public void onResultNotFound() {
                 try {
-                    loadingProfiles.put(p.getUniqueId(), true);
                     var pf = controller.createProfile(p);
                     invokeCb(pf, true);
                 } finally {

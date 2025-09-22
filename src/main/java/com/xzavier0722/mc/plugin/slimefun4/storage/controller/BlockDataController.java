@@ -486,35 +486,18 @@ public class BlockDataController extends ADataController {
             return getBlockDataFromCache(l);
         }
         var chunkData = getChunkDataCache(l, false);
-        var optional = getBlockDataFromChunkAlreadyLoaded(chunkData, l);
-        return optional == null ? loadBlockData(l) : optional.orElse(null);
-    }
-
-    /**
-     * this shit method returns a SlimefunBlockData query result if the chunkData is already Loaded into the cache.
-     * it will return null if chunkData does not fit the case
-     * @param chunkData
-     * @param l
-     * @return
-     */
-    @Nullable private Optional<SlimefunBlockData> getBlockDataFromChunkAlreadyLoaded(SlimefunChunkData chunkData, Location l) {
-        // var chunk = l.getChunk();
         // fix issue #935
         if (chunkData != null) {
             var lKey = LocationUtils.getLocKey(l);
             var re = chunkData.getBlockCacheInternal(lKey);
             if (re != null || chunkData.hasBlockCache(lKey) || chunkData.isDataLoaded()) {
-                return Optional.ofNullable(re);
+                return re;
             }
         }
-        return null;
+
+        return loadBlockData(l);
     }
 
-    /**
-     * this shit method loads location block record from db and put the fucking blockRecord into the chunkData (the chunkData will be created if itself absent and record present)
-     * @param l
-     * @return
-     */
     private SlimefunBlockData loadBlockData(Location l) {
         var lKey = LocationUtils.getLocKey(l);
         var key = new RecordKey(DataScope.BLOCK_RECORD);
@@ -538,11 +521,17 @@ public class BlockDataController extends ADataController {
         if (chunkDataLoadMode.readCacheOnly()) {
             return CompletableFuture.completedFuture(getBlockDataFromCache(l));
         }
+
         var chunkData = getChunkDataCache(l, false);
-        var optional = getBlockDataFromChunkAlreadyLoaded(chunkData, l);
-        return optional == null
-                ? CompletableFuture.supplyAsync(() -> loadBlockData(l), this.readExecutor)
-                : CompletableFuture.completedFuture(optional.orElse(null));
+        // fix issue #935
+        if (chunkData != null) {
+            var lKey = LocationUtils.getLocKey(l);
+            var re = chunkData.getBlockCacheInternal(lKey);
+            if (re != null || chunkData.hasBlockCache(lKey) || chunkData.isDataLoaded()) {
+                return CompletableFuture.completedFuture(re);
+            }
+        }
+        return CompletableFuture.supplyAsync(() -> loadBlockData(l), this.readExecutor);
     }
 
     /**

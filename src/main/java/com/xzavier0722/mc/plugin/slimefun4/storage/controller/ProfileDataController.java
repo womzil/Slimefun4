@@ -401,7 +401,7 @@ public class ProfileDataController extends ADataController {
     public void invalidateCache(String pUuid) {
         var removed = profileCache.remove(pUuid);
         if (removed != null) {
-            removed.markInvalid();
+            removed.markForDeletion();
         }
 
         var task = new Runnable() {
