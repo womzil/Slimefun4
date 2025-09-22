@@ -51,7 +51,7 @@ import org.bukkit.entity.Player;
  *
  */
 public class PlayerProfile {
-    private static final Map<UUID, Boolean> loadingProfiles = new ConcurrentHashMap<>();
+    private static final Map<UUID, Boolean> processProfiles = new ConcurrentHashMap<>();
 
     private final UUID owner;
     private int backpackNum;
@@ -151,19 +151,20 @@ public class PlayerProfile {
      * This method will save the Player's Researches and Backpacks to the hard drive
      */
     public void save() {
-        // As waypoints still store in file, just keep this method here for now...
-        waypointsFile.save();
-        dirty = false;
+        try {
+            processProfiles.put(owner, true);
+            // As waypoints still store in file, just keep this method here for now...
+            waypointsFile.save();
+            dirty = false;
+        } finally {
+            processProfiles.remove(owner);
+        }
     }
     /**
      * This method will save the Player's waypoint to the hard drive
      */
     public void saveAsync() {
-        try {
-            Slimefun.getDatabaseManager().getProfileDataController().saveWaypoints(this);
-        } catch (IllegalStateException destroyed) {
-            save();
-        }
+        Slimefun.getDatabaseManager().getProfileDataController().saveWaypoints(this);
     }
 
     /**
@@ -425,12 +426,12 @@ public class PlayerProfile {
             return true;
         }
 
-        if (loadingProfiles.containsKey(uuid)) {
+        if (processProfiles.containsKey(uuid)) {
             // 当前玩家档案正在加载
             return false;
         }
 
-        loadingProfiles.put(uuid, true);
+        processProfiles.put(uuid, true);
 
         getOrCreate(p, callback);
 
@@ -452,7 +453,7 @@ public class PlayerProfile {
         var profile = Slimefun.getRegistry().getPlayerProfiles().get(p.getUniqueId());
         if (profile == null || profile.markedForDeletion) {
             // 当前玩家档案正在被加载
-            if (loadingProfiles.containsKey(p.getUniqueId())) {
+            if (processProfiles.containsKey(p.getUniqueId())) {
                 return false;
             }
 
@@ -543,7 +544,7 @@ public class PlayerProfile {
             @Override
             public void onResult(PlayerProfile result) {
                 invokeCb(result, false);
-                loadingProfiles.remove(result.getUUID());
+                processProfiles.remove(result.getUUID());
             }
 
             @Override
@@ -552,7 +553,7 @@ public class PlayerProfile {
                     var pf = controller.createProfile(p);
                     invokeCb(pf, true);
                 } finally {
-                    loadingProfiles.remove(p.getUniqueId());
+                    processProfiles.remove(p.getUniqueId());
                 }
             }
 
