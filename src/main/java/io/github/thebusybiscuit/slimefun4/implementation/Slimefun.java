@@ -709,7 +709,7 @@ public final class Slimefun extends JavaPlugin implements SlimefunAddon, ICompat
         new SoulboundListener(this);
         new AutoCrafterListener(this);
         new SlimefunItemHitListener(this);
-        if (Slimefun.getMinecraftVersion().isAtLeast(MinecraftVersion.MINECRAFT_1_21_5)) {
+        if (SlimefunExtended.getMinecraftVersion().isAtLeast(21, 5)) {
             new VersionedMiddleClickListener(this);
         } else {
             new MiddleClickListener(this);

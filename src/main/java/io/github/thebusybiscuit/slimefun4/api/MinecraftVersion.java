@@ -57,11 +57,6 @@ public enum MinecraftVersion {
      */
     MINECRAFT_1_21(21, "1.21.x"),
 
-    MINECRAFT_1_21_4(21, 4, "1.21.4+"),
-
-    MINECRAFT_1_21_5(21, 5, "1.21.5+"),
-
-    MINECRAFT_1_21_6(21, 6, "1.21.6+"),
 
     /**
      * This constant represents an exceptional state in which we were unable
