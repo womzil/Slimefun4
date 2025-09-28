@@ -595,7 +595,6 @@ public final class Slimefun extends JavaPlugin implements SlimefunAddon, ICompat
                 // Check all supported versions of Minecraft
                 for (MinecraftVersion supportedVersion : MinecraftVersion.values()) {
                     if (supportedVersion.isMinecraftVersion(version, patchVersion)) {
-                        getLogger().log(Level.INFO, "正在使用MC版本: {0}", supportedVersion.getName());
                         minecraftVersion = supportedVersion;
                         return false;
                     }
@@ -709,7 +708,7 @@ public final class Slimefun extends JavaPlugin implements SlimefunAddon, ICompat
         new SoulboundListener(this);
         new AutoCrafterListener(this);
         new SlimefunItemHitListener(this);
-        if (SlimefunExtended.getMinecraftVersion().isAtLeast(21, 5)) {
+        if (SlimefunExtended.getMinecraftVersion().isAtLeast(1,21, 5)) {
             new VersionedMiddleClickListener(this);
         } else {
             new MiddleClickListener(this);
