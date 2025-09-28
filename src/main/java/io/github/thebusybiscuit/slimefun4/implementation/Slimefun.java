@@ -595,6 +595,7 @@ public final class Slimefun extends JavaPlugin implements SlimefunAddon, ICompat
                 // Check all supported versions of Minecraft
                 for (MinecraftVersion supportedVersion : MinecraftVersion.values()) {
                     if (supportedVersion.isMinecraftVersion(version, patchVersion)) {
+                        getLogger().log(Level.INFO, "正在使用MC版本: {0}", supportedVersion.getName());
                         minecraftVersion = supportedVersion;
                         return false;
                     }
