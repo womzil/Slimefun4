@@ -89,7 +89,8 @@ public class EnhancedFurnaceListener implements Listener {
                             ItemStack item = result.get();
                             ItemStack previousResult = e.getResult();
                             // fix issue #1013: we should respect other plugin's modification,
-                            // if current result is empty or doesn't match the calculated result, then it may be modified by datapack or other plugins, do not multiply the result
+                            // if current result is empty or doesn't match the calculated result, then it may be
+                            // modified by datapack or other plugins, do not multiply the result
                             if (previousResult != null
                                     && !previousResult.getType().isAir()
                                     && SlimefunUtils.isItemSimilar(previousResult, item, true, false)) {
