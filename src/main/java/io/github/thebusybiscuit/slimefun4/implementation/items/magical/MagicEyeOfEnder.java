@@ -54,10 +54,6 @@ public class MagicEyeOfEnder extends SimpleSlimefunItem<ItemUseHandler> {
                 && SlimefunItem.getByItem(inv.getChestplate()) == SlimefunItems.ENDER_CHESTPLATE.getItem()
                 && SlimefunItem.getByItem(inv.getLeggings()) == SlimefunItems.ENDER_LEGGINGS.getItem()
                 && SlimefunItem.getByItem(inv.getBoots()) == SlimefunItems.ENDER_BOOTS.getItem();
-        //            SlimefunUtils.isItemSimilar(inv.getHelmet(), SlimefunItems.ENDER_HELMET, true)
-        //                && SlimefunUtils.isItemSimilar(inv.getChestplate(), SlimefunItems.ENDER_CHESTPLATE, true)
-        //                && SlimefunUtils.isItemSimilar(inv.getLeggings(), SlimefunItems.ENDER_LEGGINGS, true)
-        //                && SlimefunUtils.isItemSimilar(inv.getBoots(), SlimefunItems.ENDER_BOOTS, true);
         // @formatter:on
     }
 }
