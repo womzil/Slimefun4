@@ -79,7 +79,7 @@ public class EnhancedFurnaceListener implements Listener {
                 boolean multiplier = SlimefunTag.ENHANCED_FURNACE_LUCK_MATERIALS.isTagged(
                         inventory.getSmelting().getType());
                 if (multiplier) {
-                    // fix issue #1120: only multiplier = true should we override the result
+                    // fix issue #1013: only multiplier = true should we override the result
                     int amount = enhancedFurnace.getRandomOutputAmount();
                     if (amount > 1) {
                         Optional<ItemStack> result =
@@ -88,7 +88,7 @@ public class EnhancedFurnaceListener implements Listener {
                         if (result.isPresent()) {
                             ItemStack item = result.get();
                             ItemStack previousResult = e.getResult();
-                            // fix issue #1120: we should respect other plugin's modification,
+                            // fix issue #1013: we should respect other plugin's modification,
                             // if current result is empty or doesn't match the calculated result, then it may be modified by datapack or other plugins, do not multiply the result
                             if (previousResult != null
                                     && !previousResult.getType().isAir()
