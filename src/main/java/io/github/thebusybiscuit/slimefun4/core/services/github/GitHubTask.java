@@ -156,7 +156,8 @@ class GitHubTask implements Runnable {
         if (uuid.isPresent()) {
             CompletableFuture<PlayerSkin> future = PlayerSkin.fromPlayerUUID(Slimefun.instance(), uuid.get());
             // fix: # 1128 1.21.9 compatibility
-            Optional<String> skin = Optional.of(CustomGameProfile.getBase64Texture( future.get().getProfile()));
+            Optional<String> skin =
+                    Optional.of(CustomGameProfile.getBase64Texture(future.get().getProfile()));
             skins.put(contributor.getMinecraftName(), skin.orElse(""));
             return skin.orElse(null);
         } else {
