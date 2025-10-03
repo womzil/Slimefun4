@@ -6,7 +6,6 @@ import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import io.github.thebusybiscuit.slimefun4.core.handlers.BlockDispenseHandler;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import io.papermc.lib.PaperLib;
-import java.util.EnumSet;
 import javax.annotation.Nonnull;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -19,6 +18,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDispenseEvent;
+
+import java.util.EnumSet;
 
 /**
  * This {@link Listener} listens to the {@link BlockDispenseEvent} and calls the
