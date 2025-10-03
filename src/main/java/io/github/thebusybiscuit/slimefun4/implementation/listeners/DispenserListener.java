@@ -1,15 +1,12 @@
 package io.github.thebusybiscuit.slimefun4.implementation.listeners;
 
+import com.destroystokyo.paper.MaterialTags;
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import io.github.thebusybiscuit.slimefun4.core.handlers.BlockDispenseHandler;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import io.papermc.lib.PaperLib;
-import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.Locale;
-import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -34,15 +31,8 @@ import org.bukkit.event.block.BlockDispenseEvent;
  *
  */
 public class DispenserListener implements Listener {
-    private final EnumSet<Material> bucketMaterials;
-
-    {
-        Set<Material> materialSet = Arrays.stream(Material.values())
-                .filter(Material::isItem)
-                .filter(material -> material.name().toLowerCase(Locale.ROOT).contains("bucket"))
-                .collect(Collectors.toSet());
-        bucketMaterials = EnumSet.copyOf(materialSet);
-    }
+    private final EnumSet<Material> bucketMaterials = EnumSet.copyOf(MaterialTags.BUCKETS.getValues());
+    ;
 
     public DispenserListener(@Nonnull Slimefun plugin) {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
