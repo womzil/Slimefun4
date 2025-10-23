@@ -141,13 +141,19 @@ class GitHubTask implements Runnable {
         }
 
         if (uuid.isPresent()) {
-            CompletableFuture<PlayerSkin> future = PlayerSkin.fromPlayerUUID(Slimefun.instance(), uuid.get());
-            Optional<String> skin = Optional.of(future.get().getProfile().getBase64Texture());
-            skins.put(contributor.getMinecraftName(), skin.orElse(""));
-            return skin.orElse(null);
+            //CompletableFuture<PlayerSkin> future = PlayerSkin.fromPlayerUUID(Slimefun.instance(), uuid.get());
+            //Optional<String> skin = Optional.of(future.get().getProfile().getBase64Texture());
+            var profile = Bukkit.createProfile(uuid.get());
+            String skinUrl = profile.update()
+                            .thenApply(updated -> {
+                                var u = updated.getTextures().getSkin();
+                                return u != null ? u.toString() : null;
+                            }).get();
+
+            skins.put(contributor.getMinecraftName(), skinUrl != null ? skinUrl : "");
+            return skinUrl;
         } else {
             return null;
         }
     }
-
 }

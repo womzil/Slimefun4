@@ -15,12 +15,13 @@ import java.util.function.UnaryOperator;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import io.github.thebusybiscuit.slimefun4.utils.CustomUtil;
 import io.papermc.paper.inventory.ItemRarity;
 import io.papermc.paper.inventory.tooltip.TooltipContext;
 import io.papermc.paper.registry.set.RegistryKeySet;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.HoverEvent;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -32,6 +33,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.material.MaterialData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -284,8 +286,15 @@ public class SlimefunItemStack {
             return new ItemStack(Material.PLAYER_HEAD);
         }
 
-        PlayerSkin skin = PlayerSkin.fromBase64(getTexture(id, texture));
-        return PlayerHead.getItemStack(skin);
+        String base64 = getTexture(id, texture);
+        ItemStack head = new ItemStack(Material.PLAYER_HEAD);
+        SkullMeta meta = (SkullMeta) head.getItemMeta();
+        meta.setOwnerProfile(CustomUtil.profileFromBase64(base64));
+        head.setItemMeta(meta);
+        return head;
+
+        //PlayerSkin skin = PlayerSkin.fromBase64(getTexture(id, texture));
+        //return PlayerHead.getItemStack(skin);
     }
 
     private static @Nonnull String getTexture(@Nonnull String id, @Nonnull String texture) {

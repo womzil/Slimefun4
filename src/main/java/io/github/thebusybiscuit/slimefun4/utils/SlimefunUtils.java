@@ -1,28 +1,22 @@
 package io.github.thebusybiscuit.slimefun4.utils;
 
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.Optional;
-import java.util.OptionalInt;
+import java.util.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import org.apache.commons.lang.Validate;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.World;
+import org.apache.commons.lang3.Validate;
+import org.bukkit.*;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -46,6 +40,8 @@ import io.github.thebusybiscuit.slimefun4.implementation.SlimefunItems;
 import io.github.thebusybiscuit.slimefun4.implementation.items.altar.AncientPedestal;
 import io.github.thebusybiscuit.slimefun4.implementation.tasks.CapacitorTextureUpdateTask;
 import io.github.thebusybiscuit.slimefun4.utils.itemstack.ItemStackWrapper;
+import org.bukkit.profile.PlayerProfile;
+import org.bukkit.profile.PlayerTextures;
 
 /**
  * This utility class holds method that are directly linked to Slimefun.
@@ -231,18 +227,40 @@ public final class SlimefunUtils {
         }
 
         if (Slimefun.getMinecraftVersion() == MinecraftVersion.UNIT_TEST) {
-            // com.mojang.authlib.GameProfile does not exist in a Test Environment
             return new ItemStack(Material.PLAYER_HEAD);
         }
 
-        String base64 = texture;
-
+        String skinUrl;
         if (CommonPatterns.HEXADECIMAL.matcher(texture).matches()) {
-            base64 = Base64.getEncoder().encodeToString(("{\"textures\":{\"SKIN\":{\"url\":\"http://textures.minecraft.net/texture/" + texture + "\"}}}").getBytes(StandardCharsets.UTF_8));
+            skinUrl = "https://textures.minecraft.net/texture/" + texture;
+        } else {
+            String json = new String(Base64.getDecoder().decode(texture), StandardCharsets.UTF_8);
+            int i = json.indexOf("\"url\":\"");
+            if (i >= 0) {
+                int start = i + 7;
+                int end = json.indexOf('"', start);
+                skinUrl = (end > start) ? json.substring(start, end) : null;
+            } else {
+                skinUrl = null;
+            }
         }
 
-        PlayerSkin skin = PlayerSkin.fromBase64(base64);
-        return PlayerHead.getItemStack(skin);
+        PlayerProfile profile = Bukkit.getServer().createPlayerProfile(UUID.randomUUID());
+        PlayerTextures textures = profile.getTextures();
+        try {
+            if (skinUrl != null) {
+                textures.setSkin(new URL(skinUrl));
+            }
+        } catch (Exception ex) {
+            // empty
+        }
+        profile.setTextures(textures);
+
+        ItemStack head = new ItemStack(Material.PLAYER_HEAD);
+        SkullMeta meta = (SkullMeta) head.getItemMeta();
+        meta.setOwnerProfile(profile);
+        head.setItemMeta(meta);
+        return head;
     }
 
     public static boolean containsSimilarItem(Inventory inventory, ItemStack item, boolean checkLore) {

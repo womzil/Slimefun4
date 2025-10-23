@@ -9,7 +9,7 @@
 
     <!-- Our default version will be UNOFFICIAL, this will prevent auto updates -->
     <!-- from overriding our local test file -->
-    <version>4.9-UNOFFICIAL</version>
+    <version>5.0.0-UNOFFICIAL</version>
     <inceptionYear>2013</inceptionYear>
     <packaging>jar</packaging>
 
@@ -21,16 +21,8 @@
         <!-- UTF-8 is our standard encoding for source files -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <!-- Target Java 16 -->
-        <maven.compiler.source>16</maven.compiler.source>
-        <maven.compiler.target>16</maven.compiler.target>
-        <!-- Run tests using java 21 -->
-        <maven.compiler.testSource>21</maven.compiler.testSource>
-        <maven.compiler.testTarget>21</maven.compiler.testTarget>
-
-        <!-- Spigot properties -->
-        <paper.version>1.21.1</paper.version>
-        <paper.javadocs>https://hub.spigotmc.org/javadocs/spigot/</paper.javadocs>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
 
         <!-- Default settings for sonarcloud.io -->
         <sonar.projectKey>Slimefun_Slimefun4</sonar.projectKey>
@@ -43,7 +35,7 @@
     <issueManagement>
         <!-- Bug Tracker -->
         <system>GitHub Issues</system>
-        <url>https://github.com/Slimefun/Slimefun4/issues</url>
+        <url>https://github.com/SlimeFun-Lab/Slimefun4/</url>
     </issueManagement>
 
     <licenses>
@@ -58,11 +50,6 @@
     <!-- Repositories that host our dependencies -->
     <!-- Well, any that aren't found on maven-central. -->
     <repositories>
-        <repository>
-            <!-- Spigot-API -->
-            <id>spigot-repo</id>
-            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots</url>
-        </repository>
         <repository>
             <!-- PaperLib -->
             <id>paper-repo</id>
@@ -81,7 +68,7 @@
         <repository>
             <!-- PlaceholderAPI -->
             <id>placeholderapi-repo</id>
-            <url>https://repo.extendedclip.com/content/repositories/placeholderapi</url>
+            <url>https://repo.extendedclip.com/releases/</url>
         </repository>
         <repository>
             <!-- mcMMO -->
@@ -103,9 +90,6 @@
     <build>
         <!-- /src/main/java/ contains all sources (production code) -->
         <sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
-
-        <!-- /src/test/java/ contains all unit tests (testing code) -->
-        <testSourceDirectory>${project.basedir}/src/test/java</testSourceDirectory>
 
         <!-- The default goal for compiling is "clean package" -->
         <defaultGoal>clean package</defaultGoal>
@@ -208,7 +192,7 @@
                             <shadedPattern>io.github.thebusybiscuit.slimefun4.libraries.paperlib</shadedPattern>
                         </relocation>
                         <relocation>
-                            <pattern>org.apache.commons.lang</pattern>
+                            <pattern>org.apache.commons.lang3</pattern>
                             <shadedPattern>io.github.thebusybiscuit.slimefun4.libraries.commons.lang</shadedPattern>
                         </relocation>
                     </relocations>
@@ -241,19 +225,10 @@
                 <version>3.11.2</version>
 
                 <configuration>
-                    <reportOutputDirectory>${project.basedir}</reportOutputDirectory>
-                    <destDir>javadocs</destDir>
-
                     <doctitle>Slimefun4 - Javadocs</doctitle>
                     <windowtitle>Slimefun4 - Javadocs</windowtitle>
                     <detectOfflineLinks>false</detectOfflineLinks>
                     <additionalJOption>-html5</additionalJOption>
-
-                    <links>
-                        <!-- We can reference the Spigot API in our Javadocs -->
-                        <link>${paper.javadocs}</link>
-                    </links>
-
                     <!-- We can group packages together in our Javadocs -->
                     <groups>
                         <group>
@@ -354,13 +329,6 @@
         </dependency>
 
         <!-- Shaded packages -->
-
-        <dependency>
-            <groupId>com.github.Slimefun.dough</groupId>
-            <artifactId>dough-api</artifactId>
-            <version>cb22e71335</version>
-            <scope>compile</scope>
-        </dependency>
         <dependency>
             <groupId>com.github.Slimefun.dough</groupId>
             <artifactId>dough-api</artifactId>
@@ -378,7 +346,7 @@
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>${paper.version}-R0.1-SNAPSHOT</version>
+            <version>1.21.10-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
@@ -399,22 +367,6 @@
             <artifactId>slf4j-simple</artifactId>
             <version>2.0.16</version>
             <scope>test</scope>
-        </dependency>
-        <!-- This needs to be before Spigot because MockBukkit will fail otherwise. -->
-        <dependency>
-            <groupId>com.github.seeseemelk</groupId>
-            <artifactId>MockBukkit-v1.21</artifactId>
-            <version>3.133.2</version>
-            <scope>test</scope>
-
-            <exclusions>
-                <exclusion>
-                    <!-- We use javax.annotation instead. Excluding this -->
-                    <!-- prevents us from using inconsistent annotations -->
-                    <groupId>org.jetbrains</groupId>
-                    <artifactId>annotations</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <!-- Third party plugin integrations / soft dependencies -->
@@ -449,7 +401,7 @@
         <dependency>
             <groupId>com.gmail.nossr50.mcMMO</groupId>
             <artifactId>mcMMO</artifactId>
-            <version>2.2.029</version>
+            <version>2.2.031</version>
             <scope>provided</scope>
 
             <exclusions>
@@ -505,7 +457,7 @@
         <dependency>
             <groupId>net.imprex</groupId>
             <artifactId>orebfuscator-api</artifactId>
-            <version>5.4.0</version>
+            <version>5.5.3</version>
             <scope>provided</scope>
 
             <exclusions>
@@ -516,25 +468,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!-- TODO: Remove this dependency -->
         <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>2.6</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.19.0</version>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.mojang</groupId>
-            <artifactId>authlib</artifactId>
-            <version>6.0.52</version>
-            <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <!-- We don't need any of the dependencies -->
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
     </dependencies>
 </project>

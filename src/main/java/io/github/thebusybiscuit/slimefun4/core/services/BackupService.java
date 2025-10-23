@@ -17,7 +17,7 @@ import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Nonnull;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 
