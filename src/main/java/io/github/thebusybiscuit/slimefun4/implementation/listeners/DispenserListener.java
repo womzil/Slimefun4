@@ -60,7 +60,7 @@ public class DispenserListener implements Listener {
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onStopBucketItemReplacingSlimefunBlock(BlockDispenseEvent event) {
         if (MaterialTags.BUCKETS.isTagged(event.getItem().getType())) {
-            // fix # 1103 : dispenser can replace head machines with liquid
+            // fix #1103 : dispenser can replace head machines with liquid
             Block b = event.getBlock();
             BlockData blockData = b.getBlockData();
             if (blockData instanceof org.bukkit.block.data.type.Dispenser dispenser) {
