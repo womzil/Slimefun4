@@ -19,8 +19,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDispenseEvent;
 
-import java.util.EnumSet;
-
 /**
  * This {@link Listener} listens to the {@link BlockDispenseEvent} and calls the
  * {@link BlockDispenseHandler} as a result of that.
@@ -32,9 +30,6 @@ import java.util.EnumSet;
  *
  */
 public class DispenserListener implements Listener {
-    private final EnumSet<Material> bucketMaterials = EnumSet.copyOf(MaterialTags.BUCKETS.getValues());
-    ;
-
     public DispenserListener(@Nonnull Slimefun plugin) {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
@@ -64,7 +59,7 @@ public class DispenserListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onStopBucketItemReplacingSlimefunBlock(BlockDispenseEvent event) {
-        if (bucketMaterials.contains(event.getItem().getType())) {
+        if (MaterialTags.BUCKETS.isTagged(event.getItem().getType())) {
             // fix # 1103 : dispenser can replace head machines with liquid
             Block b = event.getBlock();
             BlockData blockData = b.getBlockData();
