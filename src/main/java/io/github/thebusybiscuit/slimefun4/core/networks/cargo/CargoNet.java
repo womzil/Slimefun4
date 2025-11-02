@@ -1,12 +1,6 @@
 package io.github.thebusybiscuit.slimefun4.core.networks.cargo;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 
 import javax.annotation.Nonnull;
@@ -108,6 +102,13 @@ public class CargoNet extends AbstractItemNetwork implements HologramOwner {
     public void onClassificationChange(Location l, NetworkComponent from, NetworkComponent to) {
         connectorCache.remove(l);
 
+        // if the node is no loger a terminusm
+        // clean up everything related to it
+        if (from == NetworkComponent.TERMINUS && to != NetworkComponent.TERMINUS) {
+            purgeCacheFor(l);
+            roundRobin.remove(l);
+        }
+
         if (from == NetworkComponent.TERMINUS) {
             inputNodes.remove(l);
             outputNodes.remove(l);
@@ -125,7 +126,11 @@ public class CargoNet extends AbstractItemNetwork implements HologramOwner {
     }
 
     public void tick(@Nonnull Block b) {
-        if (!regulator.equals(b.getLocation())) {
+        if (regulator.getWorld() != b.getWorld()
+                || regulator.getBlockX() != b.getX()
+                || regulator.getBlockY() != b.getY()
+                || regulator.getBlockZ() != b.getZ()
+        ) {
             updateHologram(b, "&4Multiple Cargo Regulators connected");
             return;
         }
@@ -162,7 +167,7 @@ public class CargoNet extends AbstractItemNetwork implements HologramOwner {
     }
 
     private @Nonnull Map<Location, Integer> mapInputNodes() {
-        Map<Location, Integer> inputs = new HashMap<>();
+        Map<Location, Integer> inputs = new HashMap<>(Math.max(16, inputNodes.size()));
 
         for (Location node : inputNodes) {
             int frequency = getFrequency(node);
@@ -176,32 +181,11 @@ public class CargoNet extends AbstractItemNetwork implements HologramOwner {
     }
 
     private @Nonnull Map<Integer, List<Location>> mapOutputNodes() {
-        Map<Integer, List<Location>> output = new HashMap<>();
-
-        List<Location> list = new LinkedList<>();
-        int lastFrequency = -1;
+        Map<Integer, List<Location>> output = new HashMap<>(16);
 
         for (Location node : outputNodes) {
             int frequency = getFrequency(node);
-
-            if (frequency != lastFrequency && lastFrequency != -1) {
-                output.merge(lastFrequency, list, (prev, next) -> {
-                    prev.addAll(next);
-                    return prev;
-                });
-
-                list = new LinkedList<>();
-            }
-
-            list.add(node);
-            lastFrequency = frequency;
-        }
-
-        if (!list.isEmpty()) {
-            output.merge(lastFrequency, list, (prev, next) -> {
-                prev.addAll(next);
-                return prev;
-            });
+            output.computeIfAbsent(frequency, __ -> new ArrayList<>()).add(node);
         }
 
         return output;

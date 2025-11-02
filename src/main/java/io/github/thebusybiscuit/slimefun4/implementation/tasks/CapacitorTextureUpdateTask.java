@@ -2,14 +2,13 @@ package io.github.thebusybiscuit.slimefun4.implementation.tasks;
 
 import javax.annotation.Nonnull;
 
+import io.github.thebusybiscuit.slimefun4.utils.Utils;
 import org.apache.commons.lang3.Validate;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.block.Block;
 
-import io.github.bakedlibs.dough.skins.PlayerHead;
-import io.github.bakedlibs.dough.skins.PlayerSkin;
 import io.github.thebusybiscuit.slimefun4.implementation.items.electric.Capacitor;
 import io.github.thebusybiscuit.slimefun4.utils.HeadTexture;
 import io.papermc.lib.PaperLib;
@@ -75,8 +74,7 @@ public class CapacitorTextureUpdateTask implements Runnable {
     }
 
     private void setTexture(@Nonnull Block b, @Nonnull HeadTexture texture) {
-        PlayerSkin skin = PlayerSkin.fromHashCode(texture.getUniqueId(), texture.getTexture());
-        PlayerHead.setSkin(b, skin, false);
+        Utils.applyHeadHashToBlock(b, texture.getTexture(), texture.getUniqueId());
 
         PaperLib.getBlockState(b, false).getState().update(true, false);
     }
