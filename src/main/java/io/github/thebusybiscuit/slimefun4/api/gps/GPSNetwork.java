@@ -32,7 +32,6 @@ import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
@@ -313,10 +312,10 @@ public class GPSNetwork {
             int pageSize = inventory.length;
             int page = pages.getOrDefault(p.getUniqueId(), 1);
             PageRange pr = PageRange.compute(all.size(), pageSize, page);
-            pages.put(p.getUniqueId(), pr.page);
+            pages.put(p.getUniqueId(), pr.getCurrentPage());
 
             int index = 0;
-            for (int i = pr.from; i < pr.to; i++) {
+            for (int i = pr.getFromIndex(); i < pr.getToIndex(); i++) {
                 Waypoint waypoint = all.get(i);
                 int slot = inventory[index++];
 
@@ -340,42 +339,18 @@ public class GPSNetwork {
                 });
             }
 
-            if (pr.totalPages > 1) {
-                if (page > 1) {
-                    menu.addItem(
-                            PREV_SLOT,
-                            new CustomItemStack(Material.ARROW, "&a上一页 &7(" + page + "/" + pr.totalPages + ")"));
-                    final int cur = page;
-                    menu.addMenuClickHandler(PREV_SLOT, (pl, s, i, a) -> {
-                        setPage(p, cur - 1, pr.totalPages);
-                        openWaypointControlPanel(p);
-                        return false;
-                    });
-                } else {
-                    menu.addItem(PREV_SLOT, new CustomItemStack(Material.GRAY_STAINED_GLASS_PANE, "&7上一页（无）"));
-                    menu.addMenuClickHandler(PREV_SLOT, ChestMenuUtils.getEmptyClickHandler());
-                }
-
-                if (page < pr.totalPages) {
-                    menu.addItem(
-                            NEXT_SLOT,
-                            new CustomItemStack(Material.ARROW, "&a下一页 &7(" + page + "/" + pr.totalPages + ")"));
-                    final int cur = page;
-                    menu.addMenuClickHandler(NEXT_SLOT, (pl, s, i, a) -> {
-                        setPage(p, cur + 1, pr.totalPages);
-                        openWaypointControlPanel(p);
-                        return false;
-                    });
-                } else {
-                    menu.addItem(NEXT_SLOT, new CustomItemStack(Material.GRAY_STAINED_GLASS_PANE, "&7下一页（无）"));
-                    menu.addMenuClickHandler(NEXT_SLOT, ChestMenuUtils.getEmptyClickHandler());
-                }
-            } else {
-                menu.addItem(PREV_SLOT, ChestMenuUtils.getBackground(), ChestMenuUtils.getEmptyClickHandler());
-                menu.addItem(NEXT_SLOT, ChestMenuUtils.getBackground(), ChestMenuUtils.getEmptyClickHandler());
-            }
+            PageHelper.renderPageButton(
+                    menu, PREV_SLOT, NEXT_SLOT, pr, getWaypointPageHandler(pr, -1), getWaypointPageHandler(pr, 1));
             menu.open(p);
         });
+    }
+
+    private ChestMenu.MenuClickHandler getWaypointPageHandler(PageRange pr, int delta) {
+        return (pl, s, i, a) -> {
+            setPage(pl, pr.getCurrentPage() + delta, pr.getTotalPages());
+            openWaypointControlPanel(pl);
+            return false;
+        };
     }
 
     private void setPage(Player p, int page, int totalPages) {

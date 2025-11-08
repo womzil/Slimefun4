@@ -26,7 +26,6 @@ import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -105,10 +104,10 @@ public final class TeleportationManager {
                 List<Waypoint> all = new ArrayList<>(profile.getWaypoints());
                 int page = pages.getOrDefault(p.getUniqueId(), 1);
                 PageRange pr = PageRange.compute(all.size(), pageSize, page);
-                pages.put(p.getUniqueId(), pr.page);
+                setPage(p, pr.getCurrentPage(), pr.getTotalPages());
 
                 int index = 0;
-                for (int i = pr.from; i < pr.to; i++) {
+                for (int i = pr.getFromIndex(); i < pr.getToIndex(); i++) {
                     Waypoint waypoint = all.get(i);
                     int slot = teleporterInventory[index++];
                     Location l = waypoint.getLocation();
@@ -138,46 +137,31 @@ public final class TeleportationManager {
                     });
                 }
 
-                if (pr.totalPages > 1) {
-                    if (page > 1) {
-                        menu.addItem(
-                                PREV_SLOT,
-                                new CustomItemStack(Material.ARROW, "&a上一页 &7(" + page + "/" + pr.totalPages + ")"));
-                        final int cur = page;
-                        menu.addMenuClickHandler(PREV_SLOT, (pl, s, i, a) -> {
-                            teleporterUsers.remove(pl.getUniqueId());
-                            pages.put(pl.getUniqueId(), cur - 1);
-                            openTeleporterGUI(pl, ownerUUID, b, complexity);
-                            return false;
-                        });
-                    } else {
-                        menu.addItem(PREV_SLOT, new CustomItemStack(Material.GRAY_STAINED_GLASS_PANE, "&7上一页（无）"));
-                        menu.addMenuClickHandler(PREV_SLOT, ChestMenuUtils.getEmptyClickHandler());
-                    }
-
-                    if (page < pr.totalPages) {
-                        menu.addItem(
-                                NEXT_SLOT,
-                                new CustomItemStack(Material.ARROW, "&a下一页 &7(" + page + "/" + pr.totalPages + ")"));
-                        final int cur = page;
-                        menu.addMenuClickHandler(NEXT_SLOT, (pl, s, i, a) -> {
-                            teleporterUsers.remove(pl.getUniqueId());
-                            pages.put(pl.getUniqueId(), cur + 1);
-                            openTeleporterGUI(pl, ownerUUID, b, complexity);
-                            return false;
-                        });
-                    } else {
-                        menu.addItem(NEXT_SLOT, new CustomItemStack(Material.GRAY_STAINED_GLASS_PANE, "&7下一页（无）"));
-                        menu.addMenuClickHandler(NEXT_SLOT, ChestMenuUtils.getEmptyClickHandler());
-                    }
-                } else {
-                    menu.addItem(PREV_SLOT, ChestMenuUtils.getBackground(), ChestMenuUtils.getEmptyClickHandler());
-                    menu.addItem(NEXT_SLOT, ChestMenuUtils.getBackground(), ChestMenuUtils.getEmptyClickHandler());
-                }
+                PageHelper.renderPageButton(
+                        menu,
+                        PREV_SLOT,
+                        NEXT_SLOT,
+                        pr,
+                        getTeleportationPageHandler(pr, ownerUUID, b, complexity, -1),
+                        getTeleportationPageHandler(pr, ownerUUID, b, complexity, 1));
 
                 Slimefun.runSync(() -> menu.open(p));
             });
         }
+    }
+
+    private void setPage(Player p, int page, int totalPages) {
+        pages.put(p.getUniqueId(), Math.max(1, Math.min(page, totalPages)));
+    }
+
+    private ChestMenu.MenuClickHandler getTeleportationPageHandler(
+            PageRange pr, UUID ownerUUID, Block b, int complexity, int delta) {
+        return (pl, s, i, a) -> {
+            setPage(pl, pr.getCurrentPage() + delta, pr.getTotalPages());
+            teleporterUsers.remove(pl.getUniqueId());
+            openTeleporterGUI(pl, ownerUUID, b, complexity);
+            return false;
+        };
     }
 
     @ParametersAreNonnullByDefault
