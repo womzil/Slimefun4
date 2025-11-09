@@ -1,6 +1,7 @@
 package io.github.thebusybiscuit.slimefun4.implementation.items.electric.machines;
 
 import city.norain.slimefun4.SlimefunExtended;
+import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils;
 import io.github.bakedlibs.dough.inventory.InvUtils;
 import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack;
@@ -16,6 +17,7 @@ import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.abstractItems.AContainer;
 import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.abstractItems.MachineRecipe;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionData;
@@ -63,6 +65,39 @@ public class AutoBrewer extends AContainer implements NotHopperable {
     @ParametersAreNonnullByDefault
     public AutoBrewer(ItemGroup itemGroup, SlimefunItemStack item, RecipeType recipeType, ItemStack[] recipe) {
         super(itemGroup, item, recipeType, recipe);
+    }
+
+    private void tryPushingRedundantPotion(BlockMenu menu) {
+        int left = getInputSlots()[0];
+        int right = getInputSlots()[1];
+
+        ItemStack leftStack = menu.getItemInSlot(left);
+        ItemStack rightStack = menu.getItemInSlot(right);
+
+        boolean leftPotion = leftStack != null && isPotion(leftStack.getType());
+        boolean rightPotion = rightStack != null && isPotion(rightStack.getType());
+
+        if (leftPotion && rightPotion) {
+            int before = rightStack.getAmount();
+            ItemStack copy = rightStack.clone();
+            ItemStack remaining = menu.pushItem(copy, getOutputSlots());
+            int after = 0;
+            if (remaining != null) after = remaining.getAmount();
+
+            if (after == 0) {
+                menu.replaceExistingItem(right, null);
+            } else if (after < before) {
+                rightStack.setAmount(after);
+                menu.replaceExistingItem(right, rightStack);
+            }
+        }
+    }
+
+    @Override
+    protected void tick(Block b) {
+        BlockMenu inv = StorageCacheUtils.getMenu(b.getLocation());
+        tryPushingRedundantPotion(inv);
+        super.tick(b);
     }
 
     @Override
