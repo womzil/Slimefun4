@@ -151,6 +151,22 @@ public class AutoBrewer extends AContainer implements NotHopperable {
         }
     }
 
+    private PotionType getExtendedPotionType(PotionType type) {
+        try {
+            return PotionType.valueOf("LONG_" + type.name());
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    private PotionType getStrengthenPotionType(PotionType type) {
+        try {
+            return PotionType.valueOf("STRONG_" + type.name());
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
     @ParametersAreNonnullByDefault
     private ItemStack brewPostBasePotionType(Material input, Material potionType, PotionMeta potion) {
         PotionType type = potion.getBasePotionType();
@@ -175,12 +191,14 @@ public class AutoBrewer extends AContainer implements NotHopperable {
             }
         } else if (input == Material.REDSTONE && type.isExtendable() && !type.isUpgradeable()) {
             // Fixes #3390 - Potions can only be either extended or upgraded. Not both.
-            potion.setBasePotionType(type);
+            potion.setBasePotionType(getExtendedPotionType(type));
             return new ItemStack(potionType);
         } else if (input == Material.GLOWSTONE_DUST && type.isUpgradeable() && !type.isExtendable()) {
             // Fixes #3390 - Potions can only be either extended or upgraded. Not both.
-            potion.setBasePotionType(type);
+            potion.setBasePotionType(getStrengthenPotionType(type));
             return new ItemStack(potionType);
+        } else if (input == Material.GUNPOWDER && potionType == Material.POTION) {
+            return new ItemStack(Material.SPLASH_POTION);
         } else if (type == PotionType.AWKWARD) {
             PotionType potionRecipe = potionRecipes.get(input);
 
