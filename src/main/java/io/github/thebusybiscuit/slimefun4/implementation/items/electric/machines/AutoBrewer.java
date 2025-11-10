@@ -197,6 +197,8 @@ public class AutoBrewer extends AContainer implements NotHopperable {
             return new ItemStack(potionType);
         } else if (input == Material.GUNPOWDER && potionType == Material.POTION) {
             return new ItemStack(Material.SPLASH_POTION);
+        } else if (input == Material.DRAGON_BREATH && potionType == Material.SPLASH_POTION) {
+            return new ItemStack(Material.LINGERING_POTION);
         } else if (type == PotionType.AWKWARD) {
             PotionType potionRecipe = potionRecipes.get(input);
 
