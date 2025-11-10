@@ -81,9 +81,7 @@ public class AutoBrewer extends AContainer implements NotHopperable {
             int before = rightStack.getAmount();
             ItemStack copy = rightStack.clone();
             ItemStack remaining = menu.pushItem(copy, getOutputSlots());
-            int after = 0;
-            if (remaining != null) after = remaining.getAmount();
-
+            int after = remaining != null ? remaining.getAmount() : 0;
             if (after == 0) {
                 menu.replaceExistingItem(right, null);
             } else if (after < before) {
