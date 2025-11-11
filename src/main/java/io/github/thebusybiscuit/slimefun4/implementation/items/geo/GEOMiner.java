@@ -333,7 +333,11 @@ public class GEOMiner extends SlimefunItem
                 Slimefun.getDatabaseManager().getBlockDataController().getChunkDataFromCache(b.getLocation());
         if (chunkData != null && chunkData.isDataLoaded()) {
             // the data is fully loaded
-            start(b, inv);
+            if (chunkData.getAllData().isEmpty()) {
+                updateHologram(b, "&4需要先进行地形扫描!");
+            } else {
+                start(b, inv);
+            }
         } else {
             // load chunk
             Slimefun.getDatabaseManager()
