@@ -12,6 +12,7 @@ import org.bukkit.profile.PlayerTextures;
 import javax.annotation.Nullable;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.UUID;
 
@@ -28,7 +29,8 @@ public class Utils {
         URL url = toSkinURL(hashOrBase64OrUrl);
         if (url == null) return;
 
-        PlayerProfile profile = Bukkit.createPlayerProfile(stableUuid != null ? stableUuid : UUID.randomUUID(), null);
+        UUID profileUuid = stableUuid != null ? stableUuid : generateDeterministicUUID(hashOrBase64OrUrl);
+        PlayerProfile profile = Bukkit.createPlayerProfile(profileUuid, null);
         setSkinOnProfile(profile, url);
 
         skull.setOwnerProfile(profile);
@@ -46,7 +48,8 @@ public class Utils {
         ItemStack head = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta meta = (SkullMeta) head.getItemMeta();
 
-        PlayerProfile profile = Bukkit.createPlayerProfile(stableUuid != null ? stableUuid : UUID.randomUUID(), null);
+        UUID profileUuid = stableUuid != null ? stableUuid : generateDeterministicUUID(hashOrBase64OrUrl);
+        PlayerProfile profile = Bukkit.createPlayerProfile(profileUuid, null);
         setSkinOnProfile(profile, url);
 
         meta.setOwnerProfile(profile);
@@ -77,6 +80,36 @@ public class Utils {
         } catch (Exception ignored) {
             //nothing
         }
+    }
+
+    /**
+     * Generates a deterministic UUI based on the texture input.
+     * This ensures that the same texture always produces the same UUID,
+     * which is crucial for item stacking.
+     *
+     * @param input The texture hash, base64, or URL
+     * @return A deterministic UUID based on the input
+     */
+    private static UUID generateDeterministicUUID(String input) {
+        String normalizedInput = input;
+
+        if (isLikelyBase64Json(input)) {
+            try {
+                String json = new String(Base64.getDecoder().decode(input));
+                int i = json.indexOf("\"url\":\"");
+                if (i >= 0) {
+                    int start = i + 7;
+                    int end = json.indexOf('"', start);
+                    if (end > start) {
+                        normalizedInput = json.substring(start, end);
+                    }
+                }
+            } catch (Exception ignored) {
+                // nothing
+            }
+        }
+
+        return UUID.nameUUIDFromBytes(normalizedInput.getBytes(StandardCharsets.UTF_8));
     }
 
     @Nullable

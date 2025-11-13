@@ -18,7 +18,8 @@ public class CustomUtil {
         String skinUrl = extractSkinUrl(json);
 
         Server server = Bukkit.getServer();
-        PlayerProfile profile = server.createPlayerProfile(UUID.randomUUID());
+        UUID profileUuid = UUID.nameUUIDFromBytes(base64.getBytes(StandardCharsets.UTF_8));
+        PlayerProfile profile = server.createPlayerProfile(profileUuid);
 
         PlayerTextures textures = profile.getTextures();
         try {

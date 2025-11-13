@@ -96,7 +96,7 @@ public class DebugFishListener implements Listener {
                 Block block = b.getRelative(face);
                 block.setType(Material.PLAYER_HEAD);
 
-                Utils.applyHeadHashToBlock(block, HeadTexture.MISSING_TEXTURE.getTextureHash(), null);
+                Utils.applyHeadHashToBlock(block, HeadTexture.MISSING_TEXTURE.getTextureHash(), HeadTexture.MISSING_TEXTURE.getUniqueId());
                 SoundEffect.DEBUG_FISH_CLICK_SOUND.playFor(p);
             }, 2L);
         } else if (BlockStorage.hasBlockInfo(b)) {

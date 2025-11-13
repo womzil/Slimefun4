@@ -243,7 +243,8 @@ public final class SlimefunUtils {
             }
         }
 
-        PlayerProfile profile = Bukkit.getServer().createPlayerProfile(UUID.randomUUID());
+        UUID profileUuid = UUID.nameUUIDFromBytes(texture.getBytes(StandardCharsets.UTF_8));
+        PlayerProfile profile = Bukkit.getServer().createPlayerProfile(profileUuid);
         PlayerTextures textures = profile.getTextures();
         try {
             if (skinUrl != null) {
