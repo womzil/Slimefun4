@@ -35,7 +35,7 @@ abstract class AbstractEnchantmentMachine extends AContainer {
     private final IntRangeSetting levelLimit = new IntRangeSetting(this, "enchant-level-limit", 0, 10, Short.MAX_VALUE);
     private final ItemSetting<Boolean> useIgnoredLores = new ItemSetting<>(this, "use-ignored-lores", false);
     private final ItemSetting<List<String>> ignoredLores = new ItemSetting<>(
-            this, "ignored-lores", Collections.singletonList("&7- &c无法被使用在 " + this.getItemName() + "上"));
+            this, "ignored-lores", Collections.singletonList("&7- &cCan't be used in " + this.getItemName() + "上"));
     private final ItemSetting<Integer> enchantLimit =
             new IntRangeSetting(this, "enchant-limit", 0, 10, Short.MAX_VALUE);
     private final ItemSetting<Boolean> useEnchantLimit = new ItemSetting<>(this, "use-enchant-limit", false);
@@ -63,7 +63,7 @@ abstract class AbstractEnchantmentMachine extends AContainer {
 
     protected void showEnchantmentLevelWarning(@Nonnull BlockMenu menu) {
         if (!useLevelLimit.getValue()) {
-            throw new IllegalStateException("自动附/祛魔机等level限制未被enable, 无法展示warninginfo.");
+            throw new IllegalStateException("Enchantment level limit not enabled, cannot display a warning.");
         }
 
         String notice = ChatColors.color(Slimefun.getLocalization().getMessage("messages.above-limit-level"));
@@ -74,7 +74,7 @@ abstract class AbstractEnchantmentMachine extends AContainer {
 
     protected void showEnchantmentLimitWarning(@Nonnull BlockMenu menu) {
         if (!useEnchantLimit.getValue()) {
-            throw new IllegalStateException("自动附/祛魔机附魔数量限制未被enable, 无法展示warninginfo.");
+            throw new IllegalStateException("Enchantment limit for the auto enchanter/disenchanter is not enabled, cannot display warning info.");
         }
 
         String notice = ChatColors.color(Slimefun.getLocalization().getMessage("messages.above-enchant-limit"));

@@ -70,13 +70,13 @@ public class SurvivalSlimefunGuide implements SlimefunGuideImplementation {
     private final ItemStack item;
 
     public SurvivalSlimefunGuide() {
-        item = new SlimefunGuideItem(this, "&aSlimefun 指南 &7(箱子interface)");
+        item = new SlimefunGuideItem(this, "&aSlimefun Guide &7(Chest GUI)");
     }
 
     // fallback
     @Deprecated
     public SurvivalSlimefunGuide(boolean v1, boolean v2) {
-        item = new SlimefunGuideItem(this, "&aSlimefun 指南 &7(箱子interface)");
+        item = new SlimefunGuideItem(this, "&aSlimefun Guide &7(Chest GUI)");
     }
 
     @Override
@@ -703,7 +703,7 @@ public class SurvivalSlimefunGuide implements SlimefunGuideImplementation {
         if (isSurvivalMode() && history.size() > 1) {
             menu.addItem(
                     slot,
-                    new CustomItemStack(ChestMenuUtils.getBackButton(p, "", "&f左key: &7return上一页", "&fShift + 左key: &7return主menu")));
+                    new CustomItemStack(ChestMenuUtils.getBackButton(p, "", "&fLeft Click: &7Return to previous page", "&fShift + Left Click: &7Return to main menu")));
 
             menu.addMenuClickHandler(slot, (pl, s, is, action) -> {
                 if (action.isShiftClicked()) {
@@ -849,8 +849,8 @@ public class SurvivalSlimefunGuide implements SlimefunGuideImplementation {
 
     @ParametersAreNonnullByDefault
     private void printErrorMessage(Player p, Throwable x) {
-        p.sendMessage(ChatColor.DARK_RED + "server发生了一个internalerror. 请联系manage员handle.");
-        Slimefun.logger().log(Level.SEVERE, "在open指南书里的 Slimefun item时发生了意外!", x);
+        p.sendMessage(ChatColor.DARK_RED + "An internal server error has occurred. Please inform an admin, check the console for further info.");
+        Slimefun.logger().log(Level.SEVERE, "An error has occurred while trying to open a SlimefunItem in the guide!", x);
     }
 
     @ParametersAreNonnullByDefault

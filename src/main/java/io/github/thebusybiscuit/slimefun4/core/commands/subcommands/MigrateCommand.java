@@ -35,7 +35,7 @@ public class MigrateCommand extends SubCommand {
                         sendMigrateStatus("playerdata", sender, status);
                     } catch (Exception e) {
                         Slimefun.getLocalization().sendMessage(sender, "commands.migrate.failed", true);
-                        plugin.getLogger().log(Level.WARNING, "migratedata时出现意外", e);
+                        plugin.getLogger().log(Level.WARNING, "An unexpected error occurred while migrating data", e);
                     }
                 });
 
@@ -45,7 +45,7 @@ public class MigrateCommand extends SubCommand {
                         sendMigrateStatus("blockdata", sender, status);
                     } catch (Exception e) {
                         Slimefun.getLocalization().sendMessage(sender, "commands.migrate.failed", true);
-                        plugin.getLogger().log(Level.WARNING, "migratedata时出现意外", e);
+                        plugin.getLogger().log(Level.WARNING, "An unexpected error occurred while migrating data", e);
                     }
                 });
             } else {

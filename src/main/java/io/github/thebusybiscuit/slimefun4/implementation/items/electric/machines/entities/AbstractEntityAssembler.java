@@ -182,7 +182,7 @@ public abstract class AbstractEntityAssembler<T extends Entity> extends SimpleSl
         menu.replaceExistingItem(
                 31,
                 new CustomItemStack(
-                        Material.PISTON, "&7生成高度: &3" + offset + " 格block高", "", "&f左key: &7+0.1", "&f右key: &7-0.1"));
+                        Material.PISTON, "&7Offset: &3" + offset + " Block(s)", "", "&fLeft Click: &7+0.1", "&fRight Click: &7-0.1"));
         menu.addMenuClickHandler(31, (p, slot, item, action) -> {
             double offsetv =
                     NumberUtils.reparseDouble(Double.parseDouble(StorageCacheUtils.getData(b.getLocation(), KEY_OFFSET))
@@ -294,15 +294,15 @@ public abstract class AbstractEntityAssembler<T extends Entity> extends SimpleSl
     protected void constructMenu(BlockMenuPreset preset) {
         preset.addItem(
                 1,
-                new CustomItemStack(getHead(), "&7在此处放入头颅", "", "&f此处can放入作is生成实体头颅的item"),
+                new CustomItemStack(getHead(), "&7Head Slot", "", "&fThis Slot accepts the head type"),
                 ChestMenuUtils.getEmptyClickHandler());
         preset.addItem(
                 7,
-                new CustomItemStack(getBody(), "&7在此处放入组装原料", "", "&f此处can放入作is生成实体躯干的item"),
+                new CustomItemStack(getBody(), "&7Body Slot", "", "&fThis Slot accepts the body type"),
                 ChestMenuUtils.getEmptyClickHandler());
         preset.addItem(
                 13,
-                new CustomItemStack(Material.CLOCK, "&7冷却时间: &b30 秒", "", "&fthis机器require半分钟的时间装配", "&f所以耐心等等吧!"),
+                new CustomItemStack(Material.CLOCK, "&7Cooldown: &b30 Seconds", "", "&fThis Machine takes up to half a Minute to operate", "&fso give it some Time!"),
                 ChestMenuUtils.getEmptyClickHandler());
     }
 

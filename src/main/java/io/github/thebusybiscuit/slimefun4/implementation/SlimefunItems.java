@@ -1365,7 +1365,7 @@ public final class SlimefunItems {
     public static final SlimefunItemStack WITHER_ASSEMBLER = new SlimefunItemStack("WITHER_ASSEMBLER", Material.OBSIDIAN, "&5Wither Assembler", "", LoreBuilder.machine(MachineTier.END_GAME, MachineType.MACHINE), "&8\u21E8 &7Cooldown: &b30 Seconds", LoreBuilder.powerBuffer(4096), "&8\u21E8 &e\u26A1 &74096 J/Wither");
 
     public static final SlimefunItemStack TRASH_CAN =
-            new SlimefunItemStack("TRASH_CAN_BLOCK", HeadTexture.TRASH_CAN, "&3garbage箱", "", "&rcan把不要的item放进这里");
+            new SlimefunItemStack("TRASH_CAN_BLOCK", HeadTexture.TRASH_CAN, "&3Trash Can", "", "&rYou can throw unwanted items in here");
 
     public static final SlimefunItemStack ELYTRA_SCALE = new SlimefunItemStack("ELYTRA_SCALE", Material.FEATHER, "&bElytra Scale");
     public static final SlimefunItemStack INFUSED_ELYTRA = new SlimefunItemStack("INFUSED_ELYTRA", Material.ELYTRA, "&5Infused Elytra");
@@ -1374,10 +1374,12 @@ public final class SlimefunItems {
     public static final SlimefunItemStack MAGNESIUM_SALT = new SlimefunItemStack("MAGNESIUM_SALT", Material.SUGAR, "&cMagnesium Salt", "", "&7A special type of fuel that can be", "&7used in a Magnesium-powered Generator");
     public static final SlimefunItemStack MAGNESIUM_GENERATOR = new SlimefunItemStack("MAGNESIUM_GENERATOR", HeadTexture.GENERATOR, "&cMagnesium-powered Generator", "", LoreBuilder.machine(MachineTier.MEDIUM, MachineType.GENERATOR), LoreBuilder.powerBuffer(128), LoreBuilder.powerPerSecond(36));
 
-    // 别删
+    // Do not delete
     public static final SlimefunItemStack CRAFTER_SMART_PORT = new SlimefunItemStack(
-            "CRAFTER_SMART_PORT", Material.LIME_STAINED_GLASS, "&a合成机智能交互接口", "", "&5can根据合成table材料数量allocate输入数量", "&5and拥有指定输出槽");
-
+            "CRAFTER_SMART_PORT", Material.LIME_STAINED_GLASS, "&aCrafter Smart Interface", "",
+            "&5Can allocate input amount based on crafting table material count",
+            "&5and has designated output slots");
+            
     static {
         INFUSED_ELYTRA.addUnsafeEnchantment(Enchantment.MENDING, 1);
     }

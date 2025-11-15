@@ -120,61 +120,61 @@ public final class SlimefunGuideSettings {
 
         // @formatter:off
         menu.addItem(
-                4,
-                new CustomItemStack(
-                        Material.WRITABLE_BOOK,
-                        ChatColor.GREEN + locale.getMessage(p, "guide.title.versions"),
-                        "&7&o" + locale.getMessage(p, "guide.tooltips.versions-notice"),
-                        "",
-                        "&f汉化 By StarWishsama",
-                        "&c请不要将此versioninfo截图到 Discord/Github 反馈 Bug",
-                        "&c而是优先到汉化页面反馈",
-                        "",
-                        "&cTHIS BUILD IS UNOFFICIAL BUILD, DO NOT REPORT TO SLIMEFUN DEV",
-                        "",
-                        "&fMinecraft: &a" + Bukkit.getBukkitVersion(),
-                        "&fSlimefun: &a" + Slimefun.getVersion()),
-                ChestMenuUtils.getEmptyClickHandler());
+            4,
+            new CustomItemStack(
+                Material.WRITABLE_BOOK,
+                ChatColor.GREEN + locale.getMessage(p, "guide.title.versions"),
+                "&7&o" + locale.getMessage(p, "guide.tooltips.versions-notice"),
+                "",
+                "&fTranslated by SaanPrasanna",
+                "&cPlease do not screenshot this version info to Discord/Github for bug reports",
+                "&cReport issues on the English localization page first",
+                "",
+                "&cTHIS BUILD IS UNOFFICIAL, DO NOT REPORT TO SLIMEFUN DEV",
+                "",
+                "&fMinecraft: &a" + Bukkit.getBukkitVersion(),
+                "&fSlimefun: &a" + Slimefun.getVersion()),
+            ChestMenuUtils.getEmptyClickHandler());
         // @formatter:on
 
         // @formatter:off
         menu.addItem(
-                6,
-                new CustomItemStack(
-                        Material.COMPARATOR,
-                        "&e" + locale.getMessage(p, "guide.title.source"),
-                        "",
-                        "&7最近活动于: &a" + NumberUtils.getElapsedTime(github.getLastUpdate()) + " 前",
-                        "&7Forks: &e" + github.getForks(),
-                        "&7Stars: &e" + github.getStars(),
-                        "",
-                        "&7&oSlimefun 4 是一个由社区参与的项目,",
-                        "&7&o源代码can在 GitHub 上找到",
-                        "&7&oif你想让this项目持续下去",
-                        "&7&o你can考虑对项目做出贡献",
-                        "",
-                        "&7\u21E8 &e点击前往汉化版 GitHub 仓库"));
+            6,
+            new CustomItemStack(
+                Material.COMPARATOR,
+                "&e" + locale.getMessage(p, "guide.title.source"),
+                "",
+                "&7Last activity: &a" + NumberUtils.getElapsedTime(github.getLastUpdate()) + " ago",
+                "&7Forks: &e" + github.getForks(),
+                "&7Stars: &e" + github.getStars(),
+                "",
+                "&7&oSlimefun 4 is a community-driven project,",
+                "&7&oyou can find the source code on GitHub",
+                "&7&oIf you want to help this project continue,",
+                "&7&oyou can consider contributing to the project",
+                "",
+                "&7\u21E8 &eClick to visit the Chinese GitHub repository"));
         // @formatter:on
 
         menu.addMenuClickHandler(6, (pl, slot, item, action) -> {
             pl.closeInventory();
-            ChatUtils.sendURL(pl, "https://github.com/SlimefunGuguProject/Slimefun4");
+            ChatUtils.sendURL(pl, "https://github.com/SaanPrasanna/Slimefun4");
             return false;
         });
 
         // @formatter:off
         menu.addItem(
-                8,
-                new CustomItemStack(
-                        Material.KNOWLEDGE_BOOK,
-                        "&3" + locale.getMessage(p, "guide.title.wiki"),
-                        "",
-                        "&7你require对itemor机器方面的帮助吗?",
-                        "&7你不知道要干什么?",
-                        "&7查看我们的由社区维护的维基",
-                        "&7and考虑成is一名编辑者!",
-                        "",
-                        "&7\u21E8 &e点击前往not官方中文 Wiki"));
+            8,
+            new CustomItemStack(
+                Material.KNOWLEDGE_BOOK,
+                "&3" + locale.getMessage(p, "guide.title.wiki"),
+                "",
+                "&7Need help with items or machines?",
+                "&7Not sure what to do?",
+                "&7Check out our community-maintained wiki",
+                "&7and consider becoming an editor!",
+                "",
+                "&7\u21E8 &eClick to visit the unofficial Chinese Wiki"));
         // @formatter:on
 
         menu.addMenuClickHandler(8, (pl, slot, item, action) -> {
@@ -185,18 +185,18 @@ public final class SlimefunGuideSettings {
 
         // @formatter:off
         menu.addItem(
-                47,
-                new CustomItemStack(
-                        Material.BOOKSHELF,
-                        "&3" + locale.getMessage(p, "guide.title.addons"),
-                        "",
-                        "&7Slimefun 是一个大型项目，但addonplugin的存在",
-                        "&7能让 Slimefun 真正的发光发亮",
-                        "&7看一看它们，也许你要寻找的addonplugin就在那里!",
-                        "",
-                        "&7该server已安装addonplugin: &b" + Slimefun.getInstalledAddons().size(),
-                        "",
-                        "&7\u21E8 &e点击查看 Slimefun4 available的addonplugin"));
+            47,
+            new CustomItemStack(
+                Material.BOOKSHELF,
+                "&3" + locale.getMessage(p, "guide.title.addons"),
+                "",
+                "&7Slimefun is a large project, but addon plugins",
+                "&7are what truly make Slimefun shine",
+                "&7Take a look at them, maybe the addon you are looking for is there!",
+                "",
+                "&7Addons installed on this server: &b" + Slimefun.getInstalledAddons().size(),
+                "",
+                "&7\u21E8 &eClick to view available Slimefun4 addons"));
         // @formatter:on
 
         menu.addMenuClickHandler(47, (pl, slot, item, action) -> {

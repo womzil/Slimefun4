@@ -59,10 +59,7 @@ public class CargoInputNode extends AbstractFilterNode {
                     24,
                     new CustomItemStack(
                             SlimefunUtils.getCustomHead(HeadTexture.ENERGY_REGULATOR.getTexture()),
-                            "&7轮循mode: &4\u2718",
-                            "",
-                            "&e> 单击enable轮循mode",
-                            "&e(item将会在信道中平均allocate)"));
+                            "&7Round-Robin Mode: &4\u2718", "", "&e> Click to enable Round Robin Mode", "&e(Items will be equally distributed on the Channel)"));
             menu.addMenuClickHandler(24, (p, slot, item, action) -> {
                 StorageCacheUtils.setData(b.getLocation(), ROUND_ROBIN_MODE, String.valueOf(true));
                 updateBlockMenu(menu, b);
@@ -73,10 +70,7 @@ public class CargoInputNode extends AbstractFilterNode {
                     24,
                     new CustomItemStack(
                             SlimefunUtils.getCustomHead(HeadTexture.ENERGY_REGULATOR.getTexture()),
-                            "&7轮循mode: &2\u2714",
-                            "",
-                            "&e> 单击shutdown轮循mode",
-                            "&e(item将会在信道中平均allocate)"));
+                            "&7Round-Robin Mode: &2\u2714", "", "&e> Click to disable Round Robin Mode", "&e(Items will be equally distributed on the Channel)"));
             menu.addMenuClickHandler(24, (p, slot, item, action) -> {
                 StorageCacheUtils.setData(b.getLocation(), ROUND_ROBIN_MODE, String.valueOf(false));
                 updateBlockMenu(menu, b);
@@ -93,14 +87,7 @@ public class CargoInputNode extends AbstractFilterNode {
                     16,
                     new CustomItemStack(
                             Material.WRITABLE_BOOK,
-                            "&7\"智能填充\" mode: &4\u2718",
-                            "",
-                            "&e> 单击enable",
-                            "",
-                            "&fopen后, 货运节点会尝试",
-                            "&f让货运网络中的item保持在一定数量",
-                            "&f但thisfunctionand不完美",
-                            "&f仍会尝试填满在一heapitem前的空位"));
+                            "&7\"Smart-Filling\" Mode: &4\u2718", "", "&e> Click to enable \"Smart-Filling\" Mode", "", "&fIn this mode, the Cargo node will attempt", "&fto keep a constant amount of items", "&fin the inventory. This is not perfect", "&fand will still fill in empty slots that", "&fcome before a stack of a configured item."));
             menu.addMenuClickHandler(16, (p, slot, item, action) -> {
                 StorageCacheUtils.setData(b.getLocation(), SMART_FILL_MODE, String.valueOf(true));
                 updateBlockMenu(menu, b);
@@ -111,14 +98,7 @@ public class CargoInputNode extends AbstractFilterNode {
                     16,
                     new CustomItemStack(
                             Material.WRITTEN_BOOK,
-                            "&7\"智能填充\" mode: &2\u2714",
-                            "",
-                            "&e> 单击disable",
-                            "",
-                            "&fopen后, 货运节点会尝试",
-                            "&f让货运网络中的item保持在一定数量",
-                            "&f但thisfunctionand不完美",
-                            "&f仍会尝试填满在一heapitem前的空位"));
+                            "&7\"Smart-Filling\" Mode: &2\u2714", "", "&e> Click to disable \"Smart-Filling\" Mode", "", "&fIn this mode, the Cargo node will attempt", "&fto keep a constant amount of items", "&fin the inventory. This is not perfect", "&fand will still fill in empty slots that", "&fcome before a stack of a configured item."));
             menu.addMenuClickHandler(16, (p, slot, item, action) -> {
                 StorageCacheUtils.setData(b.getLocation(), SMART_FILL_MODE, String.valueOf(false));
                 updateBlockMenu(menu, b);

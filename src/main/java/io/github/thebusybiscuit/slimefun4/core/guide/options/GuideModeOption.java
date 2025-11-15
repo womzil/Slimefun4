@@ -52,14 +52,14 @@ class GuideModeOption implements SlimefunGuideOption<SlimefunGuideMode> {
             }
 
             ItemMeta meta = item.getItemMeta();
-            meta.setDisplayName(ChatColor.GRAY + "Slimefun 指南样式: " + ChatColor.YELLOW + selectedMode.getDisplayName());
+            meta.setDisplayName(ChatColor.GRAY + "Slimefun Guide Mode: " + ChatColor.YELLOW + selectedMode.getDisplayName());
             List<String> lore = new ArrayList<>();
             lore.add("");
-            lore.add((selectedMode == SlimefunGuideMode.SURVIVAL_MODE ? ChatColor.GREEN : ChatColor.GRAY) + "普通mode");
-            lore.add((selectedMode == SlimefunGuideMode.CHEAT_MODE ? ChatColor.GREEN : ChatColor.GRAY) + "作弊mode");
+            lore.add((selectedMode == SlimefunGuideMode.SURVIVAL_MODE ? ChatColor.GREEN : ChatColor.GRAY) + "Survival Mode");
+            lore.add((selectedMode == SlimefunGuideMode.CHEAT_MODE ? ChatColor.GREEN : ChatColor.GRAY) + "Cheat Mode");
 
             lore.add("");
-            lore.add(ChatColor.GRAY + "\u21E8 " + ChatColor.YELLOW + "单击修改指南样式");
+            lore.add(ChatColor.GRAY + "\u21E8 " + ChatColor.YELLOW + "Click to change guide mode");
             meta.setLore(lore);
             item.setItemMeta(meta);
 

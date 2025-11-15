@@ -42,7 +42,7 @@ class VersionsCommand extends SubCommand {
      * This is the notice that will be displayed when an
      * older version of Java is detected.
      */
-    private static final String JAVA_VERSION_NOTICE = "在 Minecraft 1.17 release时require Java 16+!";
+    private static final String JAVA_VERSION_NOTICE = "Minecraft 1.17 and above requires Java 17+!";
 
     @ParametersAreNonnullByDefault
     VersionsCommand(Slimefun plugin, SlimefunCommand cmd) {
@@ -60,7 +60,7 @@ class VersionsCommand extends SubCommand {
 
             net.kyori.adventure.text.TextComponent.Builder builder = Component.text();
 
-            builder.append(Component.text("Slimefun 运row的server环境:\n", Style.style(NamedTextColor.GRAY)))
+            builder.append(Component.text("Slimefun server environment:\n", Style.style(NamedTextColor.GRAY)))
                     .append(Component.text(serverSoftware, Style.style(NamedTextColor.GREEN))
                             .append(Component.text(
                                     " " + Bukkit.getVersion() + '\n', Style.style(NamedTextColor.DARK_GREEN))))
@@ -74,7 +74,7 @@ class VersionsCommand extends SubCommand {
                                             : " @" + EnvUtil.getBranch())
                                     + '\n',
                             Style.style(NamedTextColor.DARK_GREEN)))
-                    .append(Component.text("build时间 ", Style.style(NamedTextColor.GREEN)))
+                    .append(Component.text("Build time ", Style.style(NamedTextColor.GREEN)))
                     .append(Component.text(EnvUtil.getBuildTime(), Style.style(NamedTextColor.DARK_GREEN)))
                     .append(Component.text("\n"));
 
@@ -92,16 +92,17 @@ class VersionsCommand extends SubCommand {
             addJavaVersion(builder);
 
             // Declare that we are NOT OFFICIAL build so no support from upstream
-            builder.append(Component.text("\n由 StarWishsama 汉化", Style.style(NamedTextColor.WHITE)))
-                    .append(Component.text(
-                            "\n请不要将此versioninfo截图到 Discord/Github 反馈 Bug\n优先到汉化页面反馈\n", Style.style(NamedTextColor.RED)));
+
+        builder.append(Component.text("\nUnofficial build by SaanPrasanna", Style.style(NamedTextColor.WHITE)))
+            .append(Component.text(
+                "\nPlease do not screenshot this version info to Github for bug reports.\nReport issues on the English localization page first.\n", Style.style(NamedTextColor.RED)));
 
             if (Slimefun.getConfigManager().isBypassEnvironmentCheck()) {
-                builder.append(Component.text("\n\n已disable环境compatibilitycheck", Style.style(NamedTextColor.RED)));
+                builder.append(Component.text("\n\nEnvironment compatibility check is disabled", Style.style(NamedTextColor.RED)));
             }
 
             if (Slimefun.getConfigManager().isBypassItemLengthCheck()) {
-                builder.append(Component.text("\n\n已disableitem长度check", Style.style(NamedTextColor.RED)));
+                builder.append(Component.text("\n\nItem length check is disabled", Style.style(NamedTextColor.RED)));
             }
 
             builder.append(Component.text("\n"));
@@ -116,15 +117,15 @@ class VersionsCommand extends SubCommand {
     private void addJavaVersion(@Nonnull net.kyori.adventure.text.TextComponent.Builder builder) {
         int version = NumberUtils.getJavaVersion();
 
-        if (version < RECOMMENDED_JAVA_VERSION) {
-            Component hover = Component.text("你使用的 Java version已过时!\n!"
-                    + "推荐你使用 Java "
-                    + RECOMMENDED_JAVA_VERSION
-                    + " or更高version.\n"
-                    + JAVA_VERSION_NOTICE);
+    if (version < RECOMMENDED_JAVA_VERSION) {
+        Component hover = Component.text("Your Java version is outdated!\n"
+            + "It is recommended to use Java "
+            + RECOMMENDED_JAVA_VERSION
+            + " or higher.\n"
+            + JAVA_VERSION_NOTICE);
 
-            builder.append(Component.text("Java " + version, NamedTextColor.RED).hoverEvent(HoverEvent.showText(hover)))
-                    .append(Component.text("\n"));
+        builder.append(Component.text("Java " + version, NamedTextColor.RED).hoverEvent(HoverEvent.showText(hover)))
+            .append(Component.text("\n"));
         } else {
             builder.append(Component.text("Java ", NamedTextColor.GREEN))
                     .append(Component.text(version + "\n", NamedTextColor.DARK_GREEN));
@@ -136,11 +137,11 @@ class VersionsCommand extends SubCommand {
         Collection<Plugin> addons = Slimefun.getInstalledAddons();
 
         if (addons.isEmpty()) {
-            builder.append(Component.text("没有安装任何addonplugin", NamedTextColor.GRAY).decorate(TextDecoration.ITALIC));
+            builder.append(Component.text("No addon plugins installed", NamedTextColor.GRAY).decorate(TextDecoration.ITALIC));
             return;
         }
 
-        builder.append(Component.text("安装的addonplugin: ", NamedTextColor.GRAY))
+        builder.append(Component.text("Installed addon plugins: ", NamedTextColor.GRAY))
                 .append(Component.text("(" + addons.size() + ")", NamedTextColor.DARK_GRAY));
 
         for (Plugin plugin : addons) {
@@ -164,28 +165,28 @@ class VersionsCommand extends SubCommand {
                             URI uri = URI.create(!url.contains("://") ? "https://" + url : url);
                             clickEvent = ClickEvent.openUrl(uri.toString());
                         }
-                        Component hoverComp = Component.text()
-                                .append(Component.text("作者: ", NamedTextColor.YELLOW))
-                                .append(Component.text(authors, NamedTextColor.YELLOW))
-                                .append(Component.text("\n> 单击open反馈页面", NamedTextColor.GOLD))
-                                .build();
+            Component hoverComp = Component.text()
+                .append(Component.text("Author(s): ", NamedTextColor.YELLOW))
+                .append(Component.text(authors, NamedTextColor.YELLOW))
+                .append(Component.text("\n> Click to open the bug tracker", NamedTextColor.GOLD))
+                .build();
 
                         hoverEvent = HoverEvent.showText(hoverComp);
                     } catch (IllegalArgumentException e) {
-                        Component hoverComp = Component.text()
-                                .append(Component.text("作者: ", NamedTextColor.YELLOW))
-                                .append(Component.text(authors, NamedTextColor.YELLOW))
-                                .append(Component.text("\n> addonprovide的反馈链接无效!", NamedTextColor.RED))
-                                .build();
+            Component hoverComp = Component.text()
+                .append(Component.text("Author(s): ", NamedTextColor.YELLOW))
+                .append(Component.text(authors, NamedTextColor.YELLOW))
+                .append(Component.text("\n> The bug tracker link provided by the addon is invalid!", NamedTextColor.RED))
+                .build();
 
                         hoverEvent = HoverEvent.showText(hoverComp);
                     }
 
                 } else {
-                    Component hoverComp = Component.text()
-                            .append(Component.text("作者: ", NamedTextColor.YELLOW))
-                            .append(Component.text(authors, NamedTextColor.YELLOW))
-                            .build();
+            Component hoverComp = Component.text()
+                .append(Component.text("Author(s): ", NamedTextColor.YELLOW))
+                .append(Component.text(authors, NamedTextColor.YELLOW))
+                .build();
 
                     hoverEvent = HoverEvent.showText(hoverComp);
                 }
@@ -201,21 +202,21 @@ class VersionsCommand extends SubCommand {
                             clickEvent = ClickEvent.openUrl(uri.toString());
                         }
                         Component hoverComp = Component.text()
-                                .append(Component.text("此plugin已被disable.\n请check后台whether有报错.", NamedTextColor.RED))
-                                .append(Component.text("\n> 单击open反馈页面", NamedTextColor.DARK_RED))
+                                .append(Component.text("This plugin is disabled.\nPlease check the console for errors.", NamedTextColor.RED))
+                                .append(Component.text("\n> Click to open the bug tracker", NamedTextColor.DARK_RED))
                                 .build();
 
                         hoverEvent = HoverEvent.showText(hoverComp);
                     } catch (IllegalArgumentException e) {
                         Component hoverComp = Component.text()
-                                .append(Component.text("此plugin已被disable.\n请check后台whether有报错.", NamedTextColor.RED))
-                                .append(Component.text("\n> pluginprovide的反馈链接无效", NamedTextColor.DARK_RED))
+                                .append(Component.text("This plugin is disabled.\nPlease check the console for errors.", NamedTextColor.RED))
+                                .append(Component.text("\n> The bug tracker link provided by the plugin is invalid", NamedTextColor.DARK_RED))
                                 .build();
 
                         hoverEvent = HoverEvent.showText(hoverComp);
                     }
                 } else {
-                    Component hoverComp = Component.text("plugin已被disable, 请check后台whether有报错.");
+                    Component hoverComp = Component.text("This plugin is disabled. Please check the console for errors.");
                     hoverEvent = HoverEvent.showText(hoverComp);
                 }
             }

@@ -310,8 +310,8 @@ public final class Slimefun extends JavaPlugin implements SlimefunAddon, ICompat
         // metrics.
         isNewlyInstalled = !new File("data-storage/Slimefun").exists();
 
-        // Creating all necessary Folders
-        logger.log(Level.INFO, "正在createfile夹...");
+        // Creating all necessary folders
+        logger.log(Level.INFO, "Creating necessary folders...");
         createDirectories();
 
         // Load various config settings into our cache
@@ -605,7 +605,7 @@ public final class Slimefun extends JavaPlugin implements SlimefunAddon, ICompat
                         getLogger(), version, getDescription().getVersion());
                 return true;
             } else {
-                getLogger().log(Level.WARNING, "我们无法识别你正在使用的 Minecraft version (1.{0}.x)", version);
+                getLogger().log(Level.WARNING, "We could not recognize your Minecraft version (1.{0}.x)", version);
 
                 /*
                  * If we are unsure about it, we will assume "supported".
@@ -617,11 +617,11 @@ public final class Slimefun extends JavaPlugin implements SlimefunAddon, ICompat
             }
         } catch (Exception | LinkageError x) {
             getLogger()
-                    .log(
-                            Level.SEVERE,
-                            x,
-                            () -> "error: 无法识别server Minecraft version, Slimefun v"
-                                    + getDescription().getVersion());
+            .log(
+                Level.SEVERE,
+                x,
+                () -> "error: Could not recognize server Minecraft version, Slimefun v"
+                    + getDescription().getVersion());
 
             // We assume "unsupported" if something went wrong.
             return true;

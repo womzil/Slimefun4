@@ -70,7 +70,7 @@ public class AutoSavingService {
         }
 
         if (players > 0) {
-            Slimefun.logger().log(Level.INFO, "successsave了 {0} 个player的data!", players);
+            Slimefun.logger().log(Level.INFO, "Successfully saved data for {0} player(s)!", players);
         }
     }
 }
