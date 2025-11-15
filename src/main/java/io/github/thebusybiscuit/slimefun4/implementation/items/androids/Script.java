@@ -130,17 +130,17 @@ public final class Script {
         List<String> lore = new LinkedList<>();
         lore.add("&7作者 &f" + getAuthor());
         lore.add("");
-        lore.add("&7下载量: &f" + getDownloads());
+        lore.add("&7download量: &f" + getDownloads());
         lore.add("&7评分: " + getScriptRatingPercentage());
         lore.add("&a" + getUpvotes() + " \u263A &7| &4\u2639 " + getDownvotes());
         lore.add("");
-        lore.add("&e左键 &f下载脚本");
-        lore.add("&4(将会覆盖你现有的脚本!)");
+        lore.add("&e左key &fdownload脚本");
+        lore.add("&4(将会覆盖你existing的脚本!)");
 
         if (canRate(p)) {
             lore.add("");
-            lore.add("&eShift + 左键 &f好评");
-            lore.add("&eShift + 右键 &f差评");
+            lore.add("&eShift + 左key &f好评");
+            lore.add("&eShift + 右key &f差评");
         }
 
         return new CustomItemStack(android.getItem(), "&b" + getName(), lore.toArray(new String[0]));

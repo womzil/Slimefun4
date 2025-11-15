@@ -127,7 +127,7 @@ public final class SlimefunGuideSettings {
                         "&7&o" + locale.getMessage(p, "guide.tooltips.versions-notice"),
                         "",
                         "&f汉化 By StarWishsama",
-                        "&c请不要将此版本信息截图到 Discord/Github 反馈 Bug",
+                        "&c请不要将此versioninfo截图到 Discord/Github 反馈 Bug",
                         "&c而是优先到汉化页面反馈",
                         "",
                         "&cTHIS BUILD IS UNOFFICIAL BUILD, DO NOT REPORT TO SLIMEFUN DEV",
@@ -149,9 +149,9 @@ public final class SlimefunGuideSettings {
                         "&7Stars: &e" + github.getStars(),
                         "",
                         "&7&oSlimefun 4 是一个由社区参与的项目,",
-                        "&7&o源代码可以在 GitHub 上找到",
-                        "&7&o如果你想让这个项目持续下去",
-                        "&7&o你可以考虑对项目做出贡献",
+                        "&7&o源代码can在 GitHub 上找到",
+                        "&7&oif你想让this项目持续下去",
+                        "&7&o你can考虑对项目做出贡献",
                         "",
                         "&7\u21E8 &e点击前往汉化版 GitHub 仓库"));
         // @formatter:on
@@ -169,12 +169,12 @@ public final class SlimefunGuideSettings {
                         Material.KNOWLEDGE_BOOK,
                         "&3" + locale.getMessage(p, "guide.title.wiki"),
                         "",
-                        "&7你需要对物品或机器方面的帮助吗?",
+                        "&7你require对itemor机器方面的帮助吗?",
                         "&7你不知道要干什么?",
                         "&7查看我们的由社区维护的维基",
-                        "&7并考虑成为一名编辑者!",
+                        "&7and考虑成is一名编辑者!",
                         "",
-                        "&7\u21E8 &e点击前往非官方中文 Wiki"));
+                        "&7\u21E8 &e点击前往not官方中文 Wiki"));
         // @formatter:on
 
         menu.addMenuClickHandler(8, (pl, slot, item, action) -> {
@@ -190,13 +190,13 @@ public final class SlimefunGuideSettings {
                         Material.BOOKSHELF,
                         "&3" + locale.getMessage(p, "guide.title.addons"),
                         "",
-                        "&7Slimefun 是一个大型项目，但附属插件的存在",
+                        "&7Slimefun 是一个大型项目，但addonplugin的存在",
                         "&7能让 Slimefun 真正的发光发亮",
-                        "&7看一看它们，也许你要寻找的附属插件就在那里!",
+                        "&7看一看它们，也许你要寻找的addonplugin就在那里!",
                         "",
-                        "&7该服务器已安装附属插件: &b" + Slimefun.getInstalledAddons().size(),
+                        "&7该server已安装addonplugin: &b" + Slimefun.getInstalledAddons().size(),
                         "",
-                        "&7\u21E8 &e点击查看 Slimefun4 可用的附属插件"));
+                        "&7\u21E8 &e点击查看 Slimefun4 available的addonplugin"));
         // @formatter:on
 
         menu.addMenuClickHandler(47, (pl, slot, item, action) -> {

@@ -9,7 +9,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 
 /**
- * Sound 多版本兼容
+ * Sound 多versioncompatible
  *
  * @author ybw0014
  */
@@ -36,7 +36,7 @@ public final class VersionedSound {
             }
             valueOfMethod = Sound.class.getMethod("valueOf", String.class);
         } catch (Exception e) {
-            Slimefun.logger().severe("无法确定 Sound 类型：" + e.getMessage());
+            Slimefun.logger().severe("无法确定 Sound type：" + e.getMessage());
         }
 
         IS_ENUM = isEnum;
@@ -49,10 +49,10 @@ public final class VersionedSound {
     }
 
     /**
-     * 获取 Sound 的名称
+     * 获取 Sound 的name
      *
-     * @param sound Sound 对象
-     * @return Sound 名称
+     * @param sound Sound object
+     * @return Sound name
      */
     @Nonnull
     public static String getSoundName(@Nonnull Sound sound) {
@@ -62,12 +62,12 @@ public final class VersionedSound {
             } else if (GET_KEY_METHOD != null) {
                 Object key = GET_KEY_METHOD.invoke(sound);
                 if (!(key instanceof NamespacedKey nsKey)) {
-                    throw new IllegalStateException("Sound.getKey() 返回的不是 NamespacedKey");
+                    throw new IllegalStateException("Sound.getKey() return的is not NamespacedKey");
                 }
                 return nsKey.getKey();
             }
         } catch (Exception e) {
-            Slimefun.logger().severe("获取 Sound 名称失败: " + e.getMessage());
+            Slimefun.logger().severe("获取 Sound namefail: " + e.getMessage());
         }
 
         // fallback
@@ -75,15 +75,15 @@ public final class VersionedSound {
     }
 
     /**
-     * valueOf() 方法兼容
+     * valueOf() methodcompatible
      *
-     * @param name Sound 名称
-     * @return Sound 对象
-     * @throws IllegalArgumentException 名称无效
+     * @param name Sound name
+     * @return Sound object
+     * @throws IllegalArgumentException name无效
      */
     @Nonnull
     public static Sound valueOf(@Nonnull String name) throws IllegalArgumentException {
-        Preconditions.checkArgument(name != null, "Sound 名称不能为空");
+        Preconditions.checkArgument(name != null, "Sound name不能is空");
 
         String enumName = name.toUpperCase(Locale.ROOT).replace('.', '_').replace('-', '_');
         try {
@@ -94,6 +94,6 @@ public final class VersionedSound {
             throw new IllegalArgumentException("无法调用 Sound.valueOf: " + name, e);
         }
 
-        throw new IllegalArgumentException("Sound.valueOf 方法不可用");
+        throw new IllegalArgumentException("Sound.valueOf methodunavailable");
     }
 }

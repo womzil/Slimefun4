@@ -7,7 +7,7 @@ public enum MachineTier {
     AVERAGE("&6普通"),
     MEDIUM("&a中型"),
     GOOD("&2优秀"),
-    ADVANCED("&6高级"),
+    ADVANCED("&6高level"),
     END_GAME("&4终极");
 
     private final String prefix;

@@ -17,7 +17,7 @@ public class SlimefunMigrateListener implements Listener {
         if ((PlayerProfileMigrator.getInstance().hasOldData()
                         || BlockStorageMigrator.getInstance().hasOldData())
                 && p.hasPermission("slimefun.command.migrate")) {
-            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c检测到使用文件储存的旧数据, 请使用 /sf migrate 迁移旧数据至数据库!"));
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c检测到使用file储存的旧data, 请使用 /sf migrate migrate旧data至database!"));
         }
     }
 

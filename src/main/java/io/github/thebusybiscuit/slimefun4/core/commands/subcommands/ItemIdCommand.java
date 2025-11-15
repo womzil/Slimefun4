@@ -29,7 +29,7 @@ class ItemIdCommand extends SubCommand {
                     var sfItem = SlimefunItem.getByItem(item);
                     if (sfItem != null) {
                         var sfId = sfItem.getId();
-                        var msg = new TextComponent("该物品的ID为: ");
+                        var msg = new TextComponent("该item的IDis: ");
                         var idMsg = new TextComponent(sfId);
                         idMsg.setUnderlined(true);
                         idMsg.setItalic(true);
@@ -41,7 +41,7 @@ class ItemIdCommand extends SubCommand {
                         Slimefun.getLocalization().sendMessage(sender, "messages.invalid-item-in-hand", true);
                     }
                 } else {
-                    sender.sendMessage(ChatColors.color("&b请将需要查看的物品拿在主手!"));
+                    sender.sendMessage(ChatColors.color("&b请将require查看的item拿在主手!"));
                 }
             } else {
                 Slimefun.getLocalization().sendMessage(sender, "messages.no-permission", true);

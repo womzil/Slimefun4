@@ -16,17 +16,17 @@ public enum AndroidFuelSource {
     /**
      * This {@link ProgrammableAndroid} runs on solid fuel, e.g. Wood or coal
      */
-    SOLID("", "&f这类机器人需要固态燃料", "&f例如煤, 原木等..."),
+    SOLID("", "&f这类机器人require固态燃料", "&f例如煤, 原木等..."),
 
     /**
      * This {@link ProgrammableAndroid} runs on liquid fuel, e.g. Fuel, Oil or Lava
      */
-    LIQUID("", "&f这类机器人需要液态燃料", "&f例如岩浆, 原油, 燃油等..."),
+    LIQUID("", "&f这类机器人require液态燃料", "&f例如岩浆, 原油, 燃油等..."),
 
     /**
      * This {@link ProgrammableAndroid} runs on nuclear fuel, e.g. Uranium
      */
-    NUCLEAR("", "&f这类机器人需要放射性燃料", "&f例如铀, 镎或钚铀混合氧化物核燃料");
+    NUCLEAR("", "&f这类机器人require放射性燃料", "&f例如铀, 镎or钚铀混合氧化物核燃料");
 
     private final String[] lore;
 

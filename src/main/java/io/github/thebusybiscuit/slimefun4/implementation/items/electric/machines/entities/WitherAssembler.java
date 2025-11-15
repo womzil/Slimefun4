@@ -68,7 +68,7 @@ public class WitherAssembler extends AbstractEntityAssembler<Wither> {
                 7, new CustomItemStack(getBody(), "&7灵魂沙", "", "&f在这里放入灵魂沙"), ChestMenuUtils.getEmptyClickHandler());
         preset.addItem(
                 13,
-                new CustomItemStack(Material.CLOCK, "&7冷却时间: &b30 秒", "", "&f这个机器需要半分钟的时间装配", "&f所以耐心等等吧!"),
+                new CustomItemStack(Material.CLOCK, "&7冷却时间: &b30 秒", "", "&fthis机器require半分钟的时间装配", "&f所以耐心等等吧!"),
                 ChestMenuUtils.getEmptyClickHandler());
     }
 

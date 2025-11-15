@@ -142,7 +142,7 @@ public class EnergyNet extends Network implements HologramOwner {
         AtomicLong timestamp = new AtomicLong(Slimefun.getProfiler().newEntry());
         try {
             if (!regulator.equals(b.getLocation())) {
-                updateHologram(b, "&4检测到附近有其他调节器", blockData::isPendingRemove);
+                updateHologram(b, "&4检测到near有其他调节器", blockData::isPendingRemove);
 
                 return;
             }

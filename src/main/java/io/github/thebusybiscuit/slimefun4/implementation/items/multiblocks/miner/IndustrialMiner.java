@@ -151,7 +151,7 @@ public class IndustrialMiner extends MultiBlockMachine {
      *            The item that shall be consumed
      */
     public void addFuelType(int ores, @Nonnull ItemStack item) {
-        Validate.isTrue(ores > 1 && ores % 2 == 0, "矿石的数量必须 >= 2 且为 2 的倍数.");
+        Validate.isTrue(ores > 1 && ores % 2 == 0, "矿石的数量must >= 2 且is 2 的倍数.");
         Validate.notNull(item, "The fuel item cannot be null");
 
         fuelTypes.add(new MachineFuel(ores / 2, item));

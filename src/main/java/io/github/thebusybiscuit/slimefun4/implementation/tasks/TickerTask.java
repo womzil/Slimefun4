@@ -260,9 +260,9 @@ public class TickerTask implements Runnable {
             Slimefun.logger().log(Level.SEVERE, "X: {0} Y: {1} Z: {2} ({3})", new Object[] {
                 l.getBlockX(), l.getBlockY(), l.getBlockZ(), item.getId()
             });
-            Slimefun.logger().log(Level.SEVERE, "在过去的 4 个 Tick 中发生多次错误，该方块对应的机器已被停用。");
-            Slimefun.logger().log(Level.SEVERE, "请在 /plugins/Slimefun/error-reports/ 文件夹中查看错误详情。");
-            Slimefun.logger().log(Level.SEVERE, "如果要反馈错误,请向他人发送上述错误报告文件,而不是发送这个窗口的截图");
+            Slimefun.logger().log(Level.SEVERE, "在过去的 4 个 Tick 中发生多次error，该block对应的机器已被停用。");
+            Slimefun.logger().log(Level.SEVERE, "请在 /plugins/Slimefun/error-reports/ file夹中查看error详情。");
+            Slimefun.logger().log(Level.SEVERE, "if要反馈error,请向他人发送上述errorreportfile,而is not发送this窗口的截图");
             Slimefun.logger().log(Level.SEVERE, " ");
             bugs.remove(position);
 
@@ -338,16 +338,16 @@ public class TickerTask implements Runnable {
     }
 
     /**
-     * 返回一个给定区块下的 <strong>只读</strong> 的 {@link Map}
-     * 代表每个 {@link ChunkPosition} 中有 {@link UniversalBlock} 属性的物品
-     * Tick 的 {@link Location 位置}集合.
+     * return一个给定chunk下的 <strong>只读</strong> 的 {@link Map}
+     * 代tableeach {@link ChunkPosition} 中有 {@link UniversalBlock} property的item
+     * Tick 的 {@link Location location}collection.
      *
-     * 其中包含的 {@link Location} 可以是已加载或卸载的 {@link Chunk}
+     * 其中包含的 {@link Location} can是已loador卸载的 {@link Chunk}
      *
      * @param chunk
      *            {@link Chunk}
      *
-     * @return 包含所有机器 Tick {@link TickLocation 位置}的只读 {@link Map}
+     * @return 包含all机器 Tick {@link TickLocation location}的只读 {@link Map}
      */
     @Nonnull
     public Set<TickLocation> getTickLocations(@Nonnull Chunk chunk) {

@@ -9,7 +9,7 @@ import net.guizhanss.guizhanlib.updater.UpdaterConfig;
 import org.bukkit.plugin.Plugin;
 
 /**
- * 自动更新任务.
+ * 自动updatetask.
  *
  * @author ybw0014
  */

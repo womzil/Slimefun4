@@ -61,14 +61,14 @@ public class SlimefunDatabaseManager {
             blockDataController.init(blockStorageAdapter, readExecutorThread, writeExecutorThread);
 
             if (blockStorageConfig.getBoolean("delayedWriting.enable")) {
-                plugin.getLogger().log(Level.INFO, "已启用延时写入功能");
+                plugin.getLogger().log(Level.INFO, "已enable延时写入function");
                 blockDataController.initDelayedSaving(
                         plugin,
                         blockStorageConfig.getInt("delayedWriting.delayedSecond"),
                         blockStorageConfig.getInt("delayedWriting.forceSavePeriod"));
             }
         } catch (IOException e) {
-            plugin.getLogger().log(Level.SEVERE, "加载 Slimefun 方块存储适配器失败", e);
+            plugin.getLogger().log(Level.SEVERE, "Failed to load Slimefun block storage adapter", e);
             return;
         }
 
@@ -82,7 +82,7 @@ public class SlimefunDatabaseManager {
             var profileController = ControllerHolder.createController(ProfileDataController.class, profileStorageType);
             profileController.init(profileAdapter, readExecutorThread, writeExecutorThread);
         } catch (IOException e) {
-            plugin.getLogger().log(Level.SEVERE, "加载玩家档案适配器失败", e);
+            plugin.getLogger().log(Level.SEVERE, "Failed to load player profile adapter", e);
         }
     }
 

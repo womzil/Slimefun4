@@ -32,7 +32,7 @@ public class DataUtils {
             if (!Slimefun.getConfigManager().isBypassItemLengthCheck()
                     && Slimefun.getDatabaseManager().getBlockDataStorageType() != StorageType.SQLITE
                     && itemStr.length() > 65535) {
-                throw new IllegalArgumentException("检测到过大物品, 请联系物品对应插件开发者解决: " + StringUtil.itemStackToString(itemStack)
+                throw new IllegalArgumentException("检测到过大item, 请联系item对应plugin开发者解决: " + StringUtil.itemStackToString(itemStack)
                         + ", size = " + itemStr.length());
             }
 
@@ -57,7 +57,7 @@ public class DataUtils {
             Debug.log(TestCase.BACKPACK, "Deserialized itemstack: " + result);
 
             if (result.getType().isAir()) {
-                Slimefun.logger().log(Level.WARNING, "反序列化数据库中的物品失败! 对应物品无法显示.");
+                Slimefun.logger().log(Level.WARNING, "deserializedatabase中的itemfail! 对应item无法display.");
             }
 
             return result;

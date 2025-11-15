@@ -37,7 +37,7 @@ public class VersionedEvent {
                 GET_CLICKED_INVENTORY.setAccessible(true);
 
             } catch (NoSuchMethodException | ClassNotFoundException e) {
-                Slimefun.logger().log(Level.WARNING, "无法初始化事件版本兼容模块, 部分功能可能无法正常使用", e);
+                Slimefun.logger().log(Level.WARNING, "无法initializeeventversioncompatiblemodule, partfunction可能无法正常使用", e);
             }
         }
     }

@@ -64,7 +64,7 @@ public class HologramProjector extends SlimefunItem implements HologramOwner {
             public void onPlayerPlace(BlockPlaceEvent e) {
                 Block b = e.getBlockPlaced();
                 var blockData = StorageCacheUtils.getBlock(b.getLocation());
-                blockData.setData("text", "使用投影仪编辑文本");
+                blockData.setData("text", "使用project仪编辑文本");
                 blockData.setData(OFFSET_PARAMETER, "0.5");
                 blockData.setData("owner", e.getPlayer().getUniqueId().toString());
 
@@ -143,8 +143,8 @@ public class HologramProjector extends SlimefunItem implements HologramOwner {
                                                 StorageCacheUtils.getData(projector.getLocation(), OFFSET_PARAMETER))
                                         + 1.0D),
                         "",
-                        "&f左键单击: &7+0.1",
-                        "&f右键单击: &7-0.1"));
+                        "&f左key单击: &7+0.1",
+                        "&f右key单击: &7-0.1"));
         menu.addMenuClickHandler(1, (pl, slot, item, action) -> {
             var blockData = StorageCacheUtils.getBlock(projector.getLocation());
             double offset = NumberUtils.reparseDouble(

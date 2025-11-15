@@ -15,12 +15,12 @@ import org.bukkit.block.data.type.WallSign;
 @UtilityClass
 public class CompatibilityUtil {
     /**
-     * 获取玩家放置此方块所使用的物品材质。
-     * 对于大多数方块，这与 getMaterial() 相同，但有些方块有不同的材质用于放置它们。
-     * 注意：此处没有涵盖所有可能不同的方块数据类型。
+     * 获取player放置此block所使用的item材质。
+     * 对于大多数block，这与 getMaterial() 相同，但有些block有不同的材质用于放置它们。
+     * 注意：此处没有涵盖all可能不同的blockdatatype。
      *
      * @param blockData
-     * @return 放置此方块所使用的材质
+     * @return 放置此block所使用的材质
      */
     public Material getPlacementMaterial(BlockData blockData) {
         if (SlimefunExtended.getMinecraftVersion().isAtLeast(1, 19, 4)) {
@@ -58,11 +58,11 @@ public class CompatibilityUtil {
     }
 
     /**
-     * 检查玩家是否处于连接状态。
-     * 在 1.20- 中不能保证玩家是否连接，仅返回在线状态。
+     * checkplayerwhether处于connectstate。
+     * 在 1.20- 中不能保证playerwhetherconnect，仅return在线state。
      *
-     * @param player 离线玩家
-     * @return 玩家连接或在线
+     * @param player 离线player
+     * @return playerconnector在线
      */
     public boolean isConnected(OfflinePlayer player) {
         if (SlimefunExtended.getMinecraftVersion().isAtLeast(1, 20)
@@ -74,10 +74,10 @@ public class CompatibilityUtil {
     }
 
     /**
-     * 获取最大生命值属性。
-     * 在 1.21.3 之前，使用 GENERIC_MAX_HEALTH。
+     * 获取最大生命valueproperty。
+     * 在 1.21.3 before，使用 GENERIC_MAX_HEALTH。
      *
-     * @return 最大生命值属性
+     * @return 最大生命valueproperty
      */
     public static Attribute getMaxHealth() {
         if (SlimefunExtended.getMinecraftVersion().isAtLeast(1, 21, 3)) {

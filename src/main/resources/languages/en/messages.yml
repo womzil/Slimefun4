@@ -56,6 +56,12 @@ guide:
   - 'need to unlock all items from the'
   - 'following categories'
 
+  locked-item:
+    click-to-unlock: '&a> Click to unlock'
+    cost-header: '&7Cost: &b'
+    currency-cost: '%cost% Money'
+    level-cost: '%cost% Levels of Experience'
+
   search:
     message: '&bWhat would you like to search for?'
     name: '&7Search...'

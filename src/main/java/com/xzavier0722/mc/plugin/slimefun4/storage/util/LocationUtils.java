@@ -8,22 +8,22 @@ import org.bukkit.World;
 
 public class LocationUtils {
     /**
-     * 将 {@link Location} 转换为数据库中使用的
-     * 标准格式位置信息
+     * 将 {@link Location} convertisdatabase中使用的
+     * 标准formatlocationinfo
      *
      * @param l {@link Location}
-     * @return 标准化后的位置信息字符串
+     * @return 标准化后的locationinfo字符串
      */
     public static String getLocKey(Location l) {
         return l.getWorld().getName() + ";" + l.getBlockX() + ":" + l.getBlockY() + ":" + l.getBlockZ();
     }
 
     /**
-     * 将 {@link Chunk} 转换为数据库中使用的
-     * 标准格式区块信息
+     * 将 {@link Chunk} convertisdatabase中使用的
+     * 标准formatchunkinfo
      *
      * @param chunk {@link Chunk}
-     * @return 标准化后的区块信息字符串
+     * @return 标准化后的chunkinfo字符串
      */
     public static String getChunkKey(Chunk chunk) {
         return chunk.getWorld().getName() + ";" + chunk.getX() + ":" + chunk.getZ();
@@ -78,12 +78,12 @@ public class LocationUtils {
     }
 
     /**
-     * 将位置转换为易读的文本
+     * 将locationconvertis易读的文本
      *
-     * 注意: 请不要将其用于数据库转换过程中!
+     * 注意: 请不要将其用于databaseconvert过程中!
      *
-     * @param location 位置
-     * @return 易读的位置文本
+     * @param location location
+     * @return 易读的location文本
      */
     public static String locationToString(Location location) {
         if (location == null) {

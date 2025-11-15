@@ -335,7 +335,7 @@ public class GEOMiner extends SlimefunItem
                     @Override
                     public void onResult(SlimefunChunkData result) {
                         if (result.getAllData().isEmpty()) {
-                            updateHologram(b, "&4需要先进行地形扫描!");
+                            updateHologram(b, "&4require先进row地形扫描!");
                         } else {
                             start(b, inv);
                         }
@@ -372,10 +372,10 @@ public class GEOMiner extends SlimefunItem
         }
 
         if (!success) {
-            updateHologram(b, "&4需要先进行地形扫描!");
+            updateHologram(b, "&4require先进row地形扫描!");
             return;
         }
 
-        updateHologram(b, "&7开采完成");
+        updateHologram(b, "&7开采complete");
     }
 }
