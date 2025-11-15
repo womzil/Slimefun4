@@ -3,7 +3,7 @@
    <refs>
        <ref type="branch">
            <pattern>master</pattern>
-           <version>${commit.short}-Beta</version>
+           <version>${commit.short}-Dev</version>
        </ref>
        <ref type="branch">
            <pattern>dev</pattern>
