@@ -71,7 +71,7 @@ public class EnergyRegulator extends SlimefunItem implements HologramOwner {
 
             @Override
             public boolean isSynchronized() {
-                return false;
+                return true;    // hologram updates must be on main thread
             }
 
             @Override
