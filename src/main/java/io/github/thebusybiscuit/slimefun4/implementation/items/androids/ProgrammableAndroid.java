@@ -877,7 +877,7 @@ public class ProgrammableAndroid extends SlimefunItem implements InventoryBlock,
                 if (type == Material.PLAYER_HEAD || type == Material.PLAYER_WALL_HEAD) {
                     BlockState state = block.getState();
                     if (state instanceof Skull skull) {
-                        skull.setOwnerProfile(CustomUtil.profileFromBase64(skull.getOwner()));
+                        skull.setOwnerProfile(CustomUtil.profileFromBase64(texture));
                         skull.update(true, false);
                     }
                 }
