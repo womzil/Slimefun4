@@ -48,53 +48,46 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 
 /**
- * blockdata控制器
+ * Controller responsible for Slimefun block data.
  * <p>
- * 用于managechunk中的 Slimefun blockdata
- * <p>
- * {@link SlimefunBlockData}
- * {@link SlimefunUniversalData}
+ * Manages all Slimefun block data within chunks, including {@link SlimefunBlockData} and
+ * {@link SlimefunUniversalData} records.
  *
  * @author Xzavier0722
  * @author NoRainCity
  */
 public class BlockDataController extends ADataController {
     /**
-     * delay写datataskqueue
+     * Pending delayed write tasks.
      */
     private final Map<LinkedKey, DelayedTask> delayedWriteTasks;
     /**
-     * chunkdatacache
+     * Cached chunk data.
      */
     private final Map<String, SlimefunChunkData> loadedChunk;
     /**
-     * 通用datacache
+     * Cached universal data entries.
      */
     private final Map<UUID, SlimefunUniversalData> loadedUniversalData;
     /**
-     * blockinventory快照
+     * Cached block inventory snapshots.
      */
     private final Map<String, List<Pair<ItemStack, Integer>>> invSnapshots;
     /**
-     * global控制器loaddatalock
-     *
-     * {@link ScopedLock}
+     * Global controller lock used to guard data loading. See {@link ScopedLock}.
      */
     private final ScopedLock lock;
     /**
-     * 延时loadmode标志
+     * Flag indicating whether delayed saving is enabled.
      */
     private boolean enableDelayedSaving = false;
 
     private int delayedSecond = 0;
     private BukkitTask looperTask;
-    /**
-     * chunkdataloadmode
-     * {@link ChunkDataLoadMode}
-     */
+    /** Chunk data load mode configuration. */
     private ChunkDataLoadMode chunkDataLoadMode;
     /**
-     * initializeload中标志
+     * Flag marking whether data loading is currently in progress during initialization.
      */
     BlockDataController() {
         super(DataType.BLOCK_STORAGE);
@@ -106,11 +99,11 @@ public class BlockDataController extends ADataController {
     }
 
     /**
-     * initializedata控制器
+     * Initializes the data controller.
      *
-     * @param dataAdapter    使用的 {@link IDataSourceAdapter}
-     * @param maxReadThread  最大database读thread数
-     * @param maxWriteThread 最大database写thread数
+     * @param dataAdapter    the {@link IDataSourceAdapter} to use
+     * @param maxReadThread  maximum number of database read threads
+     * @param maxWriteThread maximum number of database write threads
      */
     @Override
     public void init(IDataSourceAdapter<?> dataAdapter, int maxReadThread, int maxWriteThread) {
@@ -137,9 +130,7 @@ public class BlockDataController extends ADataController {
                         1);
     }
 
-    /**
-     * loadallserver已load的world中的data
-     */
+    /** Loads data for every world that is currently loaded on the server. */
     private void loadLoadedWorlds() {
         Bukkit.getScheduler()
                 .runTaskLater(
@@ -152,9 +143,7 @@ public class BlockDataController extends ADataController {
                         1);
     }
 
-    /**
-     * loadallserver已load的worldchunk中的data
-     */
+    /** Loads data for every chunk that is already loaded on the server. */
     private void loadLoadedChunks() {
         Bukkit.getScheduler()
                 .runTaskLater(
@@ -170,11 +159,11 @@ public class BlockDataController extends ADataController {
     }
 
     /**
-     * initialize延时loadtask
+     * Initializes the delayed saving task.
      *
-     * @param p               plugininstance
-     * @param delayedSecond   首次execute延时
-     * @param forceSavePeriod 强制save周期
+     * @param p               plugin instance
+     * @param delayedSecond   initial delay before the first execution
+     * @param forceSavePeriod period in seconds for the forced save
      */
     public void initDelayedSaving(Plugin p, int delayedSecond, int forceSavePeriod) {
         checkDestroy();
@@ -201,11 +190,11 @@ public class BlockDataController extends ADataController {
     }
 
     /**
-     * 在指定locationcreate一个new Slimefun blockdata
+     * Creates a new Slimefun block data instance at the given location.
      *
-     * @param l    Slimefun blocklocation {@link Location}
-     * @param sfId Slimefun item ID {@link SlimefunItem#getId()}
-     * @return blockdata, {@link SlimefunBlockData}
+     * @param l    the Slimefun block {@link Location}
+     * @param sfId the Slimefun item ID {@link SlimefunItem#getId()}
+     * @return the created block data entry
      */
     @Nonnull
     public SlimefunBlockData createBlock(Location l, String sfId) {
@@ -224,12 +213,11 @@ public class BlockDataController extends ADataController {
     }
 
     /**
-     * create一个new Slimefun 通用data
-     * <br/>
-     * provide一个可供读写的 KV storage Map
+     * Creates a new universal Slimefun data entry.
+     * Provides a key-value storage map for downstream use.
      *
-     * @param sfId Slimefun item ID {@link SlimefunItem#getId()}
-     * @return 通用data, {@link SlimefunUniversalData}
+     * @param sfId the Slimefun item ID {@link SlimefunItem#getId()}
+     * @return the universal data entry
      */
     @Nonnull
     public SlimefunUniversalData createUniversalData(String sfId) {
@@ -237,12 +225,12 @@ public class BlockDataController extends ADataController {
     }
 
     /**
-     * create一个new Slimefun 通用data
-     * provide一个可供读写的 KV storage Map
+     * Creates a new universal Slimefun data entry.
+     * Provides a key-value storage map for downstream use.
      *
-     * @param uuid 通用data的识别 UUID
-     * @param sfId Slimefun item ID {@link SlimefunItem#getId()}
-     * @return 通用data, {@link SlimefunUniversalData}
+     * @param uuid the identifier for the universal data
+     * @param sfId the Slimefun item ID {@link SlimefunItem#getId()}
+     * @return the universal data entry
      */
     @Nonnull
     public SlimefunUniversalData createUniversalData(UUID uuid, String sfId) {
@@ -264,11 +252,11 @@ public class BlockDataController extends ADataController {
     }
 
     /**
-     * 在指定locationcreate一个new Slimefun 通用blockdata
+     * Creates a new universal Slimefun block data entry at the given location.
      *
-     * @param l    Slimefun blocklocation {@link Location}
-     * @param sfId Slimefun item ID {@link SlimefunItem#getId()}
-     * @return 通用blockdata, {@link SlimefunUniversalBlockData}
+     * @param l    the Slimefun block {@link Location}
+     * @param sfId the Slimefun item ID {@link SlimefunItem#getId()}
+     * @return the universal block data entry
      */
     @Nonnull
     @ParametersAreNonnullByDefault
@@ -321,9 +309,9 @@ public class BlockDataController extends ADataController {
     }
 
     /**
-     * immediate计划save一个通用data
+     * Immediately schedules a save for the provided universal data entry.
      *
-     * @param universalData 欲写入databasesave的通用data
+     * @param universalData the universal data entry to persist
      */
     void saveUniversalData(SlimefunUniversalData universalData) {
         var uuid = universalData.getKey();
@@ -343,9 +331,9 @@ public class BlockDataController extends ADataController {
     }
 
     /**
-     * 移除指定location上的 Slimefun data
+     * Removes any Slimefun data stored at the provided location.
      *
-     * @param l location {@link Location}
+     * @param l the target {@link Location}
      */
     public void removeBlock(Location l) {
         checkDestroy();
@@ -375,9 +363,9 @@ public class BlockDataController extends ADataController {
     }
 
     /**
-     * 移除指定location上的 Slimefun blockdata
+     * Removes the Slimefun block data stored at the given location.
      *
-     * @param l location {@link Location}
+     * @param l the block {@link Location}
      */
     public void removeBlockData(Location l) {
         checkDestroy();
@@ -399,9 +387,9 @@ public class BlockDataController extends ADataController {
     }
 
     /**
-     * 移除指定location对应的可能存在的 Slimefun 通用blockdata
+     * Removes the universal block data associated with the given location, if present.
      *
-     * @param l {@link Location} location
+     * @param l the block {@link Location}
      */
     public void removeUniversalBlockData(Location l) {
         checkDestroy();
@@ -416,9 +404,9 @@ public class BlockDataController extends ADataController {
     }
 
     /**
-     * 移除指定 UUID 对应的 Slimefun 通用blockdata
+     * Removes the universal block data associated with the provided UUID.
      *
-     * @param uuid 通用blockdata识别符
+     * @param uuid the universal block data identifier
      */
     public void removeUniversalBlockData(UUID uuid) {
         checkDestroy();
@@ -555,7 +543,7 @@ public class BlockDataController extends ADataController {
     }
 
     /**
-     * 从database中获取 {@link SlimefunUniversalData}
+     * Loads {@link SlimefunUniversalData} from the database.
      */
     @Nullable public SlimefunUniversalData getUniversalData(@Nonnull UUID uuid) {
         checkDestroy();
@@ -608,10 +596,10 @@ public class BlockDataController extends ADataController {
     }
 
     /**
-     * 从cache中获取 {@link SlimefunUniversalData}
+     * Retrieves {@link SlimefunUniversalData} from the cache.
      *
-     * @param uuid 通用data UUID
-     * @return {@link SlimefunUniversalData}
+     * @param uuid universal data UUID
+     * @return the cached {@link SlimefunUniversalData}
      */
     @Nullable public SlimefunUniversalData getUniversalDataFromCache(@Nonnull UUID uuid) {
         checkDestroy();
@@ -777,7 +765,7 @@ public class BlockDataController extends ADataController {
 
         loadChunkData(chunkData);
 
-        // 按chunkloadblockdata
+    // Load block data grouped by chunk
 
         var key = new RecordKey(DataScope.BLOCK_RECORD);
         key.addField(FieldKey.LOCATION);
@@ -973,7 +961,7 @@ public class BlockDataController extends ADataController {
             return;
         }
 
-        // build 通用data kv storage 查询condition
+    // Build query conditions for universal data key-value storage
         var key = new RecordKey(DataScope.UNIVERSAL_DATA);
         key.addCondition(FieldKey.UNIVERSAL_UUID, uniData.getKey());
         key.addField(FieldKey.DATA_KEY);
@@ -998,7 +986,7 @@ public class BlockDataController extends ADataController {
 
             if (uniData instanceof SlimefunUniversalBlockData ubd) {
                 if (ubd.hasTrait(UniversalDataTrait.BLOCK)) {
-                    // initialize 上次出现location
+                    // Initialize the last known location
                     var lStr = ubd.getData(UniversalDataTrait.BLOCK.getReservedKey());
 
                     if (lStr != null && !lStr.isBlank()) {
@@ -1015,7 +1003,7 @@ public class BlockDataController extends ADataController {
             }
 
             if (uniData.hasTrait(UniversalDataTrait.INVENTORY)) {
-                // loadmenu
+                // Load menu contents
                 var menuPreset = UniversalMenuPreset.getPreset(uniData.getSfId());
                 if (menuPreset != null) {
                     var menuKey = new RecordKey(DataScope.UNIVERSAL_INVENTORY);
@@ -1477,7 +1465,7 @@ public class BlockDataController extends ADataController {
     }
 
     /**
-     * migrate旧 Slimefun 机器data至通用data
+     * Migrates legacy Slimefun machine data into universal data storage.
      */
     private void migrateUniversalData(
             @Nonnull Location l,
@@ -1526,7 +1514,7 @@ public class BlockDataController extends ADataController {
                         .enableTicker(universalData.getLastPresent().toLocation(), universalData.getUUID());
             }
         } catch (Exception e) {
-            Slimefun.logger().log(Level.WARNING, "migrate机器人data时出现error", e);
+            Slimefun.logger().log(Level.WARNING, "An error occurred while migrating machine data", e);
         }
     }
 }

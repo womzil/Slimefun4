@@ -78,7 +78,7 @@ public class ElevatorPlate extends SimpleSlimefunItem<BlockUseHandler> {
             @Override
             public void onPlayerPlace(BlockPlaceEvent e) {
                 var blockData = StorageCacheUtils.getBlock(e.getBlock().getLocation());
-                blockData.setData(DATA_KEY, ChatColor.WHITE + "一楼");
+                blockData.setData(DATA_KEY, ChatColor.WHITE + "Floor 1");
                 blockData.setData("owner", e.getPlayer().getUniqueId().toString());
             }
         };

@@ -109,8 +109,8 @@ public class Talisman extends SlimefunItem {
             lore.add("");
 
             for (String line : getItem().getItemMeta().getLore()) {
-                if (line.contains("背包")) {
-                    line = line.replace("背包", "Ender Chest");
+                if (line.contains("Backpack")) {
+                    line = line.replace("Backpack", "Ender Chest");
                 }
                 lore.add(line);
             }

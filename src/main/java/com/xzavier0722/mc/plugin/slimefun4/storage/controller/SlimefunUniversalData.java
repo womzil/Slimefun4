@@ -42,7 +42,8 @@ public class SlimefunUniversalData extends ASlimefunDataContainer {
         checkData();
 
         if (UniversalDataTrait.isReservedKey(key)) {
-            Slimefun.logger().log(Level.WARNING, "warning: 有addon正在尝试修改受保护的blockdata, 已取消更改");
+            Slimefun.logger()
+                    .log(Level.WARNING, "Warning: An addon attempted to modify protected block data. The change was cancelled.");
             return;
         }
 

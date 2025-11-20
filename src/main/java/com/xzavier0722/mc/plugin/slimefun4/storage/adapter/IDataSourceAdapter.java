@@ -7,8 +7,7 @@ import java.util.List;
 
 public interface IDataSourceAdapter<T> {
     /**
-     * currentdatabase架构version号
-     * 在database结构有变动时update
+     * Current database schema version. Update this when the database structure changes.
      */
     int DATABASE_VERSION = 2;
 

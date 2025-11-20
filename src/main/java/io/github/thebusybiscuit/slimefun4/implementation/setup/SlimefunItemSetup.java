@@ -7796,7 +7796,7 @@ public final class SlimefunItemSetup {
                             null,
                             null,
                             null,
-                            new CustomItemStack(HeadTexture.PIGLIN_HEAD.getAsItemStack(), "&f与猪灵交易"),
+                            new CustomItemStack(HeadTexture.PIGLIN_HEAD.getAsItemStack(), "&fBarter with Piglins"),
                             null,
                             null,
                             null,

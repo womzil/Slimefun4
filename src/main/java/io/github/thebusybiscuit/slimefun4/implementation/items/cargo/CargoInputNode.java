@@ -80,7 +80,7 @@ public class CargoInputNode extends AbstractFilterNode {
 
         String smartFillNode = blockData.getData(SMART_FILL_MODE);
 
-        // FIXME require改进翻译
+    // FIXME translation still needs refinement
 
         if (smartFillNode == null || smartFillNode.equals(String.valueOf(false))) {
             menu.replaceExistingItem(

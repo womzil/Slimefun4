@@ -160,14 +160,14 @@ public abstract class AbstractEntityAssembler<T extends Entity> extends SimpleSl
         var blockData = StorageCacheUtils.getBlock(b.getLocation());
         String val;
         if (blockData == null || (val = blockData.getData(KEY_ENABLED)) == null || val.equals(String.valueOf(false))) {
-            menu.replaceExistingItem(22, new CustomItemStack(Material.GUNPOWDER, "&7whetheravailable: &4\u2718", "", "&e> 单击开启机器"));
+            menu.replaceExistingItem(22, new CustomItemStack(Material.GUNPOWDER, "&7Status: &4\u2718", "", "&e> Click to enable machine"));
             menu.addMenuClickHandler(22, (p, slot, item, action) -> {
                 StorageCacheUtils.setData(b.getLocation(), KEY_ENABLED, String.valueOf(true));
                 updateBlockInventory(menu, b);
                 return false;
             });
         } else {
-            menu.replaceExistingItem(22, new CustomItemStack(Material.REDSTONE, "&7whetheravailable: &2\u2714", "", "&e> 单击shutdown机器"));
+            menu.replaceExistingItem(22, new CustomItemStack(Material.REDSTONE, "&7Status: &2\u2714", "", "&e> Click to disable machine"));
             menu.addMenuClickHandler(22, (p, slot, item, action) -> {
                 StorageCacheUtils.setData(b.getLocation(), KEY_ENABLED, String.valueOf(false));
                 updateBlockInventory(menu, b);

@@ -99,7 +99,7 @@ public class ErrorReport<T extends Throwable> {
 
             if (item instanceof EnergyNetProvider) {
                 stream.println("Ticker info:");
-                stream.println("  type: 间接 (由能源网络manage)");
+                stream.println("  type: indirect (managed by the energy network)");
                 stream.println();
             }
 

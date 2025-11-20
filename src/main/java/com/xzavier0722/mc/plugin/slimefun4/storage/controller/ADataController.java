@@ -22,10 +22,9 @@ import java.util.logging.Logger;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 /**
- * {@link ADataController} 是 Slimefun database控制器的抽象类，
- * provide了对data源适配器的访问和dataoperation的基本method。
- * <br/>
- * 该类provide了对database的增删查改operation以及async读写的support。
+ * Abstract base class for Slimefun database controllers.
+ * <p>Provides access to the data source adapter and the fundamental data operations, including
+ * create, read, update, delete, and asynchronous read/write support.</p>
  */
 public abstract class ADataController {
     private final DataType dataType;
@@ -34,19 +33,19 @@ public abstract class ADataController {
 
     private volatile IDataSourceAdapter<?> dataAdapter;
     /**
-     * database读取调度器
+     * Executor that schedules database read operations.
      */
     protected ExecutorService readExecutor;
     /**
-     * database写入调度器
+     * Executor that schedules database write operations.
      */
     protected ExecutorService writeExecutor;
     /**
-     * database回调调度器
+     * Executor that schedules database callbacks.
      */
     protected ExecutorService callbackExecutor;
     /**
-     * 标记current控制器whether已被shutdown
+     * Tracks whether the current controller has been shut down.
      */
     private volatile boolean destroyed = false;
 
@@ -60,7 +59,7 @@ public abstract class ADataController {
     }
 
     /**
-     * initialize {@link ADataController}
+     * Initializes this {@link ADataController}.
      */
     @OverridingMethodsMustInvokeSuper
     public void init(IDataSourceAdapter<?> dataAdapter, int maxReadThread, int maxWriteThread) {
@@ -96,7 +95,7 @@ public abstract class ADataController {
     }
 
     /**
-     * 正常shutdown {@link ADataController}
+     * Gracefully shuts down this {@link ADataController}.
      */
     @OverridingMethodsMustInvokeSuper
     public void shutdown() {
@@ -114,13 +113,14 @@ public abstract class ADataController {
 
             while (pendingTask > 0) {
                 var doneTaskPercent = String.format("%.1f", (totalTask - pendingTask) / totalTask * 100);
-                logger.log(Level.INFO, "datasave中，请稍候... 剩余 {0} 个task ({1}%)", new Object[] {pendingTask, doneTaskPercent});
+                logger.log(Level.INFO, "Saving data, please wait... Remaining tasks: {0} ({1}%)", new Object[] {pendingTask, doneTaskPercent});
                 TimeUnit.SECONDS.sleep(1);
                 var currentTask = scheduledWriteTasks.size();
 
                 if (pendingTask == currentTask) {
                     if (timer.peek() / 1000 > 10) {
-                        Slimefun.logger().log(Level.WARNING, "检测到elapsed timesavetask, 请将below的threadheapstack 完整 发送给开发者以便定位问题: ");
+            Slimefun.logger()
+                .log(Level.WARNING, "Detected a long-running save task. Please provide the following thread stack dump to the developers for investigation:");
                         Slimefun.logger()
                                 .log(Level.WARNING, Slimefun.getProfiler().snapshotThreads());
                     }
@@ -131,7 +131,7 @@ public abstract class ADataController {
                 pendingTask = scheduledWriteTasks.size();
             }
 
-            logger.info("datasavecomplete.");
+            logger.info("Data save completed.");
         } catch (InterruptedException e) {
             logger.log(Level.WARNING, "Exception thrown while saving data: ", e);
         }

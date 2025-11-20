@@ -6,7 +6,7 @@ import javax.annotation.Nonnull;
 import org.bukkit.block.Biome;
 
 /**
- * Biome 多versioncompatible
+ * Utility for accessing {@link Biome} values across different server versions.
  *
  * @author ybw0014
  */
@@ -24,7 +24,7 @@ public final class VersionedBiome {
         try {
             valueOfMethod = Biome.class.getMethod("valueOf", String.class);
         } catch (Exception e) {
-            Slimefun.logger().severe("initialize Biome 多versioncompatiblefail：" + e.getMessage());
+            Slimefun.logger().severe("Failed to initialise biome compatibility helper: " + e.getMessage());
         }
 
         VALUE_OF_METHOD = valueOfMethod;
@@ -33,15 +33,15 @@ public final class VersionedBiome {
     @Nonnull
     public static Biome valueOf(@Nonnull String biomeName) throws IllegalArgumentException {
         if (biomeName == null || biomeName.isEmpty()) {
-            throw new IllegalArgumentException("Biome name不能is空");
+            throw new IllegalArgumentException("Biome name cannot be empty");
         }
         try {
             if (VALUE_OF_METHOD != null) {
                 return (Biome) VALUE_OF_METHOD.invoke(null, biomeName.toUpperCase());
             }
         } catch (Exception e) {
-            throw new IllegalArgumentException("无法调用 Biome.valueOf: " + biomeName, e);
+            throw new IllegalArgumentException("Unable to invoke Biome.valueOf for name: " + biomeName, e);
         }
-        throw new IllegalArgumentException("Biome.valueOf methodunavailable");
+        throw new IllegalArgumentException("Biome.valueOf method unavailable");
     }
 }

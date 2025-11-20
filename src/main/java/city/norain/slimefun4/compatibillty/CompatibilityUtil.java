@@ -15,12 +15,13 @@ import org.bukkit.block.data.type.WallSign;
 @UtilityClass
 public class CompatibilityUtil {
     /**
-     * 获取player放置此block所使用的item材质。
-     * 对于大多数block，这与 getMaterial() 相同，但有些block有不同的材质用于放置它们。
-     * 注意：此处没有涵盖all可能不同的blockdatatype。
+     * Returns the item material the player used to place this block.
+     * For most blocks this matches {@link BlockData#getMaterial()}, but some blocks rely on a different material when
+     * being placed.
+     * Note: this does not cover every special block data type in existence.
      *
-     * @param blockData
-     * @return 放置此block所使用的材质
+     * @param blockData the block data to inspect
+     * @return the material used when placing this block
      */
     public Material getPlacementMaterial(BlockData blockData) {
         if (SlimefunExtended.getMinecraftVersion().isAtLeast(1, 19, 4)) {
@@ -58,11 +59,11 @@ public class CompatibilityUtil {
     }
 
     /**
-     * checkplayerwhether处于connectstate。
-     * 在 1.20- 中不能保证playerwhetherconnect，仅return在线state。
+     * Checks whether the player is still considered connected.
+     * Prior to Minecraft 1.20 this cannot be guaranteed; instead we fall back to the online status only.
      *
-     * @param player 离线player
-     * @return playerconnector在线
+     * @param player the offline player instance
+     * @return {@code true} if the connection for that player is active
      */
     public boolean isConnected(OfflinePlayer player) {
         if (SlimefunExtended.getMinecraftVersion().isAtLeast(1, 20)
@@ -74,10 +75,10 @@ public class CompatibilityUtil {
     }
 
     /**
-     * 获取最大生命valueproperty。
-     * 在 1.21.3 before，使用 GENERIC_MAX_HEALTH。
+     * Retrieves the attribute key for maximum health.
+     * Before Minecraft 1.21.3 the legacy constant {@code GENERIC_MAX_HEALTH} is used instead.
      *
-     * @return 最大生命valueproperty
+     * @return the attribute representing maximum health
      */
     public static Attribute getMaxHealth() {
         if (SlimefunExtended.getMinecraftVersion().isAtLeast(1, 21, 3)) {

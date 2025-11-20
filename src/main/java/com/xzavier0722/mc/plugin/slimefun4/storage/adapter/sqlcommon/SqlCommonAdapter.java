@@ -145,17 +145,18 @@ public abstract class SqlCommonAdapter<T extends ISqlCommonConfig> implements ID
         }
 
         try (var conn = ds.getConnection()) {
-            Slimefun.logger().log(Level.INFO, "正在updatedatabaseversion至 " + patch.getVersion() + ", 可能require一segment时间...");
+        Slimefun.logger()
+            .log(Level.INFO, "Updating database version to " + patch.getVersion() + ". This may take a moment...");
             var stmt = conn.createStatement();
             patch.updateVersion(stmt, config);
             patch.patch(stmt, config);
-            Slimefun.logger().log(Level.INFO, "updatecomplete. ");
+            Slimefun.logger().log(Level.INFO, "Update completed.");
 
             if (getDatabaseVersion() != IDataSourceAdapter.DATABASE_VERSION) {
                 patch();
             }
         } catch (SQLException e) {
-            Slimefun.logger().log(Level.SEVERE, "updatedatabase时出现问题!", e);
+            Slimefun.logger().log(Level.SEVERE, "An issue occurred while updating the database!", e);
         }
     }
 }

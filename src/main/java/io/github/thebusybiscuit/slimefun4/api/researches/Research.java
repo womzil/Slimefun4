@@ -315,8 +315,8 @@ public class Research implements Keyed {
 
     /**
      * Checks if the {@link Player} can unlock this {@link Research}.
-     * <p>
-     * 已魔改support Vault
+    * <p>
+    * Customized to support Vault integration.
      *
      * @param p The {@link Player} to check
      * @return Whether that {@link Player} can unlock this {@link Research}

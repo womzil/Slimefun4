@@ -9,7 +9,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 
 /**
- * Sound 多versioncompatible
+ * Utility for interacting with {@link Sound} across different server versions.
  *
  * @author ybw0014
  */
@@ -36,7 +36,7 @@ public final class VersionedSound {
             }
             valueOfMethod = Sound.class.getMethod("valueOf", String.class);
         } catch (Exception e) {
-            Slimefun.logger().severe("无法确定 Sound type：" + e.getMessage());
+            Slimefun.logger().severe("Unable to determine Sound type: " + e.getMessage());
         }
 
         IS_ENUM = isEnum;
@@ -49,10 +49,10 @@ public final class VersionedSound {
     }
 
     /**
-     * 获取 Sound 的name
+     * Retrieves the name of the provided {@link Sound}.
      *
-     * @param sound Sound object
-     * @return Sound name
+     * @param sound the sound instance
+     * @return the sound name
      */
     @Nonnull
     public static String getSoundName(@Nonnull Sound sound) {
@@ -62,12 +62,12 @@ public final class VersionedSound {
             } else if (GET_KEY_METHOD != null) {
                 Object key = GET_KEY_METHOD.invoke(sound);
                 if (!(key instanceof NamespacedKey nsKey)) {
-                    throw new IllegalStateException("Sound.getKey() return的is not NamespacedKey");
+                    throw new IllegalStateException("Sound.getKey() returned a non-NamespacedKey value");
                 }
                 return nsKey.getKey();
             }
         } catch (Exception e) {
-            Slimefun.logger().severe("获取 Sound namefail: " + e.getMessage());
+            Slimefun.logger().severe("Failed to obtain sound name: " + e.getMessage());
         }
 
         // fallback
@@ -75,15 +75,15 @@ public final class VersionedSound {
     }
 
     /**
-     * valueOf() methodcompatible
+     * Compatibility wrapper for {@link Sound#valueOf(String)} that normalises the provided name.
      *
-     * @param name Sound name
-     * @return Sound object
-     * @throws IllegalArgumentException name无效
+     * @param name the sound name
+     * @return the matching sound
+     * @throws IllegalArgumentException if the name cannot be resolved
      */
     @Nonnull
     public static Sound valueOf(@Nonnull String name) throws IllegalArgumentException {
-        Preconditions.checkArgument(name != null, "Sound name不能is空");
+        Preconditions.checkArgument(name != null, "Sound name cannot be null");
 
         String enumName = name.toUpperCase(Locale.ROOT).replace('.', '_').replace('-', '_');
         try {
@@ -91,9 +91,9 @@ public final class VersionedSound {
                 return (Sound) VALUE_OF_METHOD.invoke(null, enumName);
             }
         } catch (Exception e) {
-            throw new IllegalArgumentException("无法调用 Sound.valueOf: " + name, e);
+            throw new IllegalArgumentException("Unable to invoke Sound.valueOf for name: " + name, e);
         }
 
-        throw new IllegalArgumentException("Sound.valueOf methodunavailable");
+        throw new IllegalArgumentException("Sound.valueOf method unavailable");
     }
 }

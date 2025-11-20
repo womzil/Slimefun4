@@ -110,11 +110,12 @@ public class ExplosiveTool extends SimpleSlimefunItem<ToolUseHandler> implements
         ExplosiveToolBreakBlocksEvent event = new ExplosiveToolBreakBlocksEvent(p, b, blocksToDestroy, item, this);
         Bukkit.getServer().getPluginManager().callEvent(event);
 
-        /*
-         * 修复: https://github.com/SlimefunGuguProject/Slimefun4/issues/853
-         *
-         * is了修复该问题should对该list进rowsort，确保头颅先被handle，具体is什么can看下方 breakBlock method。
-         */
+    /*
+     * Fix: https://github.com/SlimefunGuguProject/Slimefun4/issues/853
+     *
+     * To address the issue we sort the list so that player heads are processed first.
+     * See breakBlock for the detailed handling logic.
+     */
         if (Bukkit.getPluginManager().isPluginEnabled("ExoticGarden")) {
             blocksToDestroy.sort((block1, block2) -> Boolean.compare(
                     block2.getType().equals(Material.PLAYER_HEAD),
@@ -180,13 +181,14 @@ public class ExplosiveTool extends SimpleSlimefunItem<ToolUseHandler> implements
         blockItem.ifPresentOrElse(
                 sfItem -> {
                     /*
-                     * 修复: https://github.com/SlimefunGuguProject/Slimefun4/issues/853
+                     * Fix: https://github.com/SlimefunGuguProject/Slimefun4/issues/853
                      *
-                     * 该问题源于 ExoticGarden MagicalEssence/ExoticGardenFruit useVanillaBlockBreaking is true，
-                     * 将调用 breakNaturally method而not将其作is SlimefunItem 进rowhandle。
+                     * ExoticGarden's MagicalEssence and MagicalFruit return true for useVanillaBlockBreaking,
+                     * which triggers breakNaturally instead of treating them as Slimefun items.
                      *
-                     * 此前将 blocks 进rowsort，以确保头颅is最先handle的object，check头颅的 Y - 1 blockwhetheris叶子，
-                     * 若is叶子then尝试获取该处的 SlimefunItem，若能获取得到then此处应is异域花园植物，将叶子处直接设置is AIR and移除该处 Slimefun blockdata。
+                     * Sorting the blocks ensures player heads are evaluated first. If the block directly below
+                     * the head is a leaf from an Exotic Garden plant, we replace it with air and remove the
+                     * associated Slimefun block data so the plant does not duplicate.
                      */
                     if (Bukkit.getPluginManager().isPluginEnabled("ExoticGarden")
                             && block.getType().equals(Material.PLAYER_HEAD)) {
