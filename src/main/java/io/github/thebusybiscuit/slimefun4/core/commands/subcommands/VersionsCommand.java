@@ -149,6 +149,8 @@ class VersionsCommand extends SubCommand {
                 String authors = String.join(", ", plugin.getDescription().getAuthors());
 
                 if (plugin instanceof SlimefunAddon addon && addon.getBugTrackerURL() != null) {
+                    String bugTrackerURL = addon.getBugTrackerURL();
+
                     // @formatter:off
                     hoverEvent = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(new ComponentBuilder()
                         .append("Author(s): ")
@@ -160,7 +162,9 @@ class VersionsCommand extends SubCommand {
                     ));
                     // @formatter:on
 
-                    clickEvent = new ClickEvent(ClickEvent.Action.OPEN_URL, addon.getBugTrackerURL());
+                    if (isValidURL(bugTrackerURL)) {
+                        clickEvent = new ClickEvent(ClickEvent.Action.OPEN_URL, bugTrackerURL);
+                    }
                 } else {
                     // @formatter:off
                     hoverEvent = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(new ComponentBuilder()
@@ -176,6 +180,8 @@ class VersionsCommand extends SubCommand {
                 secondaryColor = ChatColor.DARK_RED;
 
                 if (plugin instanceof SlimefunAddon addon && addon.getBugTrackerURL() != null) {
+                    String bugTrackerURL = addon.getBugTrackerURL();
+
                     // @formatter:off
                     hoverEvent = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(new ComponentBuilder()
                         .append("This plugin is disabled.\nCheck the console for an error message.")
@@ -186,8 +192,8 @@ class VersionsCommand extends SubCommand {
                     ));
                     // @formatter:on
 
-                    if (addon.getBugTrackerURL() != null) {
-                        clickEvent = new ClickEvent(ClickEvent.Action.OPEN_URL, addon.getBugTrackerURL());
+                    if (isValidURL(bugTrackerURL)) {
+                        clickEvent = new ClickEvent(ClickEvent.Action.OPEN_URL, bugTrackerURL);
                     }
                 } else {
                     hoverEvent = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Plugin is disabled. Check the console for an error and report on their issues tracker."));
@@ -207,5 +213,15 @@ class VersionsCommand extends SubCommand {
                 .event((HoverEvent) null);
             // @formatter:on
         }
+    }
+
+    /**
+     * Validates if a URL is properly formatted with a protocol
+     *
+     * @param url The URL to validate
+     * @return true if valid, false otherwise
+     */
+    private boolean isValidURL(@Nonnull String url) {
+        return url != null && !url.isEmpty() && (url.startsWith("http://") || url.startsWith("https://"));
     }
 }
