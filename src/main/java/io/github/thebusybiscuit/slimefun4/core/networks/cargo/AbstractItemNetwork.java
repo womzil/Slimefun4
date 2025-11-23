@@ -53,14 +53,9 @@ abstract class AbstractItemNetwork extends Network {
             Block block = l.getBlock();
 
             if (block.getType() == Material.PLAYER_WALL_HEAD) {
-                BlockFace cached = connectorCache.get(l);
-
-                if (cached != null) {
-                    return Optional.of(block.getRelative(cached));
-                }
-
-                BlockFace face = ((Directional) block.getBlockData()).getFacing().getOppositeFace();
-                connectorCache.put(l, face);
+                BlockFace face = connectorCache.computeIfAbsent(l, loc -> {
+                    return ((Directional) block.getBlockData()).getFacing().getOppositeFace();
+                });
                 return Optional.of(block.getRelative(face));
             }
         }
@@ -107,6 +102,7 @@ abstract class AbstractItemNetwork extends Network {
                 if (SlimefunUtils.isItemSimilar(stack, item.getItemStackWrapper(), true, false)) {
                     add = false;
                     item.add(stack.getAmount());
+                    break;
                 }
             }
 
@@ -118,18 +114,18 @@ abstract class AbstractItemNetwork extends Network {
 
     protected @Nonnull ItemFilter getItemFilter(@Nonnull Block node) {
         Location loc = node.getLocation();
-        ItemFilter filter = filterCache.get(loc);
-
-        if (filter == null) {
-            ItemFilter newFilter = new ItemFilter(node);
-            filterCache.put(loc, newFilter);
-            return newFilter;
-        } else if (filter.isDirty()) {
+        ItemFilter filter = filterCache.computeIfAbsent(loc, __ -> new ItemFilter(node));
+        if (filter.isDirty()) {
             filter.update(node);
-            return filter;
-        } else {
-            return filter;
         }
+        return filter;
     }
 
+    public void purgeCacheFor(@Nonnull Location node) {
+        connectorCache.remove(node);
+        ItemFilter filter = filterCache.remove(node);
+        if (filter != null) {
+            filter.markDirty();
+        }
+    }
 }

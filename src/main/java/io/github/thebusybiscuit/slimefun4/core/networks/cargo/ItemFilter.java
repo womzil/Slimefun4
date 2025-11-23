@@ -7,6 +7,7 @@ import java.util.function.Predicate;
 
 import javax.annotation.Nonnull;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
@@ -79,11 +80,13 @@ class ItemFilter implements Predicate<ItemStack> {
      *            The {@link Block}
      */
     public void update(@Nonnull Block b) {
+        final Location loc = b.getLocation();
+
         // Store the returned Config instance to avoid heavy calls
-        Config blockData = BlockStorage.getLocationInfo(b.getLocation());
+        Config blockData = BlockStorage.getLocationInfo(loc);
         String id = blockData.getString("id");
         SlimefunItem item = SlimefunItem.getById(id);
-        BlockMenu menu = BlockStorage.getInventory(b.getLocation());
+        BlockMenu menu = BlockStorage.getInventory(loc);
 
         if (!(item instanceof CargoNode) || menu == null) {
             // Don't filter for a non-existing item (safety check)
@@ -111,8 +114,8 @@ class ItemFilter implements Predicate<ItemStack> {
                     }
 
                     this.items.clear();
-                    this.checkLore = Objects.equals(blockData.getString("filter-lore"), "true");
-                    this.rejectOnMatch = !Objects.equals(blockData.getString("filter-type"), "whitelist");
+                    this.checkLore = Boolean.parseBoolean(blockData.getString("filter-lore"));
+                    this.rejectOnMatch = !"whitelist".equalsIgnoreCase(blockData.getString("filter-type"));
 
                     for (int slot : slots) {
                         ItemStack stack = menu.getItemInSlot(slot);
@@ -171,48 +174,35 @@ class ItemFilter implements Predicate<ItemStack> {
         }
 
         // The amount of potential matches with that item.
+        final Material itemType = item.getType();
         int potentialMatches = 0;
+        ItemStackWrapper singleCandidate = null;
 
-        /*
-         * This is a first check for materials to see if we might even have any match.
-         * If there is no potential match then we won't need to perform the quite
-         * intense operation .getItemMeta()
-         */
         for (ItemStackWrapper stack : items) {
-            if (stack.getType() == item.getType()) {
-                // We found a potential match based on the Material
-                potentialMatches++;
+            if (stack.getType() == itemType) {
+                if (++potentialMatches == 1) {
+                    singleCandidate = stack;
+                } else {
+                    break;
+                }
             }
         }
 
         if (potentialMatches == 0) {
-            // If there is no match, we can safely assume the default value
-            return rejectOnMatch;
-        } else {
-            /*
-             * If there is more than one potential match, create a wrapper to save
-             * performance on the ItemMeta otherwise just use the item directly.
-             */
-            ItemStack subject = potentialMatches == 1 ? item : ItemStackWrapper.wrap(item);
-
-            /*
-             * If there is only one match, we won't need to create a Wrapper
-             * and thus only perform .getItemMeta() once
-             */
-            for (ItemStackWrapper stack : items) {
-                if (SlimefunUtils.isItemSimilar(subject, stack, checkLore, false)) {
-                    /*
-                     * The filter has found a match, we can return the opposite
-                     * of our default value. If we exclude items, this is where we
-                     * would return false. Otherwise, we return true.
-                     */
-                    return !rejectOnMatch;
-                }
-            }
-
-            // If no particular item was matched, we fallback to our default value.
             return rejectOnMatch;
         }
+
+        if (potentialMatches == 1) {
+            return SlimefunUtils.isItemSimilar(item, singleCandidate, checkLore, false) ? !rejectOnMatch : rejectOnMatch;
+        }
+
+        final ItemStack subject = ItemStackWrapper.wrap(item);
+        for (ItemStackWrapper stack : items) {
+            if (stack.getType() == itemType && SlimefunUtils.isItemSimilar(subject, stack, checkLore, false)) {
+                return !rejectOnMatch;
+            }
+        }
+        return rejectOnMatch;
     }
 
 }

@@ -5,11 +5,11 @@ import java.util.UUID;
 
 import javax.annotation.Nonnull;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
+import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 
 import io.github.bakedlibs.dough.common.CommonPatterns;
-import io.github.bakedlibs.dough.skins.PlayerSkin;
 
 /**
  * This enum holds all currently used Head textures in Slimefun.
@@ -154,17 +154,24 @@ public enum HeadTexture {
         return uuid;
     }
 
+    public void applyToBlock(@Nonnull Block block) {
+        Utils.applyHeadTexture(block, this.texture, this.uuid);
+    }
+
     /**
      * This method returns an {@link ItemStack} with the given texture assigned to it.
      * 
      * @return A custom head {@link ItemStack}
      */
     public @Nonnull ItemStack getAsItemStack() {
-        return SlimefunUtils.getCustomHead(getTexture());
+        return Utils.headItemFromTexture(this.texture, this.uuid);
     }
 
-    public @Nonnull PlayerSkin getAsSkin() {
-        return PlayerSkin.fromHashCode(texture);
+    public @Nonnull ItemStack getAsSkin() {
+        return Utils.headItemFromHash(texture);
     }
 
+    public @Nonnull String getTextureHash() {
+        return texture;
+    }
 }

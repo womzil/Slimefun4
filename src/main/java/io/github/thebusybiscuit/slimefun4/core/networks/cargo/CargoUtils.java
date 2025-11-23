@@ -122,7 +122,8 @@ final class CargoUtils {
 
         if (menu == null) {
             if (hasInventory(target)) {
-                Inventory inventory = inventories.get(target.getLocation());
+                Location loc = target.getLocation();
+                Inventory inventory = inventories.get(loc);
 
                 if (inventory != null) {
                     return withdrawFromVanillaInventory(network, node, template, inventory);
@@ -132,7 +133,7 @@ final class CargoUtils {
 
                 if (state instanceof InventoryHolder inventoryHolder) {
                     inventory = inventoryHolder.getInventory();
-                    inventories.put(target.getLocation(), inventory);
+                    inventories.put(loc, inventory);
                     return withdrawFromVanillaInventory(network, node, template, inventory);
                 }
             }
@@ -144,6 +145,12 @@ final class CargoUtils {
 
         for (int slot : menu.getPreset().getSlotsAccessedByItemTransport(menu, ItemTransportFlow.WITHDRAW, null)) {
             ItemStack is = menu.getItemInSlot(slot);
+            if (is == null || is.getType().isAir()) {
+                continue;   // avoid wrapping on null
+            }
+            if (is.getType() != template.getType()) {
+                continue;   // check short-circuit before the hard comparasion
+            }
             ItemStackWrapper wrapperItemInSlot = ItemStackWrapper.wrap(is);
 
             if (SlimefunUtils.isItemSimilar(wrapperItemInSlot, wrapperTemplate, true) && matchesFilter(network, node, wrapperItemInSlot)) {
@@ -177,6 +184,10 @@ final class CargoUtils {
                 continue;
             }
 
+            if (itemInSlot.getType() != template.getType()) {
+                continue;
+            }
+
             ItemStackWrapper wrapperInSlot = ItemStackWrapper.wrap(itemInSlot);
             if (SlimefunUtils.isItemSimilar(wrapperInSlot, wrapper, true, false) && matchesFilter(network, node, wrapperInSlot)) {
                 if (itemInSlot.getAmount() > template.getAmount()) {
@@ -196,6 +207,7 @@ final class CargoUtils {
     @Nullable
     static ItemStackAndInteger withdraw(AbstractItemNetwork network, Map<Location, Inventory> inventories, Block node, Block target) {
         DirtyChestMenu menu = getChestMenu(target);
+        Location loc = target.getLocation();
 
         if (menu != null) {
             for (int slot : menu.getPreset().getSlotsAccessedByItemTransport(menu, ItemTransportFlow.WITHDRAW, null)) {
@@ -207,7 +219,7 @@ final class CargoUtils {
                 }
             }
         } else if (hasInventory(target)) {
-            Inventory inventory = inventories.get(target.getLocation());
+            Inventory inventory = inventories.get(loc);
 
             if (inventory != null) {
                 return withdrawFromVanillaInventory(network, node, inventory);
@@ -217,7 +229,7 @@ final class CargoUtils {
 
             if (state instanceof InventoryHolder inventoryHolder) {
                 inventory = inventoryHolder.getInventory();
-                inventories.put(target.getLocation(), inventory);
+                inventories.put(loc, inventory);
                 return withdrawFromVanillaInventory(network, node, inventory);
             }
         }
@@ -252,10 +264,11 @@ final class CargoUtils {
         }
 
         DirtyChestMenu menu = getChestMenu(target);
+        Location loc = target.getLocation();
 
         if (menu == null) {
             if (hasInventory(target)) {
-                Inventory inventory = inventories.get(target.getLocation());
+                Inventory inventory = inventories.get(loc);
 
                 if (inventory != null) {
                     return insertIntoVanillaInventory(stack, wrapper, smartFill, inventory);
@@ -265,7 +278,7 @@ final class CargoUtils {
 
                 if (state instanceof InventoryHolder inventoryHolder) {
                     inventory = inventoryHolder.getInventory();
-                    inventories.put(target.getLocation(), inventory);
+                    inventories.put(loc, inventory);
                     return insertIntoVanillaInventory(stack, wrapper, smartFill, inventory);
                 }
             }
@@ -281,15 +294,18 @@ final class CargoUtils {
                 return null;
             }
 
-            int maxStackSize = itemInSlot.getType().getMaxStackSize();
-            int currentAmount = itemInSlot.getAmount();
-
-            if (!smartFill && currentAmount == maxStackSize) {
-                // Skip full stacks - Performance optimization for non-smartfill nodes
+            if (itemInSlot.getType() != stack.getType()) {
                 continue;
             }
 
             if (SlimefunUtils.isItemSimilar(itemInSlot, wrapper, true, false)) {
+                int maxStackSize = itemInSlot.getType().getMaxStackSize();
+                int currentAmount = itemInSlot.getAmount();
+
+                if (!smartFill && currentAmount == maxStackSize) {
+                    continue;
+                }
+
                 if (currentAmount < maxStackSize) {
                     int amount = currentAmount + stack.getAmount();
 
@@ -333,30 +349,33 @@ final class CargoUtils {
             if (itemInSlot == null) {
                 inv.setItem(slot, stack);
                 return null;
-            } else {
+            }
+
+            if (itemInSlot.getType() != stack.getType()) {
+                continue;
+            }
+
+            if (SlimefunUtils.isItemSimilar(itemInSlot, wrapper, true, false)) {
                 int currentAmount = itemInSlot.getAmount();
                 int maxStackSize = itemInSlot.getType().getMaxStackSize();
 
                 if (!smartFill && currentAmount == maxStackSize) {
-                    // Skip full stacks - Performance optimization for non-smartfill nodes
                     continue;
                 }
 
-                if (SlimefunUtils.isItemSimilar(itemInSlot, wrapper, true, false)) {
-                    if (currentAmount < maxStackSize) {
-                        int amount = currentAmount + stack.getAmount();
+                if (currentAmount < maxStackSize) {
+                    int amount = currentAmount + stack.getAmount();
 
-                        if (amount > maxStackSize) {
-                            stack.setAmount(amount - maxStackSize);
-                            itemInSlot.setAmount(maxStackSize);
-                            return stack;
-                        } else {
-                            itemInSlot.setAmount(Math.min(amount, maxStackSize));
-                            return null;
-                        }
-                    } else if (smartFill) {
+                    if (amount > maxStackSize) {
+                        stack.setAmount(amount - maxStackSize);
+                        itemInSlot.setAmount(maxStackSize);
                         return stack;
+                    } else {
+                        itemInSlot.setAmount(amount);
+                        return null;
                     }
+                } else if (smartFill) {
+                    return stack;
                 }
             }
         }

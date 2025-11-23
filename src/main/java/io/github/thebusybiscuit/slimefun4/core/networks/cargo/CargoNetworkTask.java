@@ -76,9 +76,11 @@ class CargoNetworkTask implements Runnable {
             for (Map.Entry<Location, Integer> entry : inputs.entrySet()) {
                 long nodeTimestamp = System.nanoTime();
                 Location input = entry.getKey();
-                Optional<Block> attachedBlock = network.getAttachedBlock(input);
 
-                attachedBlock.ifPresent(block -> routeItems(input, block, entry.getValue(), outputs));
+                Block attached = network.getAttachedBlock(input).orElse(null);
+                if (attached != null) {
+                    routeItems(input, attached, entry.getValue(), outputs);
+                }
 
                 // This will prevent this timings from showing up for the Cargo Manager
                 timestamp += Slimefun.getProfiler().closeEntry(entry.getKey(), inputNode, nodeTimestamp);
@@ -102,6 +104,11 @@ class CargoNetworkTask implements Runnable {
         ItemStack stack = slot.getItem();
         int previousSlot = slot.getInt();
         List<Location> destinations = outputNodes.get(frequency);
+
+        if (destinations == null || destinations.isEmpty()) {
+            insertItem(inputTarget, previousSlot, stack);
+            return;
+        }
 
         if (destinations != null) {
             stack = distributeItem(stack, inputNode, destinations);
@@ -148,67 +155,39 @@ class CargoNetworkTask implements Runnable {
         ItemStack item = stack;
 
         Config cfg = BlockStorage.getLocationInfo(inputNode);
-        boolean roundrobin = Objects.equals(cfg.getString("round-robin"), "true");
-        boolean smartFill = Objects.equals(cfg.getString("smart-fill"), "true");
+        boolean roundrobin = Boolean.parseBoolean(cfg.getString("round-robin"));
+        boolean smartFill = Boolean.parseBoolean(cfg.getString("smart-fill"));
 
-        int index = 0;
+        int startIndex = 0;
         Collection<Location> destinations;
+        List<Location> listView;
+
         if (roundrobin) {
-            // The current round-robin index of the (unsorted) outputNodes list,
-            // or the index at which to start searching for valid output nodes
-            index = network.roundRobin.getOrDefault(inputNode, 0);
-            // Use an ArrayDeque to perform round-robin sorting
-            // Since the impl for roundRobinSort just does Deque.addLast(Deque#removeFirst)
-            // An ArrayDequeue is preferable as opposed to a LinkedList:
-            // - The number of elements does not change.
-            // - ArrayDequeue has better iterative performance
-            Deque<Location> tempDestinations = new ArrayDeque<>(outputNodes);
-            roundRobinSort(index, tempDestinations);
-            destinations = tempDestinations;
+            startIndex = network.roundRobin.getOrDefault(inputNode, 0);
+            listView = (outputNodes instanceof List) ? (List<Location>) outputNodes : new ArrayList<>(outputNodes);
         } else {
-            // Using an ArrayList here since we won't need to sort the destinations
-            // The ArrayList has the best performance for iteration bar a primitive array
-            destinations = new ArrayList<>(outputNodes);
+            listView = (outputNodes instanceof List) ? (List<Location>) outputNodes : new ArrayList<>(outputNodes);
         }
 
-        for (Location output : destinations) {
-            Optional<Block> target = network.getAttachedBlock(output);
+        ItemStackWrapper wrapper = ItemStackWrapper.wrap(item);
 
-            if (target.isPresent()) {
-                ItemStackWrapper wrapper = ItemStackWrapper.wrap(item);
-                item = CargoUtils.insert(network, inventories, output.getBlock(), target.get(), smartFill, item, wrapper);
+        final int size = listView.size();
+        for (int i = 0; i < size && item != null; i++) {
+            Location output = listView.get((startIndex + i) % size);
 
-                if (item == null) {
-                    if (roundrobin) {
-                        // The output was valid, set the round robin index to the node after this one
-                        network.roundRobin.put(inputNode, (index + 1) % outputNodes.size());
-                    }
+            Block target = network.getAttachedBlock(output).orElse(null);
+            if (target != null) {
+                // the wrapper remains valid: type/meta identical, only the quantity decreases
+                item = CargoUtils.insert(network, inventories, output.getBlock(), target, smartFill, item, wrapper);
+
+                if (item == null && roundrobin) {
+                    // success: next search starts after current node
+                    network.roundRobin.put(inputNode, (startIndex + i + 1) % size);
                     break;
                 }
             }
-            index++;
         }
 
         return item;
     }
-
-    /**
-     * This method sorts a given {@link Deque} of output node locations using a semi-accurate
-     * round-robin method.
-     * 
-     * @param index
-     *            The round-robin index of the input node
-     * @param outputNodes
-     *            A {@link Deque} of {@link Location Locations} of the output nodes
-     */
-    private void roundRobinSort(int index, Deque<Location> outputNodes) {
-        if (index < outputNodes.size()) {
-            // Not ideal but actually not bad performance-wise over more elegant alternatives
-            for (int i = 0; i < index; i++) {
-                Location temp = outputNodes.removeFirst();
-                outputNodes.add(temp);
-            }
-        }
-    }
-
 }
