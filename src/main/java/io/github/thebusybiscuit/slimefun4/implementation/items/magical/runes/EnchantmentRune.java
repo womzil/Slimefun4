@@ -47,6 +47,9 @@ public class EnchantmentRune extends SimpleSlimefunItem<ItemDropHandler> {
         super(itemGroup, item, recipeType, recipe);
 
         Slimefun.runSync(() -> {
+            // fix: something is wrong with some enchantment plugins
+            // I don't want to spend money to buy these enchantment plugins
+            // so just make some safe code, preventing some plugin register enchantments after this item is created
             for (Material mat : Material.values()) {
                 if (!mat.isItem()) {
                     continue;

@@ -23,7 +23,6 @@ import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.Container;
 import org.bukkit.inventory.ItemStack;
 
 /**
@@ -135,14 +134,6 @@ public class MinerAndroid extends ProgrammableAndroid {
         // Push our drops to the inventory
         for (ItemStack drop : drops) {
             menu.pushItem(drop, getOutputSlots());
-        }
-
-        if (false && block.getState(false) instanceof Container container) {
-            for (ItemStack content : container.getInventory().getContents()) {
-                if (content != null && !content.getType().isAir()) {
-                    block.getWorld().dropItemNaturally(block.getLocation(), content);
-                }
-            }
         }
 
         // Check if Block Generator optimizations should be applied.
