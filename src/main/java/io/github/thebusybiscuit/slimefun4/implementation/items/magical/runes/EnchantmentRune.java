@@ -47,9 +47,9 @@ public class EnchantmentRune extends SimpleSlimefunItem<ItemDropHandler> {
         super(itemGroup, item, recipeType, recipe);
 
         Slimefun.runSync(() -> {
-            // fix: something is wrong with some enchantment plugins
-            // I don't want to spend money to buy these enchantment plugins
-            // so just make some safe code, preventing some plugin register enchantments after this item is created
+            // Fix: Resolves race condition with third-party enchantment plugins that register custom enchantments asynchronously during server startup.
+            // By running this code synchronously after server startup, we ensure all enchantments (including those from other plugins) are registered before populating applicableEnchantments.
+            // This prevents missing enchantments due to late registration by other plugins.
             for (Material mat : Material.values()) {
                 if (!mat.isItem()) {
                     continue;
