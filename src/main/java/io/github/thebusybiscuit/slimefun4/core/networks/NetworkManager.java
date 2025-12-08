@@ -11,18 +11,15 @@ import io.github.thebusybiscuit.slimefun4.core.networks.cargo.CargoNet;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import io.github.thebusybiscuit.slimefun4.implementation.listeners.NetworkListener;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.Validate;
-import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Server;
 
@@ -46,13 +43,13 @@ public class NetworkManager {
     /**
      * Fixes #3041
      *
-          * We use a {@link CopyOnWriteArrayList} to store {@link Network} objects here to ensure thread-safety.
+     * We use a {@link CopyOnWriteArrayList} to store {@link Network} objects here to ensure thread-safety.
      * This {@link List} is also much more frequently read than being written to.
      * Therefore a {@link CopyOnWriteArrayList} should be perfect for this, even
      * if insertions come at a slight cost.
      *
      * For large-scaled networks, we use {@link ChunkPosition} as key
-          * for quicker access to relevant networks in certain chunks.
+     * for quicker access to relevant networks in certain chunks.
      */
     private final Map<ChunkPosition, List<Network>> networks = new ConcurrentHashMap<>();
 
