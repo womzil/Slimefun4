@@ -2,6 +2,7 @@ package io.github.thebusybiscuit.slimefun4.core.networks;
 
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.LocationUtils;
 import io.github.bakedlibs.dough.blocks.BlockPosition;
+import io.github.bakedlibs.dough.blocks.ChunkPosition;
 import io.github.bakedlibs.dough.config.Config;
 import io.github.thebusybiscuit.slimefun4.api.network.Network;
 import io.github.thebusybiscuit.slimefun4.core.debug.Debug;
@@ -12,12 +13,16 @@ import io.github.thebusybiscuit.slimefun4.implementation.listeners.NetworkListen
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.Validate;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Server;
 
@@ -41,12 +46,15 @@ public class NetworkManager {
     /**
      * Fixes #3041
      *
-     * We use a {@link CopyOnWriteArrayList} here to ensure thread-safety.
+          * We use a {@link CopyOnWriteArrayList} to store {@link Network} objects here to ensure thread-safety.
      * This {@link List} is also much more frequently read than being written to.
      * Therefore a {@link CopyOnWriteArrayList} should be perfect for this, even
      * if insertions come at a slight cost.
+     *
+     * For large-scaled networks, we use {@link ChunkPosition} as key
+          * for quicker access to relevant networks in certain chunks.
      */
-    private final List<Network> networks = new CopyOnWriteArrayList<>();
+    private final Map<ChunkPosition, List<Network>> networks = new ConcurrentHashMap<>();
 
     /**
      * This creates a new {@link NetworkManager} with the given capacity.
@@ -113,7 +121,7 @@ public class NetworkManager {
      */
     @Nonnull
     public List<Network> getNetworkList() {
-        return Collections.unmodifiableList(networks);
+        return networks.values().stream().flatMap(List::stream).toList();
     }
 
     @Nonnull
@@ -124,7 +132,14 @@ public class NetworkManager {
 
         Validate.notNull(type, "Type must not be null");
 
-        for (Network network : networks) {
+        ChunkPosition chunkPos = new ChunkPosition(l);
+        List<Network> chunkNetworks = networks.get(chunkPos);
+
+        if (chunkNetworks == null) {
+            return Optional.empty();
+        }
+
+        for (Network network : chunkNetworks) {
             if (type.isInstance(network) && network.connectsTo(l)) {
                 return Optional.of(type.cast(network));
             }
@@ -143,7 +158,14 @@ public class NetworkManager {
         Validate.notNull(type, "Type must not be null");
         List<T> list = new ArrayList<>();
 
-        for (Network network : networks) {
+        ChunkPosition chunkPos = new ChunkPosition(l);
+        List<Network> chunkNetworks = networks.get(chunkPos);
+
+        if (chunkNetworks == null) {
+            return list;
+        }
+
+        for (Network network : chunkNetworks) {
             if (type.isInstance(network) && network.connectsTo(l)) {
                 list.add(type.cast(network));
             }
@@ -164,7 +186,15 @@ public class NetworkManager {
         Debug.log(
                 TestCase.ENERGYNET, "Registering network @ " + LocationUtils.locationToString(network.getRegulator()));
 
-        networks.add(network);
+        var chunkPos = new ChunkPosition(network.getRegulator());
+
+        networks.compute(chunkPos, (pos, nets) -> {
+            if (nets == null) {
+                nets = new CopyOnWriteArrayList<>();
+            }
+            nets.add(network);
+            return nets;
+        });
     }
 
     /**
@@ -180,7 +210,12 @@ public class NetworkManager {
                 TestCase.ENERGYNET,
                 "Unregistering network @ " + LocationUtils.locationToString(network.getRegulator()));
 
-        networks.remove(network);
+        ChunkPosition chunkPos = new ChunkPosition(network.getRegulator());
+
+        networks.computeIfPresent(chunkPos, (pos, nets) -> {
+            nets.remove(network);
+            return nets.isEmpty() ? null : nets;
+        });
     }
 
     /**
