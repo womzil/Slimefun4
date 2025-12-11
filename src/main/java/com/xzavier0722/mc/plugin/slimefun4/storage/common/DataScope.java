@@ -1,5 +1,10 @@
 package com.xzavier0722.mc.plugin.slimefun4.storage.common;
 
+import lombok.Getter;
+
+/**
+ * {@link DataScope} 是 Slimefun 数据库表中数据的作用域定义
+ */
 public enum DataScope {
     NONE,
     PLAYER_RESEARCH,
@@ -15,17 +20,27 @@ public enum DataScope {
     UNIVERSAL_INVENTORY(new FieldKey[] {FieldKey.UNIVERSAL_UUID, FieldKey.INVENTORY_SLOT}),
     TABLE_METADATA;
 
+    /**
+     * 标记当前 {@link DataScope} 的主键字段
+     */
+    @Getter
     private final FieldKey[] primaryKeys;
+
+    @Getter
+    private final boolean serial;
 
     DataScope() {
         primaryKeys = new FieldKey[0];
+        this.serial = false;
     }
 
     DataScope(FieldKey[] primaryKeys) {
         this.primaryKeys = primaryKeys;
+        this.serial = false;
     }
 
-    public FieldKey[] getPrimaryKeys() {
-        return primaryKeys;
+    DataScope(FieldKey[] primaryKeys, boolean serial) {
+        this.primaryKeys = primaryKeys;
+        this.serial = serial;
     }
 }
