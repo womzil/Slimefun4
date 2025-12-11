@@ -1026,9 +1026,7 @@ public class ProgrammableAndroid extends SlimefunItem
 
             // Bro encountered a ghost 💀
             if (StorageCacheUtils.hasSlimefunBlock(to.getLocation())) {
-                var data = StorageCacheUtils.getBlock(to.getLocation()) == null
-                        ? StorageCacheUtils.getBlock(to.getLocation())
-                        : StorageCacheUtils.getUniversalBlock(to);
+                var data = StorageCacheUtils.getDataContainer(to.getLocation());
                 if (data != null && !data.isPendingRemove()) {
                     // Since it's a ghost, we just hunt it.
                     Slimefun.getDatabaseManager().getBlockDataController().removeBlock(to.getLocation());

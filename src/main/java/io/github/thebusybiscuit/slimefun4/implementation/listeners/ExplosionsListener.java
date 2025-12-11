@@ -75,9 +75,7 @@ public class ExplosionsListener implements Listener {
         while (blocks.hasNext()) {
             Block block = blocks.next();
             var loc = block.getLocation();
-            var blockData = StorageCacheUtils.hasBlock(loc)
-                    ? StorageCacheUtils.getBlock(loc)
-                    : StorageCacheUtils.getUniversalBlock(loc);
+            var blockData = StorageCacheUtils.getDataContainer(loc);
             SlimefunItem item = blockData == null ? null : SlimefunItem.getById(blockData.getSfId());
 
             if (item != null) {
