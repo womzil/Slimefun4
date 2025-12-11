@@ -107,7 +107,7 @@ public class StorageCacheUtils {
 
     @ParametersAreNonnullByDefault
     @Nullable public static String getUniversalBlock(UUID uuid, Location loc, String key) {
-        var universalData = getUniversalBlockThenUpdateLocation(uuid, loc);
+        var universalData = getUniversalBlock(uuid, loc);
         return universalData == null ? null : universalData.getData(key);
     }
 

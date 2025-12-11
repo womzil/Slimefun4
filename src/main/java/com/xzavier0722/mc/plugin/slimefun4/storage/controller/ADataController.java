@@ -188,7 +188,12 @@ public abstract class ADataController {
 
                 @Override
                 protected void onError(Throwable e) {
-                    Slimefun.logger().log(Level.SEVERE, "Exception thrown while executing write task: ", e);
+                    Slimefun.logger()
+                            .log(
+                                    Level.SEVERE,
+                                    "[" + Thread.currentThread().getName()
+                                            + "] Exception thrown while executing write task: ",
+                                    e);
                 }
             };
             queuedTask.queue(key, task);
