@@ -62,6 +62,16 @@ public class StorageCacheUtils {
     }
 
     @ParametersAreNonnullByDefault
+    @Nullable public static ASlimefunDataContainer getDataContainer(Location l) {
+        var blockData = getBlock(l);
+        if (blockData != null) {
+            return blockData;
+        }
+
+        return getUniversalBlock(l);
+    }
+
+    @ParametersAreNonnullByDefault
     public static boolean isBlock(Location l, String id) {
         var blockData = getBlock(l);
         return blockData != null && id.equals(blockData.getSfId());

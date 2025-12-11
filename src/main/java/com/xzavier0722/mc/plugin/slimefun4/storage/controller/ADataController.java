@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * {@link ADataController} 是 Slimefun 数据库控制器的抽象类，
@@ -27,6 +28,7 @@ import javax.annotation.OverridingMethodsMustInvokeSuper;
  * <br/>
  * 该类提供了对数据库的增删查改操作以及异步读写的支持。
  */
+@Slf4j
 public abstract class ADataController {
     private final DataType dataType;
     private final Map<ScopeKey, QueuedWriteTask> scheduledWriteTasks;
@@ -169,6 +171,9 @@ public abstract class ADataController {
 
     protected void scheduleWriteTask(ScopeKey scopeKey, RecordKey key, Runnable task, boolean forceScopeKey) {
         lock.lock(scopeKey);
+
+        // log.info("schedule write scope [{}], key [{}]", scopeKey, key);
+
         try {
             var scopeToUse = forceScopeKey ? scopeKey : key;
             var queuedTask = scheduledWriteTasks.get(scopeKey);
@@ -199,7 +204,7 @@ public abstract class ADataController {
             queuedTask.queue(key, task);
             scheduledWriteTasks.put(scopeToUse, queuedTask);
 
-            if (serialWriteExecutor != null && scopeKey.getScope().isSerial()) {
+            if (serialWriteExecutor != null && key.getScope().isSerial()) {
                 serialWriteExecutor.submit(queuedTask);
             } else {
                 writeExecutor.submit(queuedTask);

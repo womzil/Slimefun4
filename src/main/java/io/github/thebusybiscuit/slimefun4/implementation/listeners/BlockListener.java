@@ -80,7 +80,7 @@ public class BlockListener implements Listener {
                 return;
             }
 
-            SlimefunItem sfItem = StorageCacheUtils.getSfItem(loc);
+            SlimefunItem sfItem = StorageCacheUtils.getSlimefunItem(loc);
             if (sfItem != null) {
                 for (ItemStack item : sfItem.getDrops()) {
                     if (item != null && !item.getType().isAir()) {
@@ -253,7 +253,7 @@ public class BlockListener implements Listener {
     @ParametersAreNonnullByDefault
     private void callBlockHandler(BlockBreakEvent e, ItemStack item, List<ItemStack> drops) {
         var loc = e.getBlock().getLocation();
-        SlimefunItem sfItem = StorageCacheUtils.getSfItem(loc);
+        SlimefunItem sfItem = StorageCacheUtils.getSlimefunItem(loc);
 
         if (sfItem != null && !sfItem.useVanillaBlockBreaking()) {
             sfItem.callItemHandler(BlockBreakHandler.class, handler -> handler.onPlayerBreak(e, item, drops));
@@ -315,7 +315,7 @@ public class BlockListener implements Listener {
         if (SlimefunTag.SENSITIVE_MATERIALS.isTagged(blockAbove.getType())) {
             var loc = blockAbove.getLocation();
             var blockData = StorageCacheUtils.getBlock(loc);
-            SlimefunItem sfItem = StorageCacheUtils.getSfItem(loc);
+            SlimefunItem sfItem = StorageCacheUtils.getSlimefunItem(loc);
 
             if (sfItem != null && !sfItem.useVanillaBlockBreaking()) {
                 /*

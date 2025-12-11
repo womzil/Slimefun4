@@ -350,7 +350,7 @@ public class EnergyNet extends Network implements HologramOwner {
     }
 
     @Nullable private static EnergyNetComponent getComponent(@Nonnull Location l) {
-        SlimefunItem item = StorageCacheUtils.getSfItem(l);
+        SlimefunItem item = StorageCacheUtils.getSlimefunItem(l);
 
         if (item instanceof EnergyNetComponent component) {
             return component;

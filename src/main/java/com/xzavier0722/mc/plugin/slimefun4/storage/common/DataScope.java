@@ -11,7 +11,7 @@ public enum DataScope {
     PLAYER_PROFILE(new FieldKey[] {FieldKey.PLAYER_UUID}),
     BACKPACK_PROFILE(new FieldKey[] {FieldKey.BACKPACK_ID}),
     BACKPACK_INVENTORY(new FieldKey[] {FieldKey.BACKPACK_ID, FieldKey.INVENTORY_SLOT}),
-    BLOCK_RECORD(new FieldKey[] {FieldKey.LOCATION}),
+    BLOCK_RECORD(new FieldKey[] {FieldKey.LOCATION}, true),
     BLOCK_DATA(new FieldKey[] {FieldKey.LOCATION, FieldKey.DATA_KEY}),
     CHUNK_DATA(new FieldKey[] {FieldKey.CHUNK, FieldKey.DATA_KEY}),
     BLOCK_INVENTORY(new FieldKey[] {FieldKey.LOCATION, FieldKey.INVENTORY_SLOT}),
