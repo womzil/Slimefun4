@@ -9,7 +9,7 @@
 
     <!-- Our default version will be UNOFFICIAL, this will prevent auto updates -->
     <!-- from overriding our local test file -->
-    <version>4.10-UNOFFICIAL</version>
+    <version>4.10-SNAPSHOT</version>
     <inceptionYear>2013</inceptionYear>
     <packaging>jar</packaging>
 
@@ -35,7 +35,7 @@
     <issueManagement>
         <!-- Bug Tracker -->
         <system>GitHub Issues</system>
-        <url>https://github.com/SlimeFun-Lab/Slimefun4/</url>
+        <url>https://github.com/womzil/Slimefun4/</url>
     </issueManagement>
 
     <licenses>
