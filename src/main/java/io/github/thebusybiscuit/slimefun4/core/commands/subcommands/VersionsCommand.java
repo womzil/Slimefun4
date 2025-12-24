@@ -36,13 +36,13 @@ class VersionsCommand extends SubCommand {
      * This is the Java version we recommend to use.
      * Bump as necessary and adjust the warning.
      */
-    private static final int RECOMMENDED_JAVA_VERSION = 16;
+    private static final int RECOMMENDED_JAVA_VERSION = 17;
 
     /**
      * This is the notice that will be displayed when an
      * older version of Java is detected.
      */
-    private static final String JAVA_VERSION_NOTICE = "As of Minecraft 1.17 Java 16 will be required!";
+    private static final String JAVA_VERSION_NOTICE = "As of Minecraft 1.18 Java 17 will be required!";
 
     @ParametersAreNonnullByDefault
     VersionsCommand(Slimefun plugin, SlimefunCommand cmd) {
@@ -95,6 +95,7 @@ class VersionsCommand extends SubCommand {
                 // @formatter:on
             }
 
+            addDoughVersion(builder);
             addJavaVersion(builder);
 
             builder.append("\n").event((HoverEvent) null);
@@ -105,6 +106,17 @@ class VersionsCommand extends SubCommand {
             Slimefun.getLocalization().sendMessage(sender, "messages.no-permission", true);
         }
     }
+
+    private void addDoughVersion(ComponentBuilder builder) {
+        Plugin dough = Bukkit.getPluginManager().getPlugin("Dough");
+        if (dough != null) {
+            builder.append("Dough ")
+                    .color(ChatColor.GREEN)
+                    .append(dough.getPluginMeta().getVersion() + "\n")
+                    .color(ChatColor.DARK_GREEN);
+        }
+    }
+
 
     private void addJavaVersion(@Nonnull ComponentBuilder builder) {
         int version = NumberUtils.getJavaVersion();
