@@ -24,7 +24,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 import io.github.bakedlibs.dough.data.persistent.PersistentDataAPI;
-import io.github.bakedlibs.dough.items.CustomItemStack;
+import io.github.bakedlibs.dough.items.ItemStackFactory;
 import io.github.bakedlibs.dough.protection.Interaction;
 import io.github.thebusybiscuit.slimefun4.api.SlimefunAddon;
 import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup;
@@ -286,7 +286,7 @@ public abstract class AbstractAutoCrafter extends SlimefunItem implements Energy
         ChestMenuUtils.drawBackground(menu, 45, 46, 47, 48, 50, 51, 52, 53);
 
         if (recipe.isEnabled()) {
-            menu.addItem(49, CustomItemStack.create(Material.BARRIER, Slimefun.getLocalization().getMessages(p, "messages.auto-crafting.tooltips.enabled")));
+            menu.addItem(49, ItemStackFactory.create(Material.BARRIER, Slimefun.getLocalization().getMessages(p, "messages.auto-crafting.tooltips.enabled")));
             menu.addMenuClickHandler(49, (pl, item, slot, action) -> {
                 if (action.isRightClicked()) {
                     deleteRecipe(pl, b);
@@ -297,7 +297,7 @@ public abstract class AbstractAutoCrafter extends SlimefunItem implements Energy
                 return false;
             });
         } else {
-            menu.addItem(49, CustomItemStack.create(HeadTexture.EXCLAMATION_MARK.getAsItemStack(), Slimefun.getLocalization().getMessages(p, "messages.auto-crafting.tooltips.disabled")));
+            menu.addItem(49, ItemStackFactory.create(HeadTexture.EXCLAMATION_MARK.getAsItemStack(), Slimefun.getLocalization().getMessages(p, "messages.auto-crafting.tooltips.disabled")));
             menu.addMenuClickHandler(49, (pl, item, slot, action) -> {
                 if (action.isRightClicked()) {
                     deleteRecipe(pl, b);

@@ -13,7 +13,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import io.github.bakedlibs.dough.inventory.InvUtils;
-import io.github.bakedlibs.dough.items.CustomItemStack;
+import io.github.bakedlibs.dough.items.ItemStackFactory;
 import io.github.bakedlibs.dough.items.ItemUtils;
 import io.github.thebusybiscuit.slimefun4.utils.itemstack.ItemStackWrapper;
 
@@ -136,7 +136,7 @@ public class DirtyChestMenu extends ChestMenu {
         }
 
         if (amount > 0) {
-            return CustomItemStack.create(item, amount);
+            return ItemStackFactory.create(item, amount);
         } else {
             return null;
         }

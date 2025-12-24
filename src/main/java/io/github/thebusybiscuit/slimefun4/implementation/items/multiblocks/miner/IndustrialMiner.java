@@ -22,7 +22,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import io.github.bakedlibs.dough.common.ChatColors;
-import io.github.bakedlibs.dough.items.CustomItemStack;
+import io.github.bakedlibs.dough.items.ItemStackFactory;
 import io.github.thebusybiscuit.slimefun4.api.MinecraftVersion;
 import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup;
 import io.github.thebusybiscuit.slimefun4.api.items.ItemSetting;
@@ -63,7 +63,7 @@ public class IndustrialMiner extends MultiBlockMachine {
         // @formatter:off
         super(itemGroup, item, new ItemStack[] {
             null, null, null,
-            CustomItemStack.create(Material.PISTON, "Piston (facing up)"), new ItemStack(Material.CHEST), CustomItemStack.create(Material.PISTON, "Piston (facing up)"),
+            ItemStackFactory.create(Material.PISTON, "Piston (facing up)"), new ItemStack(Material.CHEST), ItemStackFactory.create(Material.PISTON, "Piston (facing up)"),
             new ItemStack(baseMaterial), new ItemStack(Material.BLAST_FURNACE), new ItemStack(baseMaterial)
         }, BlockFace.UP);
         // @formatter:on
