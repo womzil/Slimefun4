@@ -86,6 +86,7 @@ public class BlockDataController extends ADataController {
     private BukkitTask looperTask;
     /** Chunk data load mode configuration. */
     private ChunkDataLoadMode chunkDataLoadMode;
+
     /**
      * Flag marking whether data loading is currently in progress during initialization.
      */
@@ -121,13 +122,7 @@ public class BlockDataController extends ADataController {
             case LOAD_ON_STARTUP -> loadLoadedWorlds();
         }
 
-        Bukkit.getScheduler()
-                .runTaskLater(
-                        Slimefun.instance(),
-                        () -> {
-                            loadUniversalRecord();
-                        },
-                        1);
+        Bukkit.getScheduler().runTaskLater(Slimefun.instance(), this::loadUniversalRecord, 1);
     }
 
     /** Loads data for every world that is currently loaded on the server. */
@@ -646,14 +641,30 @@ public class BlockDataController extends ADataController {
     }
 
     /**
+     * @deprecated use {@link #move(SlimefunBlockData, Location)} instead
+     */
+    @Deprecated(forRemoval = true)
+    public void setBlockDataLocation(SlimefunBlockData blockData, Location target) {
+        move(blockData, target);
+    }
+
+    /**
      * Move block data to specific location
      * <p>
      * Similar to original BlockStorage#move.
      *
-     * @param blockData the block data {@link SlimefunBlockData} need to move
-     * @param target    move target {@link Location}
+     * @param data   the block data {@link SlimefunBlockData} need to move
+     * @param target move target {@link Location}
      */
-    public void setBlockDataLocation(SlimefunBlockData blockData, Location target) {
+    public void move(ASlimefunDataContainer data, Location target) {
+        if (data instanceof SlimefunBlockData blockData) {
+            move(blockData, target);
+        } else if (data instanceof SlimefunUniversalBlockData universalBlockData) {
+            move(universalBlockData, target);
+        }
+    }
+
+    private void move(SlimefunBlockData blockData, Location target) {
         if (LocationUtils.isSameLoc(blockData.getLocation(), target)) {
             return;
         }
@@ -719,6 +730,48 @@ public class BlockDataController extends ADataController {
 
             if (hasTicker) {
                 Slimefun.getTickerTask().enableTicker(target);
+            }
+        } finally {
+            if (menu != null) {
+                menu.unlock();
+            }
+        }
+    }
+
+    private void move(SlimefunUniversalBlockData uniData, Location target) {
+        var loc = uniData.getLastPresent().toLocation();
+
+        if (LocationUtils.isSameLoc(loc, target)) {
+            return;
+        }
+
+        var hasTicker = false;
+
+        if (uniData.isDataLoaded() && Slimefun.getRegistry().getTickerBlocks().contains(uniData.getSfId())) {
+            Slimefun.getTickerTask().disableTicker(loc);
+            hasTicker = true;
+        }
+
+        UniversalMenu menu = null;
+
+        if (uniData.isDataLoaded() && uniData.getMenu() != null) {
+            menu = uniData.getMenu();
+            menu.lock();
+        }
+
+        try {
+            uniData.setLastPresent(target);
+
+            Slimefun.getBlockDataService()
+                    .updateUniversalDataUUID(
+                            target.getBlock(), uniData.getUUID().toString());
+
+            if (menu != null) {
+                menu.update(target);
+            }
+
+            if (hasTicker) {
+                Slimefun.getTickerTask().enableTicker(target, uniData.getUUID());
             }
         } finally {
             if (menu != null) {
@@ -940,6 +993,18 @@ public class BlockDataController extends ADataController {
         } finally {
             lock.unlock(key);
         }
+    }
+
+    public void loadDataAsync(ASlimefunDataContainer container, IAsyncReadCallback<ASlimefunDataContainer> callback) {
+        scheduleReadTask(() -> {
+            if (container instanceof SlimefunBlockData blockData) {
+                loadBlockData(blockData);
+            } else if (container instanceof SlimefunUniversalData uniData) {
+                loadUniversalData(uniData);
+            }
+
+            invokeCallback(callback, container);
+        });
     }
 
     public void loadBlockDataAsync(SlimefunBlockData blockData, IAsyncReadCallback<SlimefunBlockData> callback) {
@@ -1417,6 +1482,14 @@ public class BlockDataController extends ADataController {
         synchronized (delayedWriteTasks) {
             delayedWriteTasks.values().forEach(DelayedTask::runUnsafely);
         }
+    }
+
+    public SlimefunChunkData getChunkDataFromCache(Location chunk) {
+        return getChunkDataCache(chunk, false);
+    }
+
+    public SlimefunChunkData getChunkDataFromCache(Chunk chunk) {
+        return getChunkDataCache(chunk, false);
     }
 
     private SlimefunChunkData getChunkDataCache(Chunk chunk, boolean createOnNotExists) {

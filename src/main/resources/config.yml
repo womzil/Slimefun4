@@ -38,6 +38,7 @@ options:
   drop-block-creative: true
   bypass-environment-check: false
   bypass-item-length-check: false
+  max-gps-waypoints: 21
 
 guide:
   # Show vanilla item recipes in the guide
