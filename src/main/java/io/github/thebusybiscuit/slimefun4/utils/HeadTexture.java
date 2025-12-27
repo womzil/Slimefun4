@@ -14,12 +14,11 @@ import io.github.bakedlibs.dough.common.CommonPatterns;
 /**
  * This enum holds all currently used Head textures in Slimefun.
  * Credit for most of these goes to our main head designer "AquaLazuryt".
- * 
+ *
  * @author TheBusyBiscuit
  *
  */
 public enum HeadTexture {
-
     PORTABLE_CRAFTER("72ec4a4bd8a58f8361f8a0303e2199d33d624ea5f92f7cb3414fee95e2d861"),
     ENDER_BACKPACK("2a3b34862b9afb63cf8d5779966d3fba70af82b04e83f3eaf6449aeba"),
     TIN_CAN("94da97f080e395b842c4cc82a840823d4dbd8ca688a206853e5783e4bfdc012"),
@@ -136,7 +135,7 @@ public enum HeadTexture {
 
     /**
      * This returns the texture hash for this particular head.
-     * 
+     *
      * @return The associated texture hash
      */
     public @Nonnull String getTexture() {
@@ -147,7 +146,7 @@ public enum HeadTexture {
      * This returns the {@link UUID} for this {@link HeadTexture}.
      * The {@link UUID} is generated from the texture and cached for
      * performance reasons.
-     * 
+     *
      * @return The {@link UUID} for this {@link HeadTexture}
      */
     public @Nonnull UUID getUniqueId() {
@@ -160,7 +159,7 @@ public enum HeadTexture {
 
     /**
      * This method returns an {@link ItemStack} with the given texture assigned to it.
-     * 
+     *
      * @return A custom head {@link ItemStack}
      */
     public @Nonnull ItemStack getAsItemStack() {

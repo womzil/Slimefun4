@@ -6,6 +6,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import com.xzavier0722.mc.plugin.slimefun4.autocrafter.CrafterSmartPort;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -2710,6 +2711,23 @@ public final class SlimefunItemSetup {
                 .setProcessingSpeed(1)
                 .setEnergyConsumption(16)
                 .register(plugin);
+
+        new CrafterSmartPort(
+            itemGroups.cargo,
+            SlimefunItems.CRAFTER_SMART_PORT,
+            RecipeType.ENHANCED_CRAFTING_TABLE,
+            new ItemStack[] {
+                null,
+                SlimefunItems.CARGO_MOTOR,
+                null,
+                ItemStack.of(Material.CHEST),
+                SlimefunItems.CRAFTING_MOTOR,
+                ItemStack.of(Material.CHEST),
+                null,
+                SlimefunItems.ELECTRIC_MOTOR,
+                null
+            })
+            .register(plugin);
 
         // @formatter:on
     }

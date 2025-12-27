@@ -3,5 +3,9 @@ before_install:
   - sdk use java 21.0.2-open
   - sdk install maven
 
+install:
+  - chmod 777 ./mvnw
+  - ./mvnw -s .mvn/settings.xml install -DskipTests
+
 jdk:
-  - openjdk21
+  - openjdk17

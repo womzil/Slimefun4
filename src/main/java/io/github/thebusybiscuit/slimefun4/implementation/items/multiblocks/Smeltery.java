@@ -46,11 +46,26 @@ import io.github.thebusybiscuit.slimefun4.implementation.items.misc.AlloyIngot;
  */
 public class Smeltery extends AbstractSmeltery {
 
-    private final ItemSetting<Integer> fireBreakingChance = new IntRangeSetting(this, "fire-breaking-chance", 0, 34, 100);
+    private final ItemSetting<Integer> fireBreakingChance =
+            new IntRangeSetting(this, "fire-breaking-chance", 0, 34, 100);
 
     @ParametersAreNonnullByDefault
     public Smeltery(ItemGroup itemGroup, SlimefunItemStack item) {
-        super(itemGroup, item, new ItemStack[] { null, new ItemStack(Material.NETHER_BRICK_FENCE), null, new ItemStack(Material.NETHER_BRICKS), ItemStackFactory.create(Material.DISPENSER, "Dispenser (Facing up)"), new ItemStack(Material.NETHER_BRICKS), null, new ItemStack(Material.FLINT_AND_STEEL), null }, BlockFace.DOWN);
+        super(
+                itemGroup,
+                item,
+                new ItemStack[] {
+                    null,
+                    new ItemStack(Material.NETHER_BRICK_FENCE),
+                    null,
+                    new ItemStack(Material.NETHER_BRICKS),
+                    ItemStackFactory.create(Material.DISPENSER, "Dispenser (Facing Up)"),
+                    new ItemStack(Material.NETHER_BRICKS),
+                    null,
+                    new ItemStack(Material.FLINT_AND_STEEL),
+                    null
+                },
+                BlockFace.DOWN);
 
         addItemSetting(fireBreakingChance);
     }
@@ -96,5 +111,4 @@ public class Smeltery extends AbstractSmeltery {
             fire.setType(Material.AIR);
         }
     }
-
 }

@@ -27,7 +27,7 @@ import me.mrCookieSlime.Slimefun.api.item_transport.ItemTransportFlow;
 /**
  * An abstract super class of {@link CargoNet} that handles
  * interactions with ChestTerminal.
- * 
+ *
  * @author TheBusyBiscuit
  *
  */
@@ -72,7 +72,7 @@ abstract class AbstractItemNetwork extends Network {
     /**
      * This will mark the {@link ItemFilter} of the given node dirty.
      * It will also invalidate the cached rotation.
-     * 
+     *
      * @param node
      *            The {@link Location} of the cargo node
      */

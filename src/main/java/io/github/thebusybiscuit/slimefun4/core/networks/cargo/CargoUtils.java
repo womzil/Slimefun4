@@ -5,6 +5,7 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Tag;
@@ -15,17 +16,18 @@ import org.bukkit.inventory.FurnaceInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import io.papermc.lib.PaperLib;
 
 import io.github.bakedlibs.dough.inventory.InvUtils;
+import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils;
+import com.xzavier0722.mc.plugin.slimefuncomplib.event.cargo.CargoInsertEvent;
+import com.xzavier0722.mc.plugin.slimefuncomplib.event.cargo.CargoWithdrawEvent;
 import io.github.thebusybiscuit.slimefun4.core.debug.Debug;
 import io.github.thebusybiscuit.slimefun4.core.debug.TestCase;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import io.github.thebusybiscuit.slimefun4.utils.SlimefunUtils;
 import io.github.thebusybiscuit.slimefun4.utils.itemstack.ItemStackWrapper;
 import io.github.thebusybiscuit.slimefun4.utils.tags.SlimefunTag;
-import io.papermc.lib.PaperLib;
-
-import me.mrCookieSlime.Slimefun.api.BlockStorage;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import me.mrCookieSlime.Slimefun.api.inventory.DirtyChestMenu;
 import me.mrCookieSlime.Slimefun.api.item_transport.ItemTransportFlow;
@@ -34,7 +36,7 @@ import me.mrCookieSlime.Slimefun.api.item_transport.ItemTransportFlow;
  * This is a helper class for the {@link CargoNet} which provides
  * a free static utility methods to let the {@link CargoNet} interact with
  * an {@link Inventory} or {@link BlockMenu}.
- * 
+ *
  * @author TheBusyBiscuit
  * @author Walshy
  * @author DNx5
@@ -56,10 +58,10 @@ final class CargoUtils {
     /**
      * This is a performance-saving shortcut to quickly test whether a given
      * {@link Block} might be an {@link InventoryHolder} or not.
-     * 
+     *
      * @param block
      *            The {@link Block} to check
-     * 
+     *
      * @return Whether this {@link Block} represents a {@link BlockState} that is an {@link InventoryHolder}
      */
     static boolean hasInventory(@Nullable Block block) {
@@ -122,8 +124,7 @@ final class CargoUtils {
 
         if (menu == null) {
             if (hasInventory(target)) {
-                Location loc = target.getLocation();
-                Inventory inventory = inventories.get(loc);
+                Inventory inventory = inventories.get(target.getLocation());
 
                 if (inventory != null) {
                     return withdrawFromVanillaInventory(network, node, template, inventory);
@@ -133,7 +134,7 @@ final class CargoUtils {
 
                 if (state instanceof InventoryHolder inventoryHolder) {
                     inventory = inventoryHolder.getInventory();
-                    inventories.put(loc, inventory);
+                    inventories.put(target.getLocation(), inventory);
                     return withdrawFromVanillaInventory(network, node, template, inventory);
                 }
             }
@@ -153,7 +154,8 @@ final class CargoUtils {
             }
             ItemStackWrapper wrapperItemInSlot = ItemStackWrapper.wrap(is);
 
-            if (SlimefunUtils.isItemSimilar(wrapperItemInSlot, wrapperTemplate, true) && matchesFilter(network, node, wrapperItemInSlot)) {
+            if (SlimefunUtils.isItemSimilar(wrapperItemInSlot, wrapperTemplate, true)
+                    && matchesFilter(network, node, wrapperItemInSlot)) {
                 if (is.getAmount() > template.getAmount()) {
                     is.setAmount(is.getAmount() - template.getAmount());
                     menu.replaceExistingItem(slot, is);
@@ -189,7 +191,8 @@ final class CargoUtils {
             }
 
             ItemStackWrapper wrapperInSlot = ItemStackWrapper.wrap(itemInSlot);
-            if (SlimefunUtils.isItemSimilar(wrapperInSlot, wrapper, true, false) && matchesFilter(network, node, wrapperInSlot)) {
+            if (SlimefunUtils.isItemSimilar(wrapperInSlot, wrapper, true, false)
+                    && matchesFilter(network, node, wrapperInSlot)) {
                 if (itemInSlot.getAmount() > template.getAmount()) {
                     itemInSlot.setAmount(itemInSlot.getAmount() - template.getAmount());
                     return template;
@@ -210,6 +213,12 @@ final class CargoUtils {
         Location loc = target.getLocation();
 
         if (menu != null) {
+            var event = new CargoWithdrawEvent(node, target, menu.toInventory());
+            Bukkit.getPluginManager().callEvent(event);
+            if (event.isCancelled()) {
+                return null;
+            }
+
             for (int slot : menu.getPreset().getSlotsAccessedByItemTransport(menu, ItemTransportFlow.WITHDRAW, null)) {
                 ItemStack is = menu.getItemInSlot(slot);
 
@@ -221,15 +230,19 @@ final class CargoUtils {
         } else if (hasInventory(target)) {
             Inventory inventory = inventories.get(loc);
 
-            if (inventory != null) {
-                return withdrawFromVanillaInventory(network, node, inventory);
+            if (inventory == null) {
+                BlockState state = PaperLib.getBlockState(target, false).getState();
+                if (!(state instanceof InventoryHolder holder)) {
+                    return null;
+                }
+
+                inventory = holder.getInventory();
+                inventories.put(target.getLocation(), inventory);
             }
 
-            BlockState state = PaperLib.getBlockState(target, false).getState();
-
-            if (state instanceof InventoryHolder inventoryHolder) {
-                inventory = inventoryHolder.getInventory();
-                inventories.put(loc, inventory);
+            var event = new CargoWithdrawEvent(node, target, inventory);
+            Bukkit.getPluginManager().callEvent(event);
+            if (!event.isCancelled()) {
                 return withdrawFromVanillaInventory(network, node, inventory);
             }
         }
@@ -270,19 +283,27 @@ final class CargoUtils {
             if (hasInventory(target)) {
                 Inventory inventory = inventories.get(loc);
 
-                if (inventory != null) {
-                    return insertIntoVanillaInventory(stack, wrapper, smartFill, inventory);
+                if (inventory == null) {
+                    BlockState state = PaperLib.getBlockState(target, false).getState();
+                    if (!(state instanceof InventoryHolder holder)) {
+                        return stack;
+                    }
+                    inventory = holder.getInventory();
+                    inventories.put(target.getLocation(), inventory);
                 }
-
-                BlockState state = PaperLib.getBlockState(target, false).getState();
-
-                if (state instanceof InventoryHolder inventoryHolder) {
-                    inventory = inventoryHolder.getInventory();
-                    inventories.put(loc, inventory);
+                var event = new CargoInsertEvent(node, target, inventory);
+                Bukkit.getPluginManager().callEvent(event);
+                if (!event.isCancelled()) {
                     return insertIntoVanillaInventory(stack, wrapper, smartFill, inventory);
                 }
             }
 
+            return stack;
+        }
+
+        var event = new CargoInsertEvent(node, target, menu.toInventory());
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) {
             return stack;
         }
 
@@ -294,18 +315,15 @@ final class CargoUtils {
                 return null;
             }
 
-            if (itemInSlot.getType() != stack.getType()) {
+            int maxStackSize = itemInSlot.getType().getMaxStackSize();
+            int currentAmount = itemInSlot.getAmount();
+
+            if (!smartFill && currentAmount == maxStackSize) {
+                // Skip full stacks - Performance optimization for non-smartfill nodes
                 continue;
             }
 
             if (SlimefunUtils.isItemSimilar(itemInSlot, wrapper, true, false)) {
-                int maxStackSize = itemInSlot.getType().getMaxStackSize();
-                int currentAmount = itemInSlot.getAmount();
-
-                if (!smartFill && currentAmount == maxStackSize) {
-                    continue;
-                }
-
                 if (currentAmount < maxStackSize) {
                     int amount = currentAmount + stack.getAmount();
 
@@ -360,6 +378,7 @@ final class CargoUtils {
                 int maxStackSize = itemInSlot.getType().getMaxStackSize();
 
                 if (!smartFill && currentAmount == maxStackSize) {
+                    // Skip full stacks - Performance optimization for non-smartfill nodes
                     continue;
                 }
 
@@ -385,11 +404,7 @@ final class CargoUtils {
 
     @Nullable
     static DirtyChestMenu getChestMenu(@Nonnull Block block) {
-        if (BlockStorage.hasInventory(block)) {
-            return BlockStorage.getInventory(block);
-        } else {
-            return BlockStorage.getUniversalInventory(block);
-        }
+        return StorageCacheUtils.getMenu(block.getLocation());
     }
 
     static boolean matchesFilter(@Nonnull AbstractItemNetwork network, @Nonnull Block node, @Nullable ItemStack item) {
@@ -405,12 +420,12 @@ final class CargoUtils {
      * The lazy-option is a performance-saver since actually calculating this can be quite expensive.
      * For the current applicational purposes a quick check for any wooden logs is sufficient.
      * Otherwise the "lazyness" can be turned off in the future.
-     * 
+     *
      * @param stack
      *            The {@link ItemStack} to test
      * @param lazy
      *            Whether or not to perform a "lazy" but performance-saving check
-     * 
+     *
      * @return Whether the given {@link ItemStack} can be smelted or not
      */
     private static boolean isSmeltable(@Nullable ItemStack stack, boolean lazy) {

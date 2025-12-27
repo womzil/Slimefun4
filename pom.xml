@@ -21,7 +21,12 @@
         <!-- UTF-8 is our standard encoding for source files -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+        <!-- Target Java 17 -->
         <maven.compiler.release>17</maven.compiler.release>
+
+        <!-- Paper properties -->
+        <paper.version>1.21.10</paper.version>
+        <paper.javadocs>https://papermc.io/javadocs</paper.javadocs>
 
         <!-- Default settings for sonarcloud.io -->
         <sonar.projectKey>Slimefun_Slimefun4</sonar.projectKey>
@@ -53,6 +58,14 @@
             <!-- PaperLib -->
             <id>paper-repo</id>
             <url>https://repo.papermc.io/repository/maven-public/</url>
+        </repository>
+        <!-- Public dough downstream repo -->
+        <repository>
+            <id>gugu-maven-repo</id>
+            <url>https://maven.norain.city/snapshots</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </repository>
         <repository>
             <!-- ItemsAdder -->
@@ -94,7 +107,7 @@
         <defaultGoal>clean package</defaultGoal>
 
         <!-- The name of the final jar -->
-        <finalName>${project.name} v${project.version}</finalName>
+        <finalName>${project.name}-${project.version}</finalName>
 
         <plugins>
             <plugin>
@@ -109,6 +122,15 @@
                         <!-- We can safely exclude them from the final jar -->
                         <exclude>**/package-info.java</exclude>
                     </excludes>
+                    <source>17</source>
+                    <target>17</target>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.18.34</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
 
@@ -191,8 +213,16 @@
                             <shadedPattern>io.github.thebusybiscuit.slimefun4.libraries.paperlib</shadedPattern>
                         </relocation>
                         <relocation>
+                            <pattern>kong.unirest</pattern>
+                            <shadedPattern>io.github.thebusybiscuit.slimefun4.libraries.unirest</shadedPattern>
+                        </relocation>
+                        <relocation>
                             <pattern>org.apache.commons.lang3</pattern>
                             <shadedPattern>io.github.thebusybiscuit.slimefun4.libraries.commons.lang</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>net.guizhanss.guizhanlib</pattern>
+                            <shadedPattern>io.github.thebusybiscuit.slimefun4.libraries.guizhanlib</shadedPattern>
                         </relocation>
                     </relocations>
 
@@ -218,16 +248,69 @@
             </plugin>
 
             <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>2.43.0</version>
+                <configuration>
+                    <java>
+                        <palantirJavaFormat>
+                            <version>2.38.0</version>
+                            <style>PALANTIR</style>
+                        </palantirJavaFormat>
+
+                        <removeUnusedImports />
+                        <formatAnnotations />
+                    </java>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>io.github.git-commit-id</groupId>
+                <artifactId>git-commit-id-maven-plugin</artifactId>
+                <version>9.0.1</version>
+
+                <executions>
+                    <execution>
+                        <id>get-the-git-infos</id>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                    </execution>
+                </executions>
+
+                <configuration>
+                    <dateFormat>yyyy-MM-dd HH:mm:ss</dateFormat>
+                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                    <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+                    <includeOnlyProperties>
+                        <includeOnlyProperty>^git.build.(time|version)$</includeOnlyProperty>
+                        <includeOnlyProperty>^git.commit.id.(abbrev|full)$</includeOnlyProperty>
+                        <includeOnlyProperty>git.branch</includeOnlyProperty>
+                    </includeOnlyProperties>
+                    <commitIdGenerationMode>full</commitIdGenerationMode>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+            </plugin>
+
+            <plugin>
                 <!-- Javadocs -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>3.11.2</version>
 
                 <configuration>
+                    <outputDirectory>${project.basedir}/javadocs</outputDirectory>
+
                     <doctitle>Slimefun4 - Javadocs</doctitle>
                     <windowtitle>Slimefun4 - Javadocs</windowtitle>
                     <detectOfflineLinks>false</detectOfflineLinks>
                     <additionalJOption>-html5</additionalJOption>
+
                     <!-- We can group packages together in our Javadocs -->
                     <groups>
                         <group>
@@ -267,13 +350,22 @@
                             <title>Slimefun4 - Old packages</title>
                             <packages>me.mrCookieSlime.Slimefun*</packages>
                         </group>
+                        <group>
+                            <title>Database-related implementation</title>
+                            <packages>com.xzavier0722.mc.plugin.slimefun4.storage*</packages>
+                        </group>
+                        <group>
+                            <title>Additional features implemented in Gugu Project</title>
+                            <packages>city.norain.slimefun4.api*</packages>
+                        </group>
                     </groups>
                 </configuration>
             </plugin>
         </plugins>
 
-        <resources>
+        <!-- Publishing components to a private Maven repository -->
 
+        <resources>
             <!-- Resources we want to include, e.g. configs or language files -->
             <resource>
                 <directory>${basedir}/src/main/resources</directory>
@@ -283,6 +375,8 @@
                     <include>plugin.yml</include>
                     <include>config.yml</include>
                     <include>item-models.yml</include>
+                    <include>profile-storage.yml</include>
+                    <include>block-storage.yml</include>
 
                     <include>wiki.json</include>
                     <include>languages/translators.json</include>
@@ -291,6 +385,7 @@
                     <include>biome-maps/*.json</include>
 
                     <include>languages/**/*.yml</include>
+                    <include>git.properties</include>
                 </includes>
             </resource>
 
@@ -319,11 +414,28 @@
     </dependencyManagement>
 
     <dependencies>
+        <!-- Hard dependencies -->
+
+        <!-- Paper -->
+        <dependency>
+            <groupId>io.papermc.paper</groupId>
+            <artifactId>paper-api</artifactId>
+            <version>${paper.version}-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- Development dependencies -->
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
             <version>3.0.2</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.34</version>
             <scope>provided</scope>
         </dependency>
 
@@ -340,13 +452,33 @@
             <version>1.0.8</version>
             <scope>compile</scope>
         </dependency>
-
-        <!-- Paper -->
         <dependency>
-            <groupId>io.papermc.paper</groupId>
-            <artifactId>paper-api</artifactId>
-            <version>1.21.10-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
+            <groupId>com.konghq</groupId>
+            <artifactId>unirest-java</artifactId>
+            <version>3.14.5</version>
+            <scope>compile</scope>
+
+            <exclusions>
+                <exclusion>
+                    <!-- No need to shade Gson, Spigot does that already -->
+                    <groupId>com.google.code.gson</groupId>
+                    <artifactId>gson</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- Databases -->
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>5.1.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.7</version>
+            <scope>compile</scope>
         </dependency>
 
         <!-- Testing dependencies -->
@@ -458,7 +590,20 @@
             <artifactId>orebfuscator-api</artifactId>
             <version>5.5.3</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <!-- We don't need any of the dependencies -->
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
+        <dependency>
+            <groupId>com.github.MilkBowl</groupId>
+            <artifactId>VaultAPI</artifactId>
+            <version>1.7.1</version>
+            <scope>provided</scope>
             <exclusions>
                 <exclusion>
                     <!-- We don't need any of the dependencies -->
@@ -468,9 +613,37 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>com.mojang</groupId>
+            <artifactId>authlib</artifactId>
+            <version>6.0.52</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <!-- We don't need any of the dependencies -->
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- TODO: Remove this dependency -->
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.19.0</version>
+            <version>3.20.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- Slimefun Compatibility Lib -->
+        <dependency>
+            <groupId>com.github.Xzavier0722</groupId>
+            <artifactId>SlimefunCompLib</artifactId>
+            <version>b7a2bd8</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- Auto updater lib -->
+        <dependency>
+            <groupId>net.guizhanss</groupId>
+            <artifactId>guizhanlib-updater</artifactId>
+            <version>2.3.0</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

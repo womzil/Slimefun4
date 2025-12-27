@@ -30,7 +30,21 @@ public class MakeshiftSmeltery extends AbstractSmeltery {
 
     @ParametersAreNonnullByDefault
     public MakeshiftSmeltery(ItemGroup itemGroup, SlimefunItemStack item) {
-        super(itemGroup, item, new ItemStack[] { null, new ItemStack(Material.OAK_FENCE), null, new ItemStack(Material.BRICKS), ItemStackFactory.create(Material.DISPENSER, "Dispenser (Facing up)"), new ItemStack(Material.BRICKS), null, new ItemStack(Material.FLINT_AND_STEEL), null }, BlockFace.DOWN);
+        super(
+                itemGroup,
+                item,
+                new ItemStack[] {
+                    null,
+                    new ItemStack(Material.OAK_FENCE),
+                    null,
+                    new ItemStack(Material.BRICKS),
+                    ItemStackFactory.create(Material.DISPENSER, "Dispenser (Facing Up)"),
+                    new ItemStack(Material.BRICKS),
+                    null,
+                    new ItemStack(Material.FLINT_AND_STEEL),
+                    null
+                },
+                BlockFace.DOWN);
     }
 
     @Override
@@ -53,5 +67,4 @@ public class MakeshiftSmeltery extends AbstractSmeltery {
         fire.getWorld().playEffect(fire.getLocation(), Effect.STEP_SOUND, fire.getType());
         fire.setType(Material.AIR);
     }
-
 }

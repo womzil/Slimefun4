@@ -45,7 +45,21 @@ public class OreCrusher extends MultiBlockMachine {
 
     @ParametersAreNonnullByDefault
     public OreCrusher(ItemGroup itemGroup, SlimefunItemStack item) {
-        super(itemGroup, item, new ItemStack[] { null, null, null, null, new ItemStack(Material.NETHER_BRICK_FENCE), null, new ItemStack(Material.IRON_BARS), ItemStackFactory.create(Material.DISPENSER, "Dispenser (Facing up)"), new ItemStack(Material.IRON_BARS) }, BlockFace.SELF);
+        super(
+                itemGroup,
+                item,
+                new ItemStack[] {
+                    null,
+                    null,
+                    null,
+                    null,
+                    new ItemStack(Material.NETHER_BRICK_FENCE),
+                    null,
+                    new ItemStack(Material.IRON_BARS),
+                    ItemStackFactory.create(Material.DISPENSER, "Dispenser (Facing Up)"),
+                    new ItemStack(Material.IRON_BARS)
+                },
+                BlockFace.SELF);
 
         addItemSetting(doubleOres);
     }
@@ -289,7 +303,5 @@ public class OreCrusher extends MultiBlockMachine {
         public @Nonnull ItemStack getGoldNuggets() {
             return goldNuggets;
         }
-
     }
-
 }

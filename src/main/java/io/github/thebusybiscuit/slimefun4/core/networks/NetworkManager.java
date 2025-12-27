@@ -1,36 +1,35 @@
 package io.github.thebusybiscuit.slimefun4.core.networks;
 
+import com.xzavier0722.mc.plugin.slimefun4.storage.util.LocationUtils;
+import io.github.bakedlibs.dough.blocks.BlockPosition;
+import io.github.bakedlibs.dough.blocks.ChunkPosition;
+import io.github.bakedlibs.dough.config.Config;
+import io.github.thebusybiscuit.slimefun4.api.network.Network;
+import io.github.thebusybiscuit.slimefun4.core.debug.Debug;
+import io.github.thebusybiscuit.slimefun4.core.debug.TestCase;
+import io.github.thebusybiscuit.slimefun4.core.networks.cargo.CargoNet;
+import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
+import io.github.thebusybiscuit.slimefun4.implementation.listeners.NetworkListener;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import org.apache.commons.lang3.Validate;
 import org.bukkit.Location;
 import org.bukkit.Server;
 
-import io.github.bakedlibs.dough.blocks.BlockPosition;
-import io.github.bakedlibs.dough.config.Config;
-import io.github.thebusybiscuit.slimefun4.api.MinecraftVersion;
-import io.github.thebusybiscuit.slimefun4.api.network.Network;
-import io.github.thebusybiscuit.slimefun4.core.networks.cargo.CargoNet;
-import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
-import io.github.thebusybiscuit.slimefun4.implementation.listeners.NetworkListener;
-
-import me.mrCookieSlime.Slimefun.api.BlockStorage;
-
 /**
  * The {@link NetworkManager} is responsible for holding all instances of {@link Network}
  * and providing some utility methods that would have probably been static otherwise.
- * 
+ *
  * @author TheBusyBiscuit
  * @author meiamsome
- * 
+ *
  * @see Network
  * @see NetworkListener
  *
@@ -43,17 +42,20 @@ public class NetworkManager {
 
     /**
      * Fixes #3041
-     * 
-     * We use a {@link CopyOnWriteArrayList} here to ensure thread-safety.
+     *
+     * We use a {@link CopyOnWriteArrayList} to store {@link Network} objects here to ensure thread-safety.
      * This {@link List} is also much more frequently read than being written to.
      * Therefore a {@link CopyOnWriteArrayList} should be perfect for this, even
      * if insertions come at a slight cost.
+     *
+     * For large-scaled networks, we use {@link ChunkPosition} as key
+     * for quicker access to relevant networks in certain chunks.
      */
-    private final List<Network> networks = new CopyOnWriteArrayList<>();
+    private final Map<ChunkPosition, List<Network>> networks = new ConcurrentHashMap<>();
 
     /**
      * This creates a new {@link NetworkManager} with the given capacity.
-     * 
+     *
      * @param maxStepSize
      *            The maximum amount of nodes a {@link Network} can have
      * @param enableVisualizer
@@ -71,7 +73,7 @@ public class NetworkManager {
 
     /**
      * This creates a new {@link NetworkManager} with the given capacity.
-     * 
+     *
      * @param maxStepSize
      *            The maximum amount of nodes a {@link Network} can have
      */
@@ -82,7 +84,7 @@ public class NetworkManager {
     /**
      * This method returns the limit of nodes a {@link Network} can have.
      * This value is read from the {@link Config} file.
-     * 
+     *
      * @return the maximum amount of nodes a {@link Network} can have
      */
     public int getMaxSize() {
@@ -91,7 +93,7 @@ public class NetworkManager {
 
     /**
      * This returns whether the {@link Network} visualizer is enabled.
-     * 
+     *
      * @return Whether the {@link Network} visualizer is enabled
      */
     public boolean isVisualizerEnabled() {
@@ -101,7 +103,7 @@ public class NetworkManager {
     /**
      * This returns whether excess items from a {@link CargoNet} should be voided
      * instead of being dropped to the ground.
-     * 
+     *
      * @return Whether to delete excess items
      */
     public boolean isItemDeletionEnabled() {
@@ -111,12 +113,12 @@ public class NetworkManager {
     /**
      * This returns a {@link List} of every {@link Network} on the {@link Server}.
      * The returned {@link List} is not modifiable.
-     * 
+     *
      * @return A {@link List} containing every {@link Network} on the {@link Server}
      */
     @Nonnull
     public List<Network> getNetworkList() {
-        return Collections.unmodifiableList(networks);
+        return networks.values().stream().flatMap(List::stream).toList();
     }
 
     @Nonnull
@@ -127,7 +129,14 @@ public class NetworkManager {
 
         Validate.notNull(type, "Type must not be null");
 
-        for (Network network : networks) {
+        ChunkPosition chunkPos = new ChunkPosition(l);
+        List<Network> chunkNetworks = networks.get(chunkPos);
+
+        if (chunkNetworks == null) {
+            return Optional.empty();
+        }
+
+        for (Network network : chunkNetworks) {
             if (type.isInstance(network) && network.connectsTo(l)) {
                 return Optional.of(type.cast(network));
             }
@@ -146,7 +155,14 @@ public class NetworkManager {
         Validate.notNull(type, "Type must not be null");
         List<T> list = new ArrayList<>();
 
-        for (Network network : networks) {
+        ChunkPosition chunkPos = new ChunkPosition(l);
+        List<Network> chunkNetworks = networks.get(chunkPos);
+
+        if (chunkNetworks == null) {
+            return list;
+        }
+
+        for (Network network : chunkNetworks) {
             if (type.isInstance(network) && network.connectsTo(l)) {
                 list.add(type.cast(network));
             }
@@ -157,35 +173,59 @@ public class NetworkManager {
 
     /**
      * This registers a given {@link Network}.
-     * 
+     *
      * @param network
      *            The {@link Network} to register
      */
     public void registerNetwork(@Nonnull Network network) {
         Validate.notNull(network, "Cannot register a null Network");
-        networks.add(network);
+
+        Debug.log(
+                TestCase.ENERGYNET, "Registering network @ " + LocationUtils.locationToString(network.getRegulator()));
+
+        var chunkPos = new ChunkPosition(network.getRegulator());
+
+        networks.compute(chunkPos, (pos, nets) -> {
+            if (nets == null) {
+                nets = new CopyOnWriteArrayList<>();
+            }
+            nets.add(network);
+            return nets;
+        });
     }
 
     /**
      * This removes a {@link Network} from the network system.
-     * 
+     *
      * @param network
      *            The {@link Network} to remove
      */
     public void unregisterNetwork(@Nonnull Network network) {
         Validate.notNull(network, "Cannot unregister a null Network");
-        networks.remove(network);
+
+        Debug.log(
+                TestCase.ENERGYNET,
+                "Unregistering network @ " + LocationUtils.locationToString(network.getRegulator()));
+
+        ChunkPosition chunkPos = new ChunkPosition(network.getRegulator());
+
+        networks.computeIfPresent(chunkPos, (pos, nets) -> {
+            nets.remove(network);
+            return nets.isEmpty() ? null : nets;
+        });
     }
 
     /**
      * This method updates every {@link Network} found at the given {@link Location}.
      * More precisely, {@link Network#markDirty(Location)} will be called.
-     * 
+     *
      * @param l
      *            The {@link Location} to update
      */
     public void updateAllNetworks(@Nonnull Location l) {
         Validate.notNull(l, "The Location cannot be null");
+
+        Debug.log(TestCase.ENERGYNET, "Updating all networks now.");
 
         try {
             /*
@@ -196,22 +236,15 @@ public class NetworkManager {
                 return;
             }
 
-            /*
-             * Only a Slimefun block can be part of a Network.
-             * This check helps to speed up performance.
-             * 
-             * (Skip for Unit Tests as they don't support block info yet)
-             */
-            if (!BlockStorage.hasBlockInfo(l) && Slimefun.getMinecraftVersion() != MinecraftVersion.UNIT_TEST) {
-                return;
-            }
-
             for (Network network : getNetworksFromLocation(l, Network.class)) {
                 network.markDirty(l);
             }
         } catch (Exception x) {
-            Slimefun.logger().log(Level.SEVERE, x, () -> "An Exception was thrown while causing a networks update @ " + new BlockPosition(l));
+            Slimefun.logger()
+                    .log(
+                            Level.SEVERE,
+                            x,
+                            () -> "An Exception was thrown while causing a networks update @ " + new BlockPosition(l));
         }
     }
-
 }

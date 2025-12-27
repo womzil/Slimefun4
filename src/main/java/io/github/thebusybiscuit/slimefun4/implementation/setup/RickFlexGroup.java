@@ -42,7 +42,7 @@ class RickFlexGroup extends FlexItemGroup {
     public void open(Player p, PlayerProfile profile, SlimefunGuideMode layout) {
         // Up the game with this easter egg
         ChatUtils.sendURL(p, "https://youtu.be/dQw4w9WgXcQ");
+        ChatUtils.sendURL(p, "https://www.bilibili.com/video/BV1GJ411x7h7");
         p.closeInventory();
     }
-
 }

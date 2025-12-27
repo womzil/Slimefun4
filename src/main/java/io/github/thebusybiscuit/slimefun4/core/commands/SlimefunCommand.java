@@ -122,5 +122,4 @@ public class SlimefunCommand implements CommandExecutor, Listener {
                 .collect(Collectors.toList());
         // @formatter:on
     }
-
 }

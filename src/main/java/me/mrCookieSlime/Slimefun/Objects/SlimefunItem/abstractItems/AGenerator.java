@@ -6,14 +6,17 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-
 import org.apache.commons.lang3.Validate;
+
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
+import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
+import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils;
 import io.github.bakedlibs.dough.items.ItemStackFactory;
 import io.github.bakedlibs.dough.protection.Interaction;
 import io.github.thebusybiscuit.slimefun4.api.SlimefunAddon;
@@ -33,8 +36,7 @@ import io.github.thebusybiscuit.slimefun4.utils.ChestMenuUtils;
 import io.github.thebusybiscuit.slimefun4.utils.SlimefunUtils;
 import io.github.thebusybiscuit.slimefun4.utils.itemstack.ItemStackWrapper;
 
-import me.mrCookieSlime.CSCoreLibPlugin.Configuration.Config;
-import me.mrCookieSlime.Slimefun.api.BlockStorage;
+import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ClickAction;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenuPreset;
 import me.mrCookieSlime.Slimefun.api.item_transport.ItemTransportFlow;
@@ -65,7 +67,9 @@ public abstract class AGenerator extends AbstractEnergyProvider implements Machi
 
             @Override
             public boolean canOpen(Block b, Player p) {
-                return p.hasPermission("slimefun.inventory.bypass") || Slimefun.getProtectionManager().hasPermission(p, b.getLocation(), Interaction.INTERACT_BLOCK);
+                return p.hasPermission("slimefun.inventory.bypass")
+                        || Slimefun.getProtectionManager()
+                                .hasPermission(p, b.getLocation(), Interaction.INTERACT_BLOCK);
             }
 
             @Override
@@ -93,7 +97,7 @@ public abstract class AGenerator extends AbstractEnergyProvider implements Machi
 
             @Override
             public void onBlockBreak(Block b) {
-                BlockMenu inv = BlockStorage.getInventory(b);
+                BlockMenu inv = StorageCacheUtils.getMenu(b.getLocation());
 
                 if (inv != null) {
                     inv.dropItems(b.getLocation(), getInputSlots());
@@ -122,7 +126,8 @@ public abstract class AGenerator extends AbstractEnergyProvider implements Machi
             preset.addMenuClickHandler(i, ChestMenuUtils.getDefaultOutputHandler());
         }
 
-        preset.addItem(22, ItemStackFactory.create(Material.BLACK_STAINED_GLASS_PANE, " "), ChestMenuUtils.getEmptyClickHandler());
+        preset.addItem(
+                22, ItemStackFactory.create(Material.BLACK_STAINED_GLASS_PANE, " "), ChestMenuUtils.getEmptyClickHandler());
     }
 
     @Override
@@ -136,8 +141,8 @@ public abstract class AGenerator extends AbstractEnergyProvider implements Machi
     }
 
     @Override
-    public int getGeneratedOutput(Location l, Config data) {
-        BlockMenu inv = BlockStorage.getInventory(l);
+    public int getGeneratedOutput(Location l, SlimefunBlockData data) {
+        BlockMenu inv = StorageCacheUtils.getMenu(l);
         FuelOperation operation = processor.getOperation(l);
 
         if (operation != null) {
@@ -145,9 +150,9 @@ public abstract class AGenerator extends AbstractEnergyProvider implements Machi
                 processor.updateProgressBar(inv, 22, operation);
 
                 if (isChargeable()) {
-                    int charge = getCharge(l, data);
+                    long charge = getChargeLong(l, data);
 
-                    if (getCapacity() - charge >= getEnergyProduction()) {
+                    if (getCapacityLong() - charge >= getEnergyProduction()) {
                         operation.addProgress(1);
                         return getEnergyProduction();
                     }
@@ -191,7 +196,9 @@ public abstract class AGenerator extends AbstractEnergyProvider implements Machi
         }
 
         ItemStackWrapper wrapper = ItemStackWrapper.wrap(item);
-        return item.getType() == Material.LAVA_BUCKET || SlimefunUtils.isItemSimilar(wrapper, SlimefunItems.FUEL_BUCKET.item(), true) || SlimefunUtils.isItemSimilar(wrapper, SlimefunItems.OIL_BUCKET.item(), true);
+        return item.getType() == Material.LAVA_BUCKET
+                || SlimefunUtils.isItemSimilar(wrapper, SlimefunItems.FUEL_BUCKET.item(), true)
+                || SlimefunUtils.isItemSimilar(wrapper, SlimefunItems.OIL_BUCKET.item(), true);
     }
 
     private MachineFuel findRecipe(BlockMenu menu, Map<Integer, Integer> found) {
@@ -280,5 +287,4 @@ public abstract class AGenerator extends AbstractEnergyProvider implements Machi
             super.register(addon);
         }
     }
-
 }

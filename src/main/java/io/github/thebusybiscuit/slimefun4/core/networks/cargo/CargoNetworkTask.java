@@ -20,6 +20,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import io.github.bakedlibs.dough.blocks.BlockPosition;
+
+import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils;
 import io.github.thebusybiscuit.slimefun4.api.items.ItemSpawnReason;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import io.github.thebusybiscuit.slimefun4.core.networks.NetworkManager;
@@ -27,7 +29,6 @@ import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import io.github.thebusybiscuit.slimefun4.implementation.SlimefunItems;
 import io.github.thebusybiscuit.slimefun4.utils.SlimefunUtils;
 import io.github.thebusybiscuit.slimefun4.utils.itemstack.ItemStackWrapper;
-
 import me.mrCookieSlime.CSCoreLibPlugin.Configuration.Config;
 import me.mrCookieSlime.Slimefun.api.BlockStorage;
 import me.mrCookieSlime.Slimefun.api.inventory.DirtyChestMenu;
@@ -35,11 +36,11 @@ import me.mrCookieSlime.Slimefun.api.inventory.DirtyChestMenu;
 /**
  * The {@link CargoNetworkTask} is the actual {@link Runnable} responsible for moving {@link ItemStack ItemStacks}
  * around the {@link CargoNet}.
- * 
+ *
  * Inbefore this was just a method in the {@link CargoNet} class.
  * However for aesthetic reasons but mainly to prevent the Cargo Task from showing up as
  * "lambda:xyz-123" in timing reports... this was moved.
- * 
+ *
  * @see CargoNet
  * @see CargoUtils
  * @see AbstractItemNetwork
@@ -86,7 +87,12 @@ class CargoNetworkTask implements Runnable {
                 timestamp += Slimefun.getProfiler().closeEntry(entry.getKey(), inputNode, nodeTimestamp);
             }
         } catch (Exception | LinkageError x) {
-            Slimefun.logger().log(Level.SEVERE, x, () -> "An Exception was caught while ticking a Cargo network @ " + new BlockPosition(network.getRegulator()));
+            Slimefun.logger()
+                    .log(
+                            Level.SEVERE,
+                            x,
+                            () -> "An Exception was caught while ticking a Cargo network @ "
+                                    + new BlockPosition(network.getRegulator()));
         }
 
         // Submit a timings report
@@ -94,7 +100,8 @@ class CargoNetworkTask implements Runnable {
     }
 
     @ParametersAreNonnullByDefault
-    private void routeItems(Location inputNode, Block inputTarget, int frequency, Map<Integer, List<Location>> outputNodes) {
+    private void routeItems(
+            Location inputNode, Block inputTarget, int frequency, Map<Integer, List<Location>> outputNodes) {
         ItemStackAndInteger slot = CargoUtils.withdraw(network, inventories, inputNode.getBlock(), inputTarget);
 
         if (slot == null) {
@@ -133,7 +140,8 @@ class CargoNetworkTask implements Runnable {
 
                 if (rest != null && !manager.isItemDeletionEnabled()) {
                     // If the item still couldn't be inserted, simply drop it on the ground
-                    SlimefunUtils.spawnItem(inputTarget.getLocation().add(0, 1, 0), rest, ItemSpawnReason.CARGO_OVERFLOW);
+                    SlimefunUtils.spawnItem(
+                            inputTarget.getLocation().add(0, 1, 0), rest, ItemSpawnReason.CARGO_OVERFLOW);
                 }
             }
         } else {
@@ -143,51 +151,79 @@ class CargoNetworkTask implements Runnable {
                 if (menu.getItemInSlot(previousSlot) == null) {
                     menu.replaceExistingItem(previousSlot, item);
                 } else if (!manager.isItemDeletionEnabled()) {
-                    SlimefunUtils.spawnItem(inputTarget.getLocation().add(0, 1, 0), item, ItemSpawnReason.CARGO_OVERFLOW);
+                    SlimefunUtils.spawnItem(
+                            inputTarget.getLocation().add(0, 1, 0), item, ItemSpawnReason.CARGO_OVERFLOW);
                 }
             }
         }
     }
 
-    @Nullable
-    @ParametersAreNonnullByDefault
+    @Nullable @ParametersAreNonnullByDefault
     private ItemStack distributeItem(ItemStack stack, Location inputNode, List<Location> outputNodes) {
         ItemStack item = stack;
 
-        Config cfg = BlockStorage.getLocationInfo(inputNode);
-        boolean roundrobin = Boolean.parseBoolean(cfg.getString("round-robin"));
-        boolean smartFill = Boolean.parseBoolean(cfg.getString("smart-fill"));
+        var blockData = StorageCacheUtils.getBlock(inputNode);
+        boolean roundrobin = Objects.equals(blockData.getData("round-robin"), "true");
+        boolean smartFill = Objects.equals(blockData.getData("smart-fill"), "true");
 
-        int startIndex = 0;
+        int index = 0;
         Collection<Location> destinations;
-        List<Location> listView;
-
         if (roundrobin) {
-            startIndex = network.roundRobin.getOrDefault(inputNode, 0);
-            listView = (outputNodes instanceof List) ? (List<Location>) outputNodes : new ArrayList<>(outputNodes);
+            // The current round-robin index of the (unsorted) outputNodes list,
+            // or the index at which to start searching for valid output nodes
+            index = network.roundRobin.getOrDefault(inputNode, 0);
+            // Use an ArrayDeque to perform round-robin sorting
+            // Since the impl for roundRobinSort just does Deque.addLast(Deque#removeFirst)
+            // An ArrayDequeue is preferable as opposed to a LinkedList:
+            // - The number of elements does not change.
+            // - ArrayDequeue has better iterative performance
+            Deque<Location> tempDestinations = new ArrayDeque<>(outputNodes);
+            roundRobinSort(index, tempDestinations);
+            destinations = tempDestinations;
         } else {
-            listView = (outputNodes instanceof List) ? (List<Location>) outputNodes : new ArrayList<>(outputNodes);
+            // Using an ArrayList here since we won't need to sort the destinations
+            // The ArrayList has the best performance for iteration bar a primitive array
+            destinations = new ArrayList<>(outputNodes);
         }
 
-        ItemStackWrapper wrapper = ItemStackWrapper.wrap(item);
+        for (Location output : destinations) {
+            Optional<Block> target = network.getAttachedBlock(output);
 
-        final int size = listView.size();
-        for (int i = 0; i < size && item != null; i++) {
-            Location output = listView.get((startIndex + i) % size);
+            if (target.isPresent()) {
+                ItemStackWrapper wrapper = ItemStackWrapper.wrap(item);
+                item = CargoUtils.insert(
+                        network, inventories, output.getBlock(), target.get(), smartFill, item, wrapper);
 
-            Block target = network.getAttachedBlock(output).orElse(null);
-            if (target != null) {
-                // the wrapper remains valid: type/meta identical, only the quantity decreases
-                item = CargoUtils.insert(network, inventories, output.getBlock(), target, smartFill, item, wrapper);
-
-                if (item == null && roundrobin) {
-                    // success: next search starts after current node
-                    network.roundRobin.put(inputNode, (startIndex + i + 1) % size);
+                if (item == null) {
+                    if (roundrobin) {
+                        // The output was valid, set the round robin index to the node after this one
+                        network.roundRobin.put(inputNode, (index + 1) % outputNodes.size());
+                    }
                     break;
                 }
             }
+            index++;
         }
 
         return item;
+    }
+
+    /**
+     * This method sorts a given {@link Deque} of output node locations using a semi-accurate
+     * round-robin method.
+     *
+     * @param index
+     *            The round-robin index of the input node
+     * @param outputNodes
+     *            A {@link Deque} of {@link Location Locations} of the output nodes
+     */
+    private void roundRobinSort(int index, Deque<Location> outputNodes) {
+        if (index < outputNodes.size()) {
+            // Not ideal but actually not bad performance-wise over more elegant alternatives
+            for (int i = 0; i < index; i++) {
+                Location temp = outputNodes.removeFirst();
+                outputNodes.add(temp);
+            }
+        }
     }
 }

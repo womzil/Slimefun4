@@ -33,7 +33,21 @@ public class GrindStone extends MultiBlockMachine {
 
     @ParametersAreNonnullByDefault
     public GrindStone(ItemGroup itemGroup, SlimefunItemStack item) {
-        super(itemGroup, item, new ItemStack[] { null, null, null, null, new ItemStack(Material.OAK_FENCE), null, null, ItemStackFactory.create(Material.DISPENSER, "Dispenser (Facing up)"), null }, BlockFace.SELF);
+        super(
+                itemGroup,
+                item,
+                new ItemStack[] {
+                    null,
+                    null,
+                    null,
+                    null,
+                    new ItemStack(Material.OAK_FENCE),
+                    null,
+                    null,
+                    ItemStackFactory.create(Material.DISPENSER, "Dispenser (Facing Up)"),
+                    null
+                },
+                BlockFace.SELF);
     }
 
     @Override

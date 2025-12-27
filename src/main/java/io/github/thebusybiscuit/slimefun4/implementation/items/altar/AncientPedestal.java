@@ -1,22 +1,5 @@
 package io.github.thebusybiscuit.slimefun4.implementation.items.altar;
 
-import java.util.Optional;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.block.Block;
-import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.util.Vector;
-
 import io.github.bakedlibs.dough.common.ChatColors;
 import io.github.bakedlibs.dough.items.ItemStackFactory;
 import io.github.bakedlibs.dough.items.ItemUtils;
@@ -35,6 +18,20 @@ import io.github.thebusybiscuit.slimefun4.implementation.listeners.AncientAltarL
 import io.github.thebusybiscuit.slimefun4.implementation.tasks.AncientAltarTask;
 import io.github.thebusybiscuit.slimefun4.utils.ArmorStandUtils;
 import io.github.thebusybiscuit.slimefun4.utils.SlimefunUtils;
+import java.util.Optional;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.block.Block;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.util.Vector;
 
 /**
  * The {@link AncientPedestal} is a part of the {@link AncientAltar}.
@@ -55,7 +52,12 @@ public class AncientPedestal extends SimpleSlimefunItem<BlockDispenseHandler> im
     public static final String ITEM_PREFIX = ChatColors.color("&dALTAR &3Probe - &e");
 
     @ParametersAreNonnullByDefault
-    public AncientPedestal(ItemGroup itemGroup, SlimefunItemStack item, RecipeType recipeType, ItemStack[] recipe, ItemStack recipeOutput) {
+    public AncientPedestal(
+            ItemGroup itemGroup,
+            SlimefunItemStack item,
+            RecipeType recipeType,
+            ItemStack[] recipe,
+            ItemStack recipeOutput) {
         super(itemGroup, item, recipeType, recipe, recipeOutput);
 
         addItemHandler(onBreak());
@@ -167,7 +169,8 @@ public class AncientPedestal extends SimpleSlimefunItem<BlockDispenseHandler> im
             ItemUtils.consumeItem(hand, false);
         }
 
-        Item entity = SlimefunUtils.spawnItem(b.getLocation().add(0.5, 1.2, 0.5), displayItem, ItemSpawnReason.ANCIENT_PEDESTAL_PLACE_ITEM, false, p);
+        Item entity = SlimefunUtils.spawnItem(
+                b.getLocation().add(0.5, 1.2, 0.5), displayItem, ItemSpawnReason.ANCIENT_PEDESTAL_PLACE_ITEM, false, p);
 
         if (entity != null) {
             ArmorStand armorStand = getArmorStand(b, true);

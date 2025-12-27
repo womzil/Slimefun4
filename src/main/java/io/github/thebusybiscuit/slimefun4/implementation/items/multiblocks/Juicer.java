@@ -43,7 +43,21 @@ public class Juicer extends MultiBlockMachine {
 
     @ParametersAreNonnullByDefault
     public Juicer(ItemGroup itemGroup, SlimefunItemStack item) {
-        super(itemGroup, item, new ItemStack[] { null, new ItemStack(Material.GLASS), null, null, new ItemStack(Material.NETHER_BRICK_FENCE), null, null, ItemStackFactory.create(Material.DISPENSER, "Dispenser (Facing up)"), null }, BlockFace.SELF);
+        super(
+                itemGroup,
+                item,
+                new ItemStack[] {
+                    null,
+                    new ItemStack(Material.GLASS),
+                    null,
+                    null,
+                    new ItemStack(Material.NETHER_BRICK_FENCE),
+                    null,
+                    null,
+                    ItemStackFactory.create(Material.DISPENSER, "Dispenser (Facing Up)"),
+                    null
+                },
+                BlockFace.SELF);
     }
 
     @Override

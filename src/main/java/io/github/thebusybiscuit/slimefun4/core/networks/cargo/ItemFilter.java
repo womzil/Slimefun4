@@ -12,22 +12,27 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 
+import com.xzavier0722.mc.plugin.slimefun4.storage.callback.IAsyncReadCallback;
+import com.xzavier0722.mc.plugin.slimefun4.storage.controller.ASlimefunDataContainer;
+import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
+import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunUniversalData;
+import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils;
+
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import io.github.thebusybiscuit.slimefun4.core.debug.Debug;
 import io.github.thebusybiscuit.slimefun4.core.debug.TestCase;
+import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import io.github.thebusybiscuit.slimefun4.implementation.items.cargo.CargoNode;
 import io.github.thebusybiscuit.slimefun4.utils.SlimefunUtils;
 import io.github.thebusybiscuit.slimefun4.utils.itemstack.ItemStackWrapper;
 
-import me.mrCookieSlime.CSCoreLibPlugin.Configuration.Config;
-import me.mrCookieSlime.Slimefun.api.BlockStorage;
-import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
-
 /**
  * The {@link ItemFilter} is a performance-optimization for our {@link CargoNet}.
  * It is a snapshot of a cargo node's configuration.
- * 
+ *
  * @author TheBusyBiscuit
+ * @author StarWishsama
+ * @author Xzavier0722
  * 
  * @see CargoNet
  * @see CargoNetworkTask
@@ -59,7 +64,9 @@ class ItemFilter implements Predicate<ItemStack> {
      * If an {@link ItemFilter} is marked as dirty / outdated, then it will be updated
      * on the next tick.
      */
-    private boolean dirty = false;
+    private volatile boolean dirty = true;
+
+    private volatile boolean isLoading = false;
 
     /**
      * This creates a new {@link ItemFilter} for the given {@link Block}.
@@ -80,13 +87,33 @@ class ItemFilter implements Predicate<ItemStack> {
      *            The {@link Block}
      */
     public void update(@Nonnull Block b) {
-        final Location loc = b.getLocation();
+        if (!isDirty() || isLoading) {
+            return;
+        }
 
-        // Store the returned Config instance to avoid heavy calls
-        Config blockData = BlockStorage.getLocationInfo(loc);
-        String id = blockData.getString("id");
-        SlimefunItem item = SlimefunItem.getById(id);
-        BlockMenu menu = BlockStorage.getInventory(loc);
+        var blockData = StorageCacheUtils.getDataContainer(b.getLocation());
+        if (blockData.isDataLoaded()) {
+            update(blockData);
+        } else {
+            isLoading = true;
+            Slimefun.getDatabaseManager().getBlockDataController().loadDataAsync(blockData, new IAsyncReadCallback<>() {
+                @Override
+                public void onResult(ASlimefunDataContainer result) {
+                    update(blockData);
+                    isLoading = false;
+                }
+            });
+        }
+    }
+
+    private void update(ASlimefunDataContainer data) {
+        if (!isDirty()) {
+            return;
+        }
+
+        SlimefunItem item = SlimefunItem.getById(data.getSfId());
+        var menu =
+                data instanceof SlimefunBlockData sbd ? sbd.getBlockMenu() : ((SlimefunUniversalData) data).getMenu();
 
         if (!(item instanceof CargoNode) || menu == null) {
             // Don't filter for a non-existing item (safety check)
@@ -109,13 +136,21 @@ class ItemFilter implements Predicate<ItemStack> {
                          * However if that ever happens again, we will know the reason and be able
                          * to send a warning in response to it.
                          */
-                        item.warn("Cargo Node was marked as a 'filtering' node but has an insufficient inventory size (" + inventorySize + ")");
+                        item.warn("Cargo Node was marked as a 'filtering' node but has an insufficient inventory size"
+                                + " ("
+                                + inventorySize
+                                + ")");
                         return;
                     }
 
                     this.items.clear();
+                    // TODO: Merge it with the code below
+                    /*
                     this.checkLore = Boolean.parseBoolean(blockData.getString("filter-lore"));
                     this.rejectOnMatch = !"whitelist".equalsIgnoreCase(blockData.getString("filter-type"));
+                     */
+                    this.checkLore = Objects.equals(data.getData("filter-lore"), "true");
+                    this.rejectOnMatch = !Objects.equals(data.getData("filter-type"), "whitelist");
 
                     for (int slot : slots) {
                         ItemStack stack = menu.getItemInSlot(slot);
@@ -148,7 +183,7 @@ class ItemFilter implements Predicate<ItemStack> {
 
     /**
      * Whether this {@link ItemFilter} is outdated and needs to be refreshed.
-     * 
+     *
      * @return Whether the filter is outdated.
      */
     public boolean isDirty() {
@@ -164,6 +199,10 @@ class ItemFilter implements Predicate<ItemStack> {
 
     @Override
     public boolean test(@Nonnull ItemStack item) {
+        if (isDirty()) {
+            return false;
+        }
+
         Debug.log(TestCase.CARGO_INPUT_TESTING, "ItemFilter#test({})", item);
         /*
          * An empty Filter does not need to be iterated over.
@@ -204,5 +243,4 @@ class ItemFilter implements Predicate<ItemStack> {
         }
         return rejectOnMatch;
     }
-
 }

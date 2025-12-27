@@ -45,5 +45,4 @@ public enum AndroidFuelSource {
     public ItemStack getItem() {
         return ItemStackFactory.create(HeadTexture.GENERATOR.getAsItemStack(), "&8\u21E9 &cFuel Input &8\u21E9", lore);
     }
-
 }

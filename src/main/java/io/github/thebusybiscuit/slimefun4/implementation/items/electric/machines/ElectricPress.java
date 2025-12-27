@@ -11,6 +11,7 @@ import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack;
 import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType;
 import io.github.thebusybiscuit.slimefun4.core.attributes.RecipeDisplayItem;
+import io.github.thebusybiscuit.slimefun4.core.attributes.rotations.NotDiagonallyRotatable;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import io.github.thebusybiscuit.slimefun4.implementation.SlimefunItems;
 
@@ -23,7 +24,7 @@ import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.abstractItems.AContainer;
  * @author TheBusyBiscuit
  *
  */
-public class ElectricPress extends AContainer implements RecipeDisplayItem {
+public class ElectricPress extends AContainer implements RecipeDisplayItem, NotDiagonallyRotatable {
 
     @ParametersAreNonnullByDefault
     public ElectricPress(ItemGroup itemGroup, SlimefunItemStack item, RecipeType recipeType, ItemStack[] recipe) {
@@ -100,12 +101,10 @@ public class ElectricPress extends AContainer implements RecipeDisplayItem {
     @Override
     public ItemStack getProgressBar() {
         return new ItemStack(Material.IRON_HOE);
-
     }
 
     @Override
     public String getMachineIdentifier() {
         return "ELECTRIC_PRESS";
-
     }
 }
